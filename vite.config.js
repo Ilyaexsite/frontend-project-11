@@ -1,17 +1,16 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vite';
 
 export default defineConfig({
   server: {
     port: 3000,
-    open: true
+    open: true,
+    host: true 
   },
   build: {
     outDir: 'dist',
-    sourcemap: false,
-    rollupOptions: {
-      output: {
-        manualChunks: undefined
-      }
-    }
+    sourcemap: true,
+  },
+  css: {
+    devSourcemap: true 
   }
-})
+});

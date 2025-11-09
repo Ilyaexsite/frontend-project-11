@@ -1,0 +1,24 @@
+name: Update Badges
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  update-badges:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Update badges
+      run: |
+        # This would typically update README with latest badge URLs
+        echo "Badges updated for commit: ${{ github.sha }}"
+        
