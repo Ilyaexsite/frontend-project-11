@@ -13,18 +13,18 @@ body {
   line-height: 1.5;
 }
 
-/* Контейнер занимает всю высоту */
+
 .min-vh-100 {
   min-height: 100vh;
 }
 
-/* Заголовок */
+
 .display-4 {
   font-weight: 300;
   letter-spacing: -0.02em;
 }
 
-/* Карточка */
+
 .card {
   border: 1px solid var(--border-color);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
@@ -34,7 +34,7 @@ body {
   padding: 2rem !important;
 }
 
-/* Форма */
+
 .form-control {
   border: 1px solid var(--border-color);
   border-right: none;
@@ -52,7 +52,7 @@ body {
   font-size: 1rem;
 }
 
-/* Кнопка */
+
 .btn {
   font-weight: 500;
   border: 1px solid var(--primary-color);
@@ -68,7 +68,7 @@ body {
   background-color: var(--primary-color);
 }
 
-/* Текст */
+
 .lead {
   font-weight: 300;
   font-size: 1.25rem;
@@ -83,7 +83,7 @@ body {
   font-size: 0.875rem;
 }
 
-/* Адаптивность */
+
 @media (max-width: 768px) {
   .card-body {
     padding: 1.5rem !important;
@@ -113,14 +113,12 @@ body {
   }
 }
 
-/* Убираем лишние отступы */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* Плавные анимации */
 .fade-in {
   animation: fadeIn 0.3s ease-in-out;
 }
@@ -136,7 +134,6 @@ body {
   }
 }
 
-/* Стили для уведомлений */
 .alert {
   border: none;
   border-radius: 0.5rem;

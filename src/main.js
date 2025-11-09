@@ -1,91 +1,82 @@
 import './styles/main.css';
 
 document.addEventListener('DOMContentLoaded', function() {
-  const rssForm = document.getElementById('rss-form');
-  const rssUrlInput = document.getElementById('rss-url');
+  const rssForm = document.getElementById('rss-form')
+  const rssUrlInput = document.getElementById('rss-url')
 
   if (rssForm) {
     rssForm.addEventListener('submit', function(event) {
       event.preventDefault();
       
-      const formData = new FormData(rssForm);
-      const rssUrl = formData.get('rss-url').trim();
+      const formData = new FormData(rssForm)
+      const rssUrl = formData.get('rss-url').trim()
       
       if (validateUrl(rssUrl)) {
-        addRssFeed(rssUrl);
+        addRssFeed(rssUrl)
       } else {
-        showMessage('Ссылка должна быть валидным URL', 'error');
+        showMessage('Ссылка должна быть валидным URL', 'error')
       }
-    });
+    })
   }
 
   function validateUrl(url) {
     try {
       new URL(url);
-      return url.startsWith('http');
+      return url.startsWith('http')
     } catch {
-      return false;
+      return false
     }
   }
 
   function addRssFeed(url) {
     return new Promise(function(resolve) {
-      // Показываем состояние загрузки
-      const submitBtn = rssForm.querySelector('button[type="submit"]');
-      const originalText = submitBtn.textContent;
-      submitBtn.textContent = 'Добавление...';
-      submitBtn.disabled = true;
+      const submitBtn = rssForm.querySelector('button[type="submit"]')
+      const originalText = submitBtn.textContent
+      submitBtn.textContent = 'Добавление...'
+      submitBtn.disabled = true
 
-      // Имитируем загрузку RSS
+
       setTimeout(function() {
-        // Восстанавливаем кнопку
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
 
-        // Показываем сообщение об успехе
-        showMessage('RSS успешно добавлен', 'success');
+        showMessage('RSS успешно добавлен', 'success')
+        rssForm.reset()
         
-        // Очищаем форму
-        rssForm.reset();
-        
-        resolve(url);
-      }, 1500);
-    });
+        resolve(url)
+      }, 1500)
+    })
   }
 
   function showMessage(message, type) {
-    // Удаляем предыдущие сообщения
-    const existingAlert = document.querySelector('.alert');
+    const existingAlert = document.querySelector('.alert')
     if (existingAlert) {
-      existingAlert.remove();
+      existingAlert.remove()
     }
 
-    const alertClass = type === 'error' ? 'alert-danger' : 'alert-success';
+    const alertClass = type === 'error' ? 'alert-danger' : 'alert-success'
     const alertHtml = `
       <div class="alert ${alertClass} alert-dismissible fade show mt-4" role="alert">
         ${message}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       </div>
-    `;
-    
-    const cardBody = document.querySelector('.card-body');
+    `
+    const cardBody = document.querySelector('.card-body')
     if (cardBody) {
-      cardBody.insertAdjacentHTML('beforeend', alertHtml);
+      cardBody.insertAdjacentHTML('beforeend', alertHtml)
       
-      // Автоматически скрываем через 5 секунд
       setTimeout(function() {
-        const alert = document.querySelector('.alert');
+        const alert = document.querySelector('.alert')
         if (alert) {
-          alert.remove();
+          alert.remove()
         }
-      }, 5000);
+      }, 5000)
     }
   }
 
-  // Фокус на поле ввода при загрузке
   if (rssUrlInput) {
     setTimeout(function() {
-      rssUrlInput.focus();
-    }, 100);
+      rssUrlInput.focus()
+    }, 100)
   }
-});
+})
