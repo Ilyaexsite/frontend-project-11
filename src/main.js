@@ -1,82 +1,87 @@
 import './styles/main.css';
+import createState, {
+  getFormUrl,
+  getFeeds,
+  setFormState,
+  setFormUrl,
+  setFormErrors,
+  clearForm as clearFormState,
+  addFeed,
+  setNotification,
+} from './state.js';
+import validateRssUrl from './validation.js';
+import { elements, initView } from './view.js';
 
-document.addEventListener('DOMContentLoaded', function() {
-  const rssForm = document.getElementById('rss-form')
-  const rssUrlInput = document.getElementById('rss-url')
-
-  if (rssForm) {
-    rssForm.addEventListener('submit', function(event) {
-      event.preventDefault();
-      
-      const formData = new FormData(rssForm)
-      const rssUrl = formData.get('rss-url').trim()
-      
-      if (validateUrl(rssUrl)) {
-        addRssFeed(rssUrl)
-      } else {
-        showMessage('Ссылка должна быть валидным URL', 'error')
-      }
-    })
-  }
-
-  function validateUrl(url) {
-    try {
-      new URL(url);
-      return url.startsWith('http')
-    } catch {
-      return false
-    }
-  }
-
-  function addRssFeed(url) {
-    return new Promise(function(resolve) {
-      const submitBtn = rssForm.querySelector('button[type="submit"]')
-      const originalText = submitBtn.textContent
-      submitBtn.textContent = 'Добавление...'
-      submitBtn.disabled = true
-
-
-      setTimeout(function() {
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
-
-        showMessage('RSS успешно добавлен', 'success')
-        rssForm.reset()
-        
-        resolve(url)
-      }, 1500)
-    })
-  }
-
-  function showMessage(message, type) {
-    const existingAlert = document.querySelector('.alert')
-    if (existingAlert) {
-      existingAlert.remove()
-    }
-
-    const alertClass = type === 'error' ? 'alert-danger' : 'alert-success'
-    const alertHtml = `
-      <div class="alert ${alertClass} alert-dismissible fade show mt-4" role="alert">
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      </div>
-    `
-    const cardBody = document.querySelector('.card-body')
-    if (cardBody) {
-      cardBody.insertAdjacentHTML('beforeend', alertHtml)
-      
-      setTimeout(function() {
-        const alert = document.querySelector('.alert')
-        if (alert) {
-          alert.remove()
+// Инициализация приложения
+const app = () => {
+  // Создаем состояние приложения
+  const state = createState();
+  
+  // Инициализируем View с наблюдаемым состоянием
+  initView(state, state);
+  
+  const { rssForm, rssUrlInput } = elements;
+  
+  // Обработчик изменения input
+  rssUrlInput.addEventListener('input', (event) => {
+    setFormUrl(state, event.target.value.trim());
+  });
+  
+  // Обработчик отправки формы
+  rssForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    
+    const url = getFormUrl(state);
+    const existingUrls = getFeeds(state);
+    
+    // Начинаем валидацию
+    setFormState(state, 'validating');
+    
+    validateRssUrl(url, existingUrls)
+      .then((validationResult) => {
+        if (!validationResult.isValid) {
+          setFormErrors(state, { url: validationResult.errors });
+          setFormState(state, 'invalid');
+          return;
         }
-      }, 5000)
+        
+        // Валидация прошла успешно - начинаем добавление
+        setFormState(state, 'submitting');
+        
+        // Имитируем добавление RSS (в реальном приложении здесь будет запрос к бэкенду)
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            addFeed(state, url);
+            resolve();
+          }, 1500);
+        });
+      })
+      .then(() => {
+        // Успешное добавление
+        setFormState(state, 'success');
+        setNotification(state, {
+          message: 'RSS успешно добавлен',
+          type: 'success',
+        });
+      })
+      .catch((error) => {
+        // Ошибка при добавлении
+        console.error('Error adding RSS:', error);
+        setFormState(state, 'error');
+        setNotification(state, {
+          message: 'Ошибка при добавлении RSS',
+          type: 'error',
+        });
+      });
+  });
+  
+  // Обработчик сброса формы по Escape
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      clearFormState(state);
     }
-  }
+  });
+};
 
-  if (rssUrlInput) {
-    setTimeout(function() {
-      rssUrlInput.focus()
-    }, 100)
-  }
-})
+// Запуск приложения после загрузки DOM
+document.addEventListener('DOMContentLoaded', app);
