@@ -22,7 +22,6 @@ const app = async () => {
   const state = createState();
   
   state.openModal = (post) => {
-    // Просто отмечаем пост как прочитанный
     state.readPosts.add(post.id);
   };
   
@@ -39,6 +38,7 @@ const app = async () => {
   if (rssForm) {
     rssForm.addEventListener('submit', async (event) => {
       event.preventDefault();
+      event.stopPropagation();
       
       const url = getFormUrl(state);
       const existingUrls = getFeeds(state).map(feed => feed.url);
@@ -57,18 +57,16 @@ const app = async () => {
         
         setFormState(state, 'submitting');
         
-        // Загружаем RSS
         const rssData = await loadRssFeed(url);
         
-        // Добавляем в состояние
         addFeed(state, rssData);
         addPosts(state, rssData.posts.map(post => ({
           ...post,
           feedId: rssData.url,
         })));
         
-        // Успех!
         setFormState(state, 'success');
+        showSuccessMessage();
         
       } catch (error) {
         console.error('Error loading RSS:', error);
@@ -76,6 +74,40 @@ const app = async () => {
         setFormState(state, 'error');
       }
     });
+  }
+  
+  function showSuccessMessage() {
+    // Удаляем предыдущие сообщения
+    const existingAlert = document.querySelector('.alert');
+    if (existingAlert) {
+      existingAlert.remove();
+    }
+    
+    // Создаем сообщение об успехе
+    const successAlert = document.createElement('div');
+    successAlert.className = 'alert alert-success';
+    successAlert.textContent = t('rssLoaded');
+    successAlert.setAttribute('data-testid', 'success-message');
+    
+    // Вставляем перед формой
+    const formContainer = rssForm?.parentNode;
+    if (formContainer) {
+      formContainer.insertBefore(successAlert, rssForm);
+      
+      // Очищаем форму
+      if (rssUrlInput) {
+        rssUrlInput.value = '';
+      }
+      
+      // Сбрасываем состояние через 5 секунд
+      setTimeout(() => {
+        if (successAlert.parentNode) {
+          successAlert.remove();
+        }
+        setFormState(state, 'filling');
+        clearFormState(state);
+      }, 5000);
+    }
   }
   
   document.addEventListener('keydown', (event) => {

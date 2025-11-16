@@ -1,21 +1,13 @@
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  server: {
-    port: 3000,
-    open: true,
-    host: true
-  },
+  base: './',
   build: {
     outDir: 'dist',
-    sourcemap: false,
-    emptyOutDir: true,
+    assetsDir: 'assets',
   },
-  css: {
-    devSourcemap: false
+  server: {
+    port: 3000,
   },
-  define: {
-    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
-    'process.env': {}
-  }
+  publicDir: 'public',
 })
