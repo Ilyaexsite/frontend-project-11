@@ -16,6 +16,7 @@ const initialState = {
     notification: null,
     loading: false,
     error: null,
+    updating: false,
   },
 };
 
@@ -33,10 +34,12 @@ const getFormUrl = (state) => state.form.fields.url;
 const getFormErrors = (state) => state.form.errors;
 const getFeeds = (state) => state.feeds;
 const getPosts = (state) => state.posts;
+const getPostsByFeed = (state, feedUrl) => state.posts.filter(post => post.feedId === feedUrl);
 const getNotification = (state) => state.ui.notification;
 const getLanguage = (state) => state.lng;
 const getLoading = (state) => state.ui.loading;
 const getError = (state) => state.ui.error;
+const getUpdating = (state) => state.ui.updating;
 
 // Сеттеры
 const setFormState = (state, newState) => {
@@ -71,9 +74,13 @@ const addFeed = (state, feedData) => {
 const addPosts = (state, postsData) => {
   const newPosts = postsData.map(post => ({
     ...post,
-    feedId: postsData.feedId,
+    feedId: postsData.feedId || post.feedId,
   }));
   
+  state.posts = [...state.posts, ...newPosts];
+};
+
+const addNewPosts = (state, newPosts) => {
   state.posts = [...state.posts, ...newPosts];
 };
 
@@ -101,28 +108,36 @@ const clearError = (state) => {
   state.ui.error = null;
 };
 
+const setUpdating = (state, updating) => {
+  state.ui.updating = updating;
+};
+
 export {
   getFormState,
   getFormUrl,
   getFormErrors,
   getFeeds,
   getPosts,
+  getPostsByFeed,
   getNotification,
   getLanguage,
   getLoading,
   getError,
+  getUpdating,
   setFormState,
   setFormUrl,
   setFormErrors,
   clearForm,
   addFeed,
   addPosts,
+  addNewPosts,
   setNotification,
   clearNotification,
   setLanguage,
   setLoading,
   setError,
   clearError,
+  setUpdating,
 };
 
 export default createState;

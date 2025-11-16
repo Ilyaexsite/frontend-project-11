@@ -3,26 +3,62 @@ import { initI18n, t } from './i18n.js';
 import createState, {
   getFormUrl,
   getFeeds,
+  getPostsByFeed,
   setFormState,
   setFormUrl,
   setFormErrors,
   clearForm as clearFormState,
   addFeed,
   addPosts,
+  addNewPosts,
   setNotification,
   setLanguage,
   setLoading,
   setError,
   clearError,
+  setUpdating,
 } from './state.js';
 import { validateRssUrl } from './validation.js';
-import { loadRssFeed } from './rss.js';
+import { loadRssFeed, checkFeedUpdates } from './rss.js';
 import { elements, initView } from './view.js';
+import FeedUpdater from './updater.js';
+
+// Глобальная переменная для обновлятеля фидов
+let feedUpdater = null;
+
+// Функция для обработки обновлений фидов
+const handleFeedUpdate = (state) => async (feedUrl) => {
+  const existingPosts = getPostsByFeed(state, feedUrl);
+  
+  try {
+    const updateResult = await checkFeedUpdates(feedUrl, existingPosts);
+    
+    if (updateResult.newPosts.length > 0) {
+      addNewPosts(state, updateResult.newPosts);
+      
+      // Показываем уведомление о новых постах
+      setNotification(state, {
+        message: `Добавлено ${updateResult.newPosts.length} новых постов из ${feedUrl}`,
+        type: 'success',
+      });
+      
+      console.log(`Added ${updateResult.newPosts.length} new posts from ${feedUrl}`);
+    }
+    
+    return updateResult;
+  } catch (error) {
+    console.error(`Error in handleFeedUpdate for ${feedUrl}:`, error);
+    return { newPosts: [], feedUrl, error: error.message };
+  }
+};
 
 const app = async () => {
   await initI18n();
   
   const state = createState();
+  
+  // Инициализируем обновлятель фидов
+  feedUpdater = new FeedUpdater(handleFeedUpdate(state), 5000);
   
   initView(state, state);
   
@@ -66,6 +102,10 @@ const app = async () => {
           feedId: rssData.url,
         })));
         
+        // Добавляем фид в обновлятель и перезапускаем его
+        feedUpdater.addFeed({ url: rssData.url });
+        feedUpdater.start();
+        
         setFormState(state, 'success');
         setNotification(state, {
           message: t('notifications.success'),
@@ -94,6 +134,18 @@ const app = async () => {
     });
   }
   
+  // Наблюдаем за изменениями списка фидов для обновления обновлятеля
+  state.feeds = onChange(state.feeds, () => {
+    if (feedUpdater) {
+      feedUpdater.setFeeds(getFeeds(state));
+      if (state.feeds.length > 0) {
+        feedUpdater.start();
+      } else {
+        feedUpdater.stop();
+      }
+    }
+  });
+  
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
       clearFormState(state);
@@ -103,6 +155,19 @@ const app = async () => {
       const currentLng = i18next.language;
       const newLng = currentLng === 'ru' ? 'en' : 'ru';
       setLanguage(state, newLng);
+    }
+  });
+  
+  // Запускаем обновлятель при инициализации, если есть фиды
+  if (getFeeds(state).length > 0) {
+    feedUpdater.setFeeds(getFeeds(state));
+    feedUpdater.start();
+  }
+  
+  // Останавливаем обновлятель при закрытии страницы
+  window.addEventListener('beforeunload', () => {
+    if (feedUpdater) {
+      feedUpdater.stop();
     }
   });
 };

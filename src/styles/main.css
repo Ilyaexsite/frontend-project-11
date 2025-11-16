@@ -281,3 +281,40 @@ body {
 #posts-container .card {
   border: 1px solid #e9ecef;
 }
+
+/* Стили для статуса обновления */
+#update-status {
+  font-size: 0.875rem;
+}
+
+/* Анимация для новых постов */
+@keyframes highlight {
+  0% {
+    background-color: rgba(40, 167, 69, 0.1);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.new-post {
+  animation: highlight 2s ease-in-out;
+}
+
+/* Индикатор обновления */
+.updating::after {
+  content: '';
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #0d6efd;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 8px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

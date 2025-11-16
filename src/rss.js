@@ -55,7 +55,7 @@ const parseRssData = (xmlString) => {
     const description = item.querySelector('description')?.textContent || '';
     
     return {
-      id: `post-${Date.now()}-${index}`,
+      id: `${link}-${title}`.replace(/[^a-zA-Z0-9]/g, '-'), // Уникальный ID на основе ссылки и заголовка
       title,
       link,
       description,
@@ -81,4 +81,29 @@ const loadRssFeed = (url) => {
     }));
 };
 
-export { loadRssFeed, parseRssData, fetchRssData };
+// Функция для проверки обновлений фида
+const checkFeedUpdates = (url, existingPosts) => {
+  return loadRssFeed(url)
+    .then((newData) => {
+      const existingPostIds = new Set(existingPosts.map(post => post.id));
+      const newPosts = newData.posts.filter(post => !existingPostIds.has(post.id));
+      
+      return {
+        newPosts: newPosts.map(post => ({
+          ...post,
+          feedId: url,
+        })),
+        feedUrl: url,
+      };
+    })
+    .catch((error) => {
+      console.error(`Error checking updates for ${url}:`, error);
+      return {
+        newPosts: [],
+        feedUrl: url,
+        error: error.message,
+      };
+    });
+};
+
+export { loadRssFeed, parseRssData, fetchRssData, checkFeedUpdates };

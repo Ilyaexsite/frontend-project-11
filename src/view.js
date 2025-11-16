@@ -1,6 +1,6 @@
-import { t } from './i18n.js';
-import i18next from './i18n.js';
-import onChange from 'on-change';
+import { t } from './i18n.js'
+import i18next from './i18n.js'
+import onChange from 'on-change'
 
 const elements = {
   rssForm: document.getElementById('rss-form'),
@@ -12,7 +12,18 @@ const elements = {
   appDescription: document.querySelector('.lead'),
   exampleText: document.querySelector('.form-text'),
   createdBy: document.querySelector('.text-muted.small'),
-};
+  updateStatus: document.getElementById('update-status'),
+}
+
+const createUpdateStatusElement = () => {
+  if (!elements.updateStatus) {
+    const statusElement = document.createElement('div')
+    statusElement.id = 'update-status'
+    statusElement.className = 'text-center mb-3'
+    document.querySelector('.container').insertBefore(statusElement, document.querySelector('.row'))
+    elements.updateStatus = statusElement
+  }
+}
 
 const updateUITexts = () => {
   const {
@@ -22,113 +33,130 @@ const updateUITexts = () => {
     createdBy,
     rssUrlInput,
     submitButton,
-  } = elements;
+  } = elements
 
-  if (appTitle) appTitle.textContent = t('app.title');
-  if (appDescription) appDescription.textContent = t('app.description');
-  if (exampleText) exampleText.innerHTML = t('form.example', { example: '<strong>https://lorem-rss.hexlet.app/feed</strong>' });
-  if (createdBy) createdBy.textContent = t('app.createdBy');
-  if (rssUrlInput) rssUrlInput.placeholder = t('form.placeholder');
-  if (submitButton) submitButton.textContent = t('form.submit');
-};
+  if (appTitle) appTitle.textContent = t('app.title')
+  if (appDescription) appDescription.textContent = t('app.description')
+  if (exampleText) exampleText.innerHTML = t('form.example', { example: '<strong>https://lorem-rss.hexlet.app/feed</strong>' })
+  if (createdBy) createdBy.textContent = t('app.createdBy')
+  if (rssUrlInput) rssUrlInput.placeholder = t('form.placeholder')
+  if (submitButton) submitButton.textContent = t('form.submit')
+}
+
+const showUpdateStatus = (message, type = 'info') => {
+  createUpdateStatusElement()
+  
+  const statusClass = type === 'error' ? 'text-danger' : 'text-success'
+  elements.updateStatus.innerHTML = `
+    <small class="${statusClass}">
+      <i class="bi bi-arrow-repeat"></i> ${message}
+    </small>
+  `
+}
+
+const clearUpdateStatus = () => {
+  if (elements.updateStatus) {
+    elements.updateStatus.innerHTML = ''
+  }
+}
 
 const showValidationError = (input, message) => {
-  input.classList.add('is-invalid');
+  input.classList.add('is-invalid')
   
-  const existingFeedback = input.parentNode.querySelector('.invalid-feedback');
+  const existingFeedback = input.parentNode.querySelector('.invalid-feedback')
   if (existingFeedback) {
-    existingFeedback.remove();
+    existingFeedback.remove()
   }
   
-  const feedback = document.createElement('div');
-  feedback.className = 'invalid-feedback';
-  feedback.textContent = message;
-  input.parentNode.appendChild(feedback);
-};
+  const feedback = document.createElement('div')
+  feedback.className = 'invalid-feedback'
+  feedback.textContent = message
+  input.parentNode.appendChild(feedback)
+}
 
 const clearValidationError = (input) => {
-  input.classList.remove('is-invalid');
+  input.classList.remove('is-invalid')
   
-  const existingFeedback = input.parentNode.querySelector('.invalid-feedback');
+  const existingFeedback = input.parentNode.querySelector('.invalid-feedback')
   if (existingFeedback) {
-    existingFeedback.remove();
+    existingFeedback.remove()
   }
-};
+}
 
 const showSuccessValidation = (input) => {
-  input.classList.remove('is-invalid');
-  input.classList.add('is-valid');
-};
+  input.classList.remove('is-invalid')
+  input.classList.add('is-valid')
+}
 
 const clearSuccessValidation = (input) => {
-  input.classList.remove('is-valid');
-};
+  input.classList.remove('is-valid')
+}
 
 const showNotification = (message, type = 'success') => {
-  const existingAlert = document.querySelector('.alert');
+  const existingAlert = document.querySelector('.alert')
   if (existingAlert) {
-    existingAlert.remove();
+    existingAlert.remove()
   }
   
-  const alertClass = type === 'error' ? 'alert-danger' : 'alert-success';
+  const alertClass = type === 'error' ? 'alert-danger' : 'alert-success'
   const alertHtml = `
     <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
       ${message}
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
-  `;
+  `
   
-  const container = document.querySelector('.container');
+  const container = document.querySelector('.container')
   if (container) {
-    container.insertAdjacentHTML('afterbegin', alertHtml);
+    container.insertAdjacentHTML('afterbegin', alertHtml)
     
     setTimeout(() => {
-      const alert = document.querySelector('.alert');
+      const alert = document.querySelector('.alert')
       if (alert) {
-        alert.remove();
+        alert.remove()
       }
-    }, 5000);
+    }, 5000)
   }
-};
+}
 
 const setFormSubmitting = (isSubmitting) => {
-  const { submitButton, rssUrlInput } = elements;
+  const { submitButton, rssUrlInput } = elements
   
   if (isSubmitting) {
-    submitButton.disabled = true;
-    submitButton.textContent = t('form.submitting');
-    rssUrlInput.disabled = true;
+    submitButton.disabled = true
+    submitButton.textContent = t('form.submitting')
+    rssUrlInput.disabled = true
   } else {
-    submitButton.disabled = false;
-    submitButton.textContent = t('form.submit');
-    rssUrlInput.disabled = false;
+    submitButton.disabled = false
+    submitButton.textContent = t('form.submit')
+    rssUrlInput.disabled = false
   }
-};
+}
 
 const clearForm = () => {
-  const { rssUrlInput } = elements;
+  const { rssUrlInput } = elements
   
-  rssUrlInput.value = '';
-  clearValidationError(rssUrlInput);
-  clearSuccessValidation(rssUrlInput);
+  rssUrlInput.value = ''
+  clearValidationError(rssUrlInput)
+  clearSuccessValidation(rssUrlInput)
   
   setTimeout(() => {
-    rssUrlInput.focus();
-  }, 100);
-};
+    rssUrlInput.focus()
+  }, 100)
+}
 
 const updateFeedsList = (feeds) => {
-  const { feedsContainer } = elements;
+  const { feedsContainer } = elements
   
-  if (!feedsContainer) return;
+  if (!feedsContainer) return
   
   if (feeds.length === 0) {
     feedsContainer.innerHTML = `
       <div class="text-center text-muted py-5">
         <p class="fs-5">${t('feeds.empty')}</p>
       </div>
-    `;
-    return;
+    `
+    return
   }
   
   const feedsHtml = feeds.map((feed) => `
@@ -142,138 +170,130 @@ const updateFeedsList = (feeds) => {
         </div>
       </div>
     </div>
-  `).join('');
+  `).join('')
   
   feedsContainer.innerHTML = `
     <h3 class="h3 mb-4 text-dark">Фиды</h3>
     ${feedsHtml}
-  `;
-};
+  `
+}
 
 const updatePostsList = (posts) => {
-  const { postsContainer } = elements;
+  const { postsContainer } = elements
   
-  if (!postsContainer) return;
+  if (!postsContainer) return
   
   if (posts.length === 0) {
     postsContainer.innerHTML = `
       <div class="text-center text-muted py-4">
-        <p class="fs-6">Пока нет постов</p>
+        <p class="fs-6">Пока нет постов. Новые посты будут появляться автоматически.</p>
       </div>
-    `;
-    return;
+    `
+    return
   }
   
-  // Группируем посты по фидам
-  const postsByFeed = posts.reduce((acc, post) => {
-    if (!acc[post.feedId]) {
-      acc[post.feedId] = [];
-    }
-    acc[post.feedId].push(post);
-    return acc;
-  }, {});
+  const sortedPosts = [...posts].reverse()
   
-  const postsHtml = Object.entries(postsByFeed).map(([feedId, feedPosts]) => {
-    const feedPostsHtml = feedPosts.map((post) => `
-      <div class="mb-3">
-        <a href="${post.link}" class="post-link text-decoration-none" target="_blank" rel="noopener noreferrer">
-          <div class="card border-0 bg-light-hover">
-            <div class="card-body py-3">
-              <h6 class="card-title mb-2 text-dark">${post.title}</h6>
-              <p class="card-text text-muted small mb-0">${post.description.substring(0, 100)}${post.description.length > 100 ? '...' : ''}</p>
-            </div>
+  const postsHtml = sortedPosts.map((post) => `
+    <div class="mb-3 fade-in">
+      <a href="${post.link}" class="post-link text-decoration-none" target="_blank" rel="noopener noreferrer">
+        <div class="card border-0 bg-light-hover">
+          <div class="card-body py-3">
+            <h6 class="card-title mb-2 text-dark">${post.title}</h6>
+            <p class="card-text text-muted small mb-0">${post.description.substring(0, 100)}${post.description.length > 100 ? '...' : ''}</p>
+            <small class="text-muted">Из: ${post.feedId}</small>
           </div>
-        </a>
-      </div>
-    `).join('');
-    
-    return `
-      <div class="mb-4">
-        ${feedPostsHtml}
-      </div>
-    `;
-  }).join('');
+        </div>
+      </a>
+    </div>
+  `).join('')
   
   postsContainer.innerHTML = `
-    <h3 class="h3 mb-4 text-dark">Посты</h3>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 class="h3 text-dark mb-0">Посты</h3>
+      <small class="text-muted">Автообновление каждые 5 секунд</small>
+    </div>
     ${postsHtml}
-  `;
-};
+  `
+}
 
 const initView = (state, watchedState) => {
-  updateUITexts();
+  updateUITexts()
+  createUpdateStatusElement()
   
   i18next.on('languageChanged', () => {
-    updateUITexts();
-    updateFeedsList(watchedState.feeds);
-    updatePostsList(watchedState.posts);
-  });
+    updateUITexts()
+    updateFeedsList(watchedState.feeds)
+    updatePostsList(watchedState.posts)
+  })
   
-  const { rssUrlInput } = elements;
+  const { rssUrlInput } = elements
   
   watchedState.form.state = onChange(watchedState.form.state, (path, value) => {
     switch (value) {
       case 'validating':
-        setFormSubmitting(false);
-        clearValidationError(rssUrlInput);
-        break;
+        setFormSubmitting(false)
+        clearValidationError(rssUrlInput)
+        break
         
       case 'invalid':
-        setFormSubmitting(false);
-        const errors = watchedState.form.errors.url || [];
+        setFormSubmitting(false)
+        const errors = watchedState.form.errors.url || []
         if (errors.length > 0) {
-          showValidationError(rssUrlInput, errors[0]);
+          showValidationError(rssUrlInput, errors[0])
         }
-        break;
+        break
         
       case 'submitting':
-        setFormSubmitting(true);
-        clearValidationError(rssUrlInput);
-        showSuccessValidation(rssUrlInput);
-        break;
+        setFormSubmitting(true)
+        clearValidationError(rssUrlInput)
+        showSuccessValidation(rssUrlInput)
+        break
         
       case 'success':
-        setFormSubmitting(false);
-        clearForm();
-        updateFeedsList(watchedState.feeds);
-        updatePostsList(watchedState.posts);
-        showNotification(t('notifications.success'), 'success');
-        watchedState.form.state = 'filling';
-        break;
+        setFormSubmitting(false)
+        clearForm()
+        updateFeedsList(watchedState.feeds)
+        updatePostsList(watchedState.posts)
+        showNotification(t('notifications.success'), 'success')
+        watchedState.form.state = 'filling'
+        break
         
       case 'error':
-        setFormSubmitting(false);
-        showNotification(t('notifications.error'), 'error');
-        watchedState.form.state = 'filling';
-        break;
+        setFormSubmitting(false)
+        showNotification(t('notifications.error'), 'error')
+        watchedState.form.state = 'filling'
+        break
         
       default:
-        break;
+        break
     }
-  });
+  })
   
   watchedState.feeds = onChange(watchedState.feeds, () => {
-    updateFeedsList(watchedState.feeds);
-  });
+    updateFeedsList(watchedState.feeds)
+  })
   
   watchedState.posts = onChange(watchedState.posts, () => {
-    updatePostsList(watchedState.posts);
-  });
+    updatePostsList(watchedState.posts)
+  })
   
   watchedState.ui.notification = onChange(watchedState.ui.notification, (path, value) => {
     if (value) {
-      showNotification(value.message, value.type);
+      showNotification(value.message, value.type)
     }
-  });
+  })
   
   watchedState.lng = onChange(watchedState.lng, (path, value) => {
-    i18next.changeLanguage(value);
-  });
+    i18next.changeLanguage(value)
+  })
+  
+  showUpdateStatus('Автообновление включено')
   
   setTimeout(() => {
-    if (rssUrlInput) rssUrlInput.focus();
-  }, 100);
-};
+    if (rssUrlInput) rssUrlInput.focus()
+  }, 100)
+}
 
 export {
   elements,
@@ -288,4 +308,6 @@ export {
   updatePostsList,
   initView,
   updateUITexts,
-};
+  showUpdateStatus,
+  clearUpdateStatus,
+}
