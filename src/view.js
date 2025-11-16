@@ -1,25 +1,25 @@
 import { t } from './i18n.js';
 import onChange from 'on-change';
 
-// Инициализируем элементы как пустой объект, заполним позже
-let elements = {};
+// Создаем объект с геттерами чтобы всегда получать актуальные элементы
+const elements = {
+  get rssForm() { return document.getElementById('rss-form'); },
+  get rssUrlInput() { return document.getElementById('url-input'); },
+  get submitButton() { return document.querySelector('button[type="submit"]'); },
+  get feedsContainer() { return document.getElementById('feeds-container'); },
+  get postsContainer() { return document.getElementById('posts-container'); },
+};
 
-const initElements = () => {
-  elements = {
-    rssForm: document.getElementById('rss-form'),
-    rssUrlInput: document.getElementById('url-input'),
-    submitButton: document.querySelector('button[type="submit"]'),
-    feedsContainer: document.getElementById('feeds-container'),
-    postsContainer: document.getElementById('posts-container'),
-  };
-  
-  console.log('🔍 View elements initialized:', {
+// Функция для проверки что элементы найдены
+const checkElements = () => {
+  console.log('🔍 Checking elements:', {
     form: !!elements.rssForm,
     input: !!elements.rssUrlInput,
     button: !!elements.submitButton,
     feeds: !!elements.feedsContainer,
     posts: !!elements.postsContainer
   });
+  return elements.rssForm && elements.rssUrlInput;
 };
 
 const createFeedbackElement = () => {
@@ -28,7 +28,7 @@ const createFeedbackElement = () => {
     feedback = document.createElement('div');
     feedback.id = 'feedback';
     feedback.className = 'mb-3';
-    const form = document.getElementById('rss-form');
+    const form = elements.rssForm;
     if (form) {
       form.parentNode.insertBefore(feedback, form);
       console.log('✅ Feedback element created and inserted before form');
@@ -221,8 +221,8 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
 const initView = (state, watchedState) => {
   console.log('🚀 View initializing...');
   
-  // Инициализируем элементы здесь, когда DOM точно загружен
-  initElements();
+  // Проверяем элементы
+  checkElements();
   
   const { rssUrlInput } = elements;
   
@@ -324,5 +324,5 @@ const initView = (state, watchedState) => {
 export {
   elements,
   initView,
-  initElements // экспортируем для тестирования
+  checkElements
 };

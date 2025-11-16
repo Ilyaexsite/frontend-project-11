@@ -32,38 +32,35 @@ const app = async () => {
   initView(state, state);
   console.log('✅ View initialized');
   
+  // ДОБАВЛЕНО: Ждем немного чтобы элементы точно были в DOM
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
   const { rssForm, rssUrlInput } = elements;
   
-  console.log('📋 Main.js elements:', {
+  console.log('📋 Main.js elements after initView:', {
     form: !!rssForm,
     input: !!rssUrlInput,
     formId: rssForm?.id,
     inputId: rssUrlInput?.id
   });
   
-  // Детальная проверка формы
-  if (rssForm) {
-    console.log('🔍 Form details:', {
-      tagName: rssForm.tagName,
-      id: rssForm.id,
-      className: rssForm.className,
-      action: rssForm.action,
-      method: rssForm.method
+  if (rssUrlInput) {
+    console.log('✅ Adding input handler');
+    rssUrlInput.addEventListener('input', (event) => {
+      console.log('📝 Input changed:', event.target.value);
+      setFormUrl(state, event.target.value.trim());
     });
-    
+  } else {
+    console.error('❌ Input element not found!');
+  }
+  
+  if (rssForm) {
     console.log('✅ Adding submit handler to form');
     
     const formHandler = async (event) => {
       console.log('🎯 MAIN.JS FORM SUBMIT EVENT FIRED!');
-      console.log('🔍 Event details:', {
-        type: event.type,
-        target: event.target.id,
-        defaultPrevented: event.defaultPrevented
-      });
-      
       event.preventDefault();
       event.stopPropagation();
-      console.log('✅ Event prevented and propagation stopped');
       
       console.log('=== FORM SUBMISSION STARTED ===');
       
@@ -120,30 +117,11 @@ const app = async () => {
     rssForm.addEventListener('submit', formHandler);
     console.log('✅ Submit handler added to form');
     
-    // Проверим что обработчик действительно добавлен
-    console.log('🔍 Form event listeners:', {
-      submit: rssForm._listeners ? 'custom property' : 'need to check differently'
-    });
-    
   } else {
     console.error('❌ Form element not found!');
-    // Попробуем найти форму другим способом
+    // Попробуем найти форму заново
     const formById = document.getElementById('rss-form');
-    const formByQuery = document.querySelector('#rss-form');
-    console.log('🔍 Alternative form search:', {
-      byId: !!formById,
-      byQuery: !!formByQuery
-    });
-  }
-  
-  if (rssUrlInput) {
-    console.log('✅ Adding input handler');
-    rssUrlInput.addEventListener('input', (event) => {
-      console.log('📝 Input changed:', event.target.value);
-      setFormUrl(state, event.target.value.trim());
-    });
-  } else {
-    console.error('❌ Input element not found!');
+    console.log('🔍 Form search by ID:', !!formById);
   }
   
   document.addEventListener('keydown', (event) => {
