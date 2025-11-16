@@ -196,7 +196,7 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
   
   const postsHtml = posts.map((post) => {
     const isRead = readPosts.has(post.id);
-    const titleClass = isRead ? 'fw-normal' : 'fw-bold';
+    const titleClass = isRead ? 'fw-normal text-dark text-decoration-none' : 'fw-bold text-dark text-decoration-none';
     
     return `
     <div class="list-group-item d-flex justify-content-between align-items-start border-0">
