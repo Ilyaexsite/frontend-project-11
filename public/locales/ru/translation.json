@@ -1,38 +1,14 @@
 {
-  "app": {
-    "title": "RSS агрегатор",
-    "description": "Начните читать RSS сегодня! Это легко, это красиво.",
-    "createdBy": "created by Hexlet"
-  },
-  "form": {
-    "label": "Ссылка RSS",
-    "placeholder": "ссылка RSS", 
-    "submit": "Добавить",
-    "submitting": "Добавление...",
-    "example": "Пример: https://lorem-rss.hexlet.app/feed"
-  },
+  "rssLoaded": "RSS успешно загружен",
   "errors": {
     "required": "Не должно быть пустым",
     "url": "Ссылка должна быть валидным URL",
     "notOneOf": "RSS уже существует",
     "network": "Ошибка сети",
-    "rss": "Ресурс не содержит валидный RSS",
-    "unknown": "Неизвестная ошибка. Попробуйте снова."
+    "invalidRss": "Ресурс не содержит валидный RSS",
+    "unknown": "Неизвестная ошибка"
   },
-  "notifications": {
-    "success": "RSS успешно загружен",
-    "error": "Ошибка сети",
-    "networkError": "Ошибка сети", 
-    "rssError": "Ресурс не содержит валидный RSS"
-  },
-  "feeds": {
-    "empty": "Пока нет RSS потоков. Добавьте первый!",
-    "added": "RSS поток успешно добавлен",
-    "title": "Фиды"
-  },
-  "posts": {
-    "title": "Посты",
-    "view": "Просмотр",
-    "empty": "Пока нет постов. Новые посты будут появляться автоматически."
-  }
+  "feeds": "Фиды",
+  "posts": "Посты",
+  "view": "Просмотр"
 }
