@@ -1,5 +1,5 @@
-import './styles/main.css'
-import { initI18n, t } from './i18n.js'
+import './styles/main.css';
+import { initI18n, t } from './i18n.js';
 import createState, {
   getFormUrl,
   getFeeds,
@@ -8,84 +8,103 @@ import createState, {
   setFormErrors,
   clearForm as clearFormState,
   addFeed,
+  addPosts,
   setNotification,
   setLanguage,
-} from './state.js'
-import { validateRssUrl } from './validation.js'
-import { elements, initView } from './view.js'
+  setLoading,
+  setError,
+  clearError,
+} from './state.js';
+import { validateRssUrl } from './validation.js';
+import { loadRssFeed } from './rss.js';
+import { elements, initView } from './view.js';
 
 const app = async () => {
-  await initI18n()
+  await initI18n();
   
-  const state = createState()
+  const state = createState();
   
-  initView(state, state)
+  initView(state, state);
   
-  const { rssForm, rssUrlInput } = elements
+  const { rssForm, rssUrlInput } = elements;
   
   if (rssUrlInput) {
     rssUrlInput.addEventListener('input', (event) => {
-      setFormUrl(state, event.target.value.trim())
-    })
+      setFormUrl(state, event.target.value.trim());
+    });
   }
   
   if (rssForm) {
     rssForm.addEventListener('submit', async (event) => {
-      event.preventDefault()
+      event.preventDefault();
       
-      const url = getFormUrl(state)
-      const existingUrls = getFeeds(state).map(feed => feed.url)
+      const url = getFormUrl(state);
+      const existingUrls = getFeeds(state).map(feed => feed.url);
       
-      setFormState(state, 'validating')
+      setFormState(state, 'validating');
+      clearError(state);
       
       try {
-        const validationResult = await validateRssUrl(url, existingUrls)
+        const validationResult = await validateRssUrl(url, existingUrls);
         
         if (!validationResult.isValid) {
-          setFormErrors(state, { url: validationResult.errors })
-          setFormState(state, 'invalid')
-          return
+          setFormErrors(state, { url: validationResult.errors });
+          setFormState(state, 'invalid');
+          return;
         }
         
-        setFormState(state, 'submitting')
+        setFormState(state, 'submitting');
+        setLoading(state, true);
         
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            addFeed(state, url)
-            resolve()
-          }, 1500)
-        })
+        // Загружаем и парсим RSS
+        const rssData = await loadRssFeed(url);
         
-        setFormState(state, 'success')
+        // Добавляем фид и посты в состояние
+        addFeed(state, rssData);
+        addPosts(state, rssData.posts.map(post => ({
+          ...post,
+          feedId: rssData.url,
+        })));
+        
+        setFormState(state, 'success');
         setNotification(state, {
           message: t('notifications.success'),
           type: 'success',
-        })
+        });
         
       } catch (error) {
-        console.error('Error adding RSS:', error)
-        setFormState(state, 'error')
+        console.error('Error loading RSS:', error);
+        
+        let errorMessage = t('notifications.error');
+        if (error.message === 'networkError') {
+          errorMessage = t('notifications.networkError');
+        } else if (error.message === 'rssError') {
+          errorMessage = t('notifications.rssError');
+        }
+        
+        setFormState(state, 'error');
         setNotification(state, {
-          message: t('notifications.error'),
+          message: errorMessage,
           type: 'error',
-        })
+        });
+        setError(state, error.message);
+      } finally {
+        setLoading(state, false);
       }
-    })
+    });
   }
   
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
-      clearFormState(state)
+      clearFormState(state);
     }
-  })
-  
-  document.addEventListener('keydown', (event) => {
+    
     if (event.ctrlKey && event.key === 'l') {
-      const currentLng = i18next.language
-      const newLng = currentLng === 'ru' ? 'en' : 'ru'
-      setLanguage(state, newLng)
+      const currentLng = i18next.language;
+      const newLng = currentLng === 'ru' ? 'en' : 'ru';
+      setLanguage(state, newLng);
     }
-  })
-}
+  });
+};
 
-document.addEventListener('DOMContentLoaded', app)
+document.addEventListener('DOMContentLoaded', app);

@@ -262,3 +262,22 @@ body {
 .pt-4 {
   padding-top: 1.5rem !important;
 }
+.post-link:hover .bg-light-hover {
+  background-color: #f8f9fa !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.bg-light-hover {
+  transition: all 0.2s ease;
+  border-radius: 8px;
+}
+
+/* Улучшенные отступы для постов */
+#posts-container {
+  margin-top: 2rem;
+}
+
+#posts-container .card {
+  border: 1px solid #e9ecef;
+}

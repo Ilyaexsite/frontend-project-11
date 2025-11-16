@@ -1,11 +1,13 @@
 import { t } from './i18n.js';
 import i18next from './i18n.js';
+import onChange from 'on-change';
 
 const elements = {
   rssForm: document.getElementById('rss-form'),
   rssUrlInput: document.getElementById('rss-url'),
   submitButton: document.querySelector('button[type="submit"]'),
   feedsContainer: document.getElementById('feeds-container'),
+  postsContainer: document.getElementById('posts-container'),
   appTitle: document.querySelector('h1'),
   appDescription: document.querySelector('.lead'),
   exampleText: document.querySelector('.form-text'),
@@ -129,26 +131,72 @@ const updateFeedsList = (feeds) => {
     return;
   }
   
-  const feedsHtml = feeds.map((feed, index) => `
+  const feedsHtml = feeds.map((feed) => `
     <div class="feed-card card mb-4 fade-in">
       <div class="card-body p-4">
-        <div class="d-flex align-items-start">
-          <span class="badge bg-primary fs-6 me-3 mt-1" style="padding: 0.5rem 0.75rem;">${index + 1}</span>
-          <div class="flex-grow-1">
-            <h5 class="card-title mb-2 fs-5">${feed.title}</h5>
-            <p class="card-text text-success mb-2 fs-6">
-              <strong>✓ ${t('feeds.added')}</strong>
-            </p>
-            <small class="text-muted fs-6">${feed.url}</small>
-          </div>
+        <h5 class="card-title mb-3 fs-5 text-primary">${feed.title}</h5>
+        <p class="card-text text-muted mb-3">${feed.description}</p>
+        <div class="d-flex justify-content-between align-items-center">
+          <small class="text-muted">${feed.url}</small>
+          <span class="badge bg-success">✓ Добавлен</span>
         </div>
       </div>
     </div>
   `).join('');
   
   feedsContainer.innerHTML = `
-    <h3 class="h3 mb-4 text-dark">${t('feeds.title')}</h3>
+    <h3 class="h3 mb-4 text-dark">Фиды</h3>
     ${feedsHtml}
+  `;
+};
+
+const updatePostsList = (posts) => {
+  const { postsContainer } = elements;
+  
+  if (!postsContainer) return;
+  
+  if (posts.length === 0) {
+    postsContainer.innerHTML = `
+      <div class="text-center text-muted py-4">
+        <p class="fs-6">Пока нет постов</p>
+      </div>
+    `;
+    return;
+  }
+  
+  // Группируем посты по фидам
+  const postsByFeed = posts.reduce((acc, post) => {
+    if (!acc[post.feedId]) {
+      acc[post.feedId] = [];
+    }
+    acc[post.feedId].push(post);
+    return acc;
+  }, {});
+  
+  const postsHtml = Object.entries(postsByFeed).map(([feedId, feedPosts]) => {
+    const feedPostsHtml = feedPosts.map((post) => `
+      <div class="mb-3">
+        <a href="${post.link}" class="post-link text-decoration-none" target="_blank" rel="noopener noreferrer">
+          <div class="card border-0 bg-light-hover">
+            <div class="card-body py-3">
+              <h6 class="card-title mb-2 text-dark">${post.title}</h6>
+              <p class="card-text text-muted small mb-0">${post.description.substring(0, 100)}${post.description.length > 100 ? '...' : ''}</p>
+            </div>
+          </div>
+        </a>
+      </div>
+    `).join('');
+    
+    return `
+      <div class="mb-4">
+        ${feedPostsHtml}
+      </div>
+    `;
+  }).join('');
+  
+  postsContainer.innerHTML = `
+    <h3 class="h3 mb-4 text-dark">Посты</h3>
+    ${postsHtml}
   `;
 };
 
@@ -158,6 +206,7 @@ const initView = (state, watchedState) => {
   i18next.on('languageChanged', () => {
     updateUITexts();
     updateFeedsList(watchedState.feeds);
+    updatePostsList(watchedState.posts);
   });
   
   const { rssUrlInput } = elements;
@@ -187,6 +236,7 @@ const initView = (state, watchedState) => {
         setFormSubmitting(false);
         clearForm();
         updateFeedsList(watchedState.feeds);
+        updatePostsList(watchedState.posts);
         showNotification(t('notifications.success'), 'success');
         watchedState.form.state = 'filling';
         break;
@@ -206,6 +256,10 @@ const initView = (state, watchedState) => {
     updateFeedsList(watchedState.feeds);
   });
   
+  watchedState.posts = onChange(watchedState.posts, () => {
+    updatePostsList(watchedState.posts);
+  });
+  
   watchedState.ui.notification = onChange(watchedState.ui.notification, (path, value) => {
     if (value) {
       showNotification(value.message, value.type);
@@ -218,8 +272,8 @@ const initView = (state, watchedState) => {
   
   setTimeout(() => {
     if (rssUrlInput) rssUrlInput.focus();
-  }, 100)
-}
+  }, 100);
+};
 
 export {
   elements,
@@ -231,6 +285,7 @@ export {
   setFormSubmitting,
   clearForm,
   updateFeedsList,
+  updatePostsList,
   initView,
   updateUITexts,
-}
+};
