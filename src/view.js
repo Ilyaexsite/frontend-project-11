@@ -1,6 +1,6 @@
-import { t } from './i18n.js'
-import i18next from './i18n.js'
-import onChange from 'on-change'
+import { t } from './i18n.js';
+import i18next from './i18n.js';
+import onChange from 'on-change';
 
 const elements = {
   rssForm: document.getElementById('rss-form'),
@@ -8,111 +8,92 @@ const elements = {
   submitButton: document.querySelector('button[type="submit"]'),
   feedsContainer: document.getElementById('feeds-container'),
   postsContainer: document.getElementById('posts-container'),
-  feedback: document.getElementById('feedback'),
-}
+};
 
 const createFeedbackElement = () => {
-  if (!elements.feedback) {
-    const feedbackElement = document.createElement('div')
-    feedbackElement.id = 'feedback'
-    feedbackElement.className = 'mb-3'
-    
-    const form = document.getElementById('rss-form')
-    if (form && form.parentNode) {
-      form.parentNode.insertBefore(feedbackElement, form)
+  let feedback = document.getElementById('feedback');
+  if (!feedback) {
+    feedback = document.createElement('div');
+    feedback.id = 'feedback';
+    feedback.className = 'mb-3';
+    const form = document.getElementById('rss-form');
+    if (form) {
+      form.parentNode.insertBefore(feedback, form);
     }
-    elements.feedback = feedbackElement
   }
-}
-
-const updateUITexts = () => {
-  const { rssUrlInput, submitButton } = elements
-
-  if (rssUrlInput) rssUrlInput.placeholder = t('form.placeholder')
-  if (submitButton) submitButton.textContent = t('form.submit')
-}
-
-const showValidationError = (input, message) => {
-  input.classList.add('is-invalid')
-  
-  const existingFeedback = input.parentNode.querySelector('.invalid-feedback')
-  if (existingFeedback) {
-    existingFeedback.remove()
-  }
-  
-  const feedback = document.createElement('div')
-  feedback.className = 'invalid-feedback'
-  feedback.textContent = message
-  input.parentNode.appendChild(feedback)
-}
-
-const clearValidationError = (input) => {
-  input.classList.remove('is-invalid')
-  
-  const existingFeedback = input.parentNode.querySelector('.invalid-feedback')
-  if (existingFeedback) {
-    existingFeedback.remove()
-  }
-}
+  return feedback;
+};
 
 const showFeedback = (message, type = 'success') => {
-  createFeedbackElement()
-  
-  const alertClass = type === 'error' ? 'alert-danger' : 'alert-success'
-  elements.feedback.innerHTML = `
+  const feedback = createFeedbackElement();
+  const alertClass = type === 'error' ? 'alert-danger' : 'alert-success';
+  feedback.innerHTML = `
     <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
       ${message}
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
-  `
-}
+  `;
+};
 
 const clearFeedback = () => {
-  if (elements.feedback) {
-    elements.feedback.innerHTML = ''
+  const feedback = document.getElementById('feedback');
+  if (feedback) {
+    feedback.innerHTML = '';
   }
-}
+};
+
+const showValidationError = (input, message) => {
+  input.classList.add('is-invalid');
+  const feedback = document.createElement('div');
+  feedback.className = 'invalid-feedback';
+  feedback.textContent = message;
+  input.parentNode.appendChild(feedback);
+};
+
+const clearValidationError = (input) => {
+  input.classList.remove('is-invalid');
+  const existingFeedback = input.parentNode.querySelector('.invalid-feedback');
+  if (existingFeedback) {
+    existingFeedback.remove();
+  }
+};
 
 const setFormSubmitting = (isSubmitting) => {
-  const { submitButton, rssUrlInput } = elements
-  
+  const { submitButton, rssUrlInput } = elements;
   if (isSubmitting) {
-    submitButton.disabled = true
-    submitButton.textContent = t('form.submitting')
-    rssUrlInput.disabled = true
+    submitButton.disabled = true;
+    submitButton.textContent = 'Добавление...';
+    rssUrlInput.disabled = true;
   } else {
-    submitButton.disabled = false
-    submitButton.textContent = t('form.submit')
-    rssUrlInput.disabled = false
+    submitButton.disabled = false;
+    submitButton.textContent = 'Добавить';
+    rssUrlInput.disabled = false;
   }
-}
+};
 
 const clearForm = () => {
-  const { rssUrlInput } = elements
-  
-  rssUrlInput.value = ''
-  clearValidationError(rssUrlInput)
-  
+  const { rssUrlInput } = elements;
+  rssUrlInput.value = '';
+  clearValidationError(rssUrlInput);
   setTimeout(() => {
-    rssUrlInput.focus()
-  }, 100)
-}
+    rssUrlInput.focus();
+  }, 100);
+};
 
 const updateFeedsList = (feeds) => {
-  const { feedsContainer } = elements
-  
-  if (!feedsContainer) return
+  const { feedsContainer } = elements;
+  if (!feedsContainer) return;
   
   if (feeds.length === 0) {
     feedsContainer.innerHTML = `
       <div class="card border-0">
         <div class="card-body">
-          <h2 class="card-title h4">${t('feeds.title')}</h2>
-          <p class="card-text text-muted">${t('feeds.empty')}</p>
+          <h2 class="card-title h4">Фиды</h2>
+          <p class="card-text text-muted">Пока нет RSS потоков. Добавьте первый!</p>
         </div>
       </div>
-    `
-    return
+    `;
+    return;
   }
   
   const feedsHtml = feeds.map((feed) => `
@@ -122,40 +103,37 @@ const updateFeedsList = (feeds) => {
         <p class="card-text">${feed.description}</p>
       </div>
     </div>
-  `).join('')
+  `).join('');
   
   feedsContainer.innerHTML = `
     <div class="card border-0">
       <div class="card-body">
-        <h2 class="card-title h4">${t('feeds.title')}</h2>
+        <h2 class="card-title h4">Фиды</h2>
         ${feedsHtml}
       </div>
     </div>
-  `
-}
+  `;
+};
 
 const updatePostsList = (posts, readPosts, onPreviewClick) => {
-  const { postsContainer } = elements
-  
-  if (!postsContainer) return
+  const { postsContainer } = elements;
+  if (!postsContainer) return;
   
   if (posts.length === 0) {
     postsContainer.innerHTML = `
       <div class="card border-0">
         <div class="card-body">
-          <h2 class="card-title h4">${t('posts.title')}</h2>
-          <p class="card-text text-muted">${t('posts.empty')}</p>
+          <h2 class="card-title h4">Посты</h2>
+          <p class="card-text text-muted">Пока нет постов. Новые посты будут появляться автоматически.</p>
         </div>
       </div>
-    `
-    return
+    `;
+    return;
   }
   
-  const sortedPosts = [...posts].reverse()
-  
-  const postsHtml = sortedPosts.map((post) => {
-    const isRead = readPosts.has(post.id)
-    const titleClass = isRead ? 'fw-normal' : 'fw-bold'
+  const postsHtml = posts.map((post) => {
+    const isRead = readPosts.has(post.id);
+    const titleClass = isRead ? 'fw-normal' : 'fw-bold';
     
     return `
     <div class="list-group-item d-flex justify-content-between align-items-start border-0">
@@ -165,140 +143,106 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
         </a>
       </div>
       <button type="button" class="btn btn-outline-primary btn-sm" data-post-id="${post.id}">
-        ${t('posts.view')}
+        Просмотр
       </button>
     </div>
-    `
-  }).join('')
+    `;
+  }).join('');
   
   postsContainer.innerHTML = `
     <div class="card border-0">
       <div class="card-body">
-        <h2 class="card-title h4">${t('posts.title')}</h2>
+        <h2 class="card-title h4">Посты</h2>
         <div class="list-group">
           ${postsHtml}
         </div>
       </div>
     </div>
-  `
+  `;
   
-  const viewButtons = postsContainer.querySelectorAll('button[data-post-id]')
+  // Добавляем обработчики для кнопок просмотра
+  const viewButtons = postsContainer.querySelectorAll('button[data-post-id]');
   viewButtons.forEach(button => {
     button.addEventListener('click', (event) => {
-      const postId = event.currentTarget.getAttribute('data-post-id')
-      const post = posts.find(p => p.id === postId)
+      const postId = event.currentTarget.getAttribute('data-post-id');
+      const post = posts.find(p => p.id === postId);
       if (post) {
-        onPreviewClick(post)
+        onPreviewClick(post);
       }
-    })
-  })
-}
+    });
+  });
+};
 
 const initView = (state, watchedState) => {
-  updateUITexts()
-  
-  i18next.on('languageChanged', () => {
-    updateUITexts()
-    updateFeedsList(watchedState.feeds)
-    updatePostsList(watchedState.posts, watchedState.readPosts, (post) => {
-      watchedState.openModal(post)
-    })
-  })
-  
-  const { rssUrlInput } = elements
+  const { rssUrlInput } = elements;
   
   watchedState.form.state = onChange(watchedState.form.state, (path, value) => {
-    console.log('Form state changed to:', value)
+    console.log('Form state:', value);
     
     switch (value) {
       case 'validating':
-        setFormSubmitting(false)
-        clearValidationError(rssUrlInput)
-        clearFeedback()
-        break
+        setFormSubmitting(false);
+        clearValidationError(rssUrlInput);
+        clearFeedback();
+        break;
         
       case 'invalid':
-        setFormSubmitting(false)
-        const errors = watchedState.form.errors.url || []
+        setFormSubmitting(false);
+        const errors = watchedState.form.errors.url || [];
         if (errors.length > 0) {
-          showValidationError(rssUrlInput, errors[0])
+          showValidationError(rssUrlInput, errors[0]);
         }
-        break
+        break;
         
       case 'submitting':
-        setFormSubmitting(true)
-        clearValidationError(rssUrlInput)
-        clearFeedback()
-        break
+        setFormSubmitting(true);
+        clearValidationError(rssUrlInput);
+        clearFeedback();
+        break;
         
       case 'success':
-        setFormSubmitting(false)
-        clearForm()
-        updateFeedsList(watchedState.feeds)
+        setFormSubmitting(false);
+        clearForm();
+        updateFeedsList(watchedState.feeds);
         updatePostsList(watchedState.posts, watchedState.readPosts, (post) => {
-          watchedState.openModal(post)
-        })
-        showFeedback(t('notifications.success'), 'success')
-        watchedState.form.state = 'filling'
-        break
+          watchedState.openModal(post);
+        });
+        showFeedback('RSS успешно загружен', 'success');
+        watchedState.form.state = 'filling';
+        break;
         
       case 'error':
-        setFormSubmitting(false)
-        const error = watchedState.ui.error
-        let errorMessage = t('notifications.error')
-        if (error === 'networkError') {
-          errorMessage = t('notifications.networkError')
-        } else if (error === 'rssError') {
-          errorMessage = t('notifications.rssError')
+        setFormSubmitting(false);
+        const error = watchedState.ui.error;
+        let errorMessage = 'Ошибка сети';
+        if (error === 'rssError') {
+          errorMessage = 'Ресурс не содержит валидный RSS';
         }
-        showFeedback(errorMessage, 'error')
-        watchedState.form.state = 'filling'
-        break
+        showFeedback(errorMessage, 'error');
+        watchedState.form.state = 'filling';
+        break;
         
       default:
-        break
+        break;
     }
-  })
+  });
   
   watchedState.feeds = onChange(watchedState.feeds, () => {
-    updateFeedsList(watchedState.feeds)
-  })
+    updateFeedsList(watchedState.feeds);
+  });
   
   watchedState.posts = onChange(watchedState.posts, () => {
     updatePostsList(watchedState.posts, watchedState.readPosts, (post) => {
-      watchedState.openModal(post)
-    })
-  })
-  
-  watchedState.readPosts = onChange(watchedState.readPosts, () => {
-    updatePostsList(watchedState.posts, watchedState.readPosts, (post) => {
-      watchedState.openModal(post)
-    })
-  })
-  
-  watchedState.ui.error = onChange(watchedState.ui.error, (path, value) => {
-    console.log('Error changed:', value)
-  })
-  
-  watchedState.lng = onChange(watchedState.lng, (path, value) => {
-    i18next.changeLanguage(value)
-  })
+      watchedState.openModal(post);
+    });
+  });
   
   setTimeout(() => {
-    if (rssUrlInput) rssUrlInput.focus()
-  }, 100)
-}
+    if (rssUrlInput) rssUrlInput.focus();
+  }, 100);
+};
 
 export {
   elements,
-  showValidationError,
-  clearValidationError,
-  showFeedback,
-  clearFeedback,
-  setFormSubmitting,
-  clearForm,
-  updateFeedsList,
-  updatePostsList,
   initView,
-  updateUITexts,
-}
+};

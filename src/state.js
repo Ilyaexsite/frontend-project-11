@@ -1,5 +1,4 @@
-import onChange from 'on-change'
-import { t } from './i18n.js'
+import onChange from 'on-change';
 
 const initialState = {
   lng: 'ru',
@@ -14,50 +13,46 @@ const initialState = {
   posts: [],
   readPosts: new Set(),
   ui: {
-    loading: false,
     error: null,
   },
-}
+};
 
 const createState = (initial = initialState) => {
-  const state = onChange(initial, (path, value, previousValue) => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`State changed: ${path}`, value)
+  return onChange(initial, (path, value, previousValue) => {
+    // Логирование для отладки
+    if (path === 'form.state') {
+      console.log('Form state changed:', value);
     }
-  })
+  });
+};
 
-  return state
-}
+// Геттеры
+const getFormState = (state) => state.form.state;
+const getFormUrl = (state) => state.form.fields.url;
+const getFormErrors = (state) => state.form.errors;
+const getFeeds = (state) => state.feeds;
+const getPosts = (state) => state.posts;
+const getError = (state) => state.ui.error;
+const getReadPosts = (state) => state.readPosts;
 
-const getFormState = (state) => state.form.state
-const getFormUrl = (state) => state.form.fields.url
-const getFormErrors = (state) => state.form.errors
-const getFeeds = (state) => state.feeds
-const getPosts = (state) => state.posts
-const getPostsByFeed = (state, feedUrl) => state.posts.filter(post => post.feedId === feedUrl)
-const getLanguage = (state) => state.lng
-const getLoading = (state) => state.ui.loading
-const getError = (state) => state.ui.error
-const getReadPosts = (state) => state.readPosts
-const isPostRead = (state, postId) => state.readPosts.has(postId)
-
+// Сеттеры
 const setFormState = (state, newState) => {
-  state.form.state = newState
-}
+  state.form.state = newState;
+};
 
 const setFormUrl = (state, url) => {
-  state.form.fields.url = url
-}
+  state.form.fields.url = url;
+};
 
 const setFormErrors = (state, errors) => {
-  state.form.errors = errors
-}
+  state.form.errors = errors;
+};
 
 const clearForm = (state) => {
-  state.form.fields.url = ''
-  state.form.errors = {}
-  state.form.state = 'filling'
-}
+  state.form.fields.url = '';
+  state.form.errors = {};
+  state.form.state = 'filling';
+};
 
 const addFeed = (state, feedData) => {
   const newFeed = {
@@ -65,43 +60,21 @@ const addFeed = (state, feedData) => {
     url: feedData.url,
     title: feedData.feed.title,
     description: feedData.feed.description,
-  }
-  
-  state.feeds.push(newFeed)
-}
+  };
+  state.feeds.push(newFeed);
+};
 
 const addPosts = (state, postsData) => {
-  const newPosts = postsData.map(post => ({
-    ...post,
-    feedId: postsData.feedId || post.feedId,
-  }))
-  
-  state.posts = [...state.posts, ...newPosts]
-}
-
-const addNewPosts = (state, newPosts) => {
-  state.posts = [...state.posts, ...newPosts]
-}
-
-const setLanguage = (state, lng) => {
-  state.lng = lng
-}
-
-const setLoading = (state, loading) => {
-  state.ui.loading = loading
-}
+  state.posts = [...state.posts, ...postsData];
+};
 
 const setError = (state, error) => {
-  state.ui.error = error
-}
+  state.ui.error = error;
+};
 
 const clearError = (state) => {
-  state.ui.error = null
-}
-
-const markPostAsRead = (state, postId) => {
-  state.readPosts.add(postId)
-}
+  state.ui.error = null;
+};
 
 export {
   getFormState,
@@ -109,24 +82,16 @@ export {
   getFormErrors,
   getFeeds,
   getPosts,
-  getPostsByFeed,
-  getLanguage,
-  getLoading,
   getError,
   getReadPosts,
-  isPostRead,
   setFormState,
   setFormUrl,
   setFormErrors,
   clearForm,
   addFeed,
   addPosts,
-  addNewPosts,
-  setLanguage,
-  setLoading,
   setError,
   clearError,
-  markPostAsRead,
-}
+};
 
-export default createState
+export default createState;
