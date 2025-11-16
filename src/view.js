@@ -1,12 +1,25 @@
 import { t } from './i18n.js';
 import onChange from 'on-change';
 
-const elements = {
-  rssForm: document.getElementById('rss-form'),
-  rssUrlInput: document.getElementById('url-input'),
-  submitButton: document.querySelector('button[type="submit"]'),
-  feedsContainer: document.getElementById('feeds-container'),
-  postsContainer: document.getElementById('posts-container'),
+// Инициализируем элементы как пустой объект, заполним позже
+let elements = {};
+
+const initElements = () => {
+  elements = {
+    rssForm: document.getElementById('rss-form'),
+    rssUrlInput: document.getElementById('url-input'),
+    submitButton: document.querySelector('button[type="submit"]'),
+    feedsContainer: document.getElementById('feeds-container'),
+    postsContainer: document.getElementById('posts-container'),
+  };
+  
+  console.log('🔍 View elements initialized:', {
+    form: !!elements.rssForm,
+    input: !!elements.rssUrlInput,
+    button: !!elements.submitButton,
+    feeds: !!elements.feedsContainer,
+    posts: !!elements.postsContainer
+  });
 };
 
 const createFeedbackElement = () => {
@@ -56,6 +69,10 @@ const clearFeedback = () => {
 };
 
 const showValidationError = (input, message) => {
+  if (!input) {
+    console.error('❌ Input element not found for validation error');
+    return;
+  }
   input.classList.add('is-invalid');
   const feedback = document.createElement('div');
   feedback.className = 'invalid-feedback';
@@ -64,6 +81,7 @@ const showValidationError = (input, message) => {
 };
 
 const clearValidationError = (input) => {
+  if (!input) return;
   input.classList.remove('is-invalid');
   const existingFeedback = input.parentNode.querySelector('.invalid-feedback');
   if (existingFeedback) {
@@ -73,6 +91,11 @@ const clearValidationError = (input) => {
 
 const setFormSubmitting = (isSubmitting) => {
   const { submitButton, rssUrlInput } = elements;
+  if (!submitButton || !rssUrlInput) {
+    console.error('❌ Form elements not found for setFormSubmitting');
+    return;
+  }
+  
   if (isSubmitting) {
     submitButton.disabled = true;
     submitButton.textContent = 'Добавление...';
@@ -86,16 +109,23 @@ const setFormSubmitting = (isSubmitting) => {
 
 const clearForm = () => {
   const { rssUrlInput } = elements;
+  if (!rssUrlInput) {
+    console.error('❌ Input element not found for clearForm');
+    return;
+  }
   rssUrlInput.value = '';
   clearValidationError(rssUrlInput);
   setTimeout(() => {
-    rssUrlInput.focus();
+    if (rssUrlInput) rssUrlInput.focus();
   }, 100);
 };
 
 const updateFeedsList = (feeds) => {
   const { feedsContainer } = elements;
-  if (!feedsContainer) return;
+  if (!feedsContainer) {
+    console.error('❌ Feeds container not found');
+    return;
+  }
   
   if (feeds.length === 0) {
     feedsContainer.innerHTML = `
@@ -130,7 +160,10 @@ const updateFeedsList = (feeds) => {
 
 const updatePostsList = (posts, readPosts, onPreviewClick) => {
   const { postsContainer } = elements;
-  if (!postsContainer) return;
+  if (!postsContainer) {
+    console.error('❌ Posts container not found');
+    return;
+  }
   
   if (posts.length === 0) {
     postsContainer.innerHTML = `
@@ -186,16 +219,19 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
 };
 
 const initView = (state, watchedState) => {
+  console.log('🚀 View initializing...');
+  
+  // Инициализируем элементы здесь, когда DOM точно загружен
+  initElements();
+  
   const { rssUrlInput } = elements;
   
-  console.log('🚀 View initialized');
-  console.log('📋 Elements found:', {
-    form: !!elements.rssForm,
-    input: !!elements.rssUrlInput,
-    button: !!elements.submitButton,
-    feeds: !!elements.feedsContainer,
-    posts: !!elements.postsContainer
-  });
+  if (!rssUrlInput) {
+    console.error('❌ Input element not found in initView');
+    return;
+  }
+  
+  console.log('✅ View initialized with elements');
   
   watchedState.form.state = onChange(watchedState.form.state, (path, value) => {
     console.log('🔄 Form state changed to:', value);
@@ -213,7 +249,7 @@ const initView = (state, watchedState) => {
         setFormSubmitting(false);
         const errors = watchedState.form.errors?.url || [];
         console.log('Validation errors:', errors);
-        if (errors.length > 0) {
+        if (errors.length > 0 && rssUrlInput) {
           showValidationError(rssUrlInput, errors[0]);
         }
         break;
@@ -240,7 +276,7 @@ const initView = (state, watchedState) => {
           if (watchedState.form.state === 'success') {
             watchedState.form.state = 'filling';
           }
-        }, 10000); // Увеличиваем время для тестов
+        }, 10000);
         break;
         
       case 'error':
@@ -288,4 +324,5 @@ const initView = (state, watchedState) => {
 export {
   elements,
   initView,
+  initElements // экспортируем для тестирования
 };
