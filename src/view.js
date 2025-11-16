@@ -13,6 +13,7 @@ const elements = {
   exampleText: document.querySelector('.form-text'),
   createdBy: document.querySelector('.text-muted.small'),
   updateStatus: document.getElementById('update-status'),
+  modal: document.getElementById('post-modal'),
 }
 
 const createUpdateStatusElement = () => {
@@ -22,6 +23,34 @@ const createUpdateStatusElement = () => {
     statusElement.className = 'text-center mb-3'
     document.querySelector('.container').insertBefore(statusElement, document.querySelector('.row'))
     elements.updateStatus = statusElement
+  }
+}
+
+const createModalElement = () => {
+  if (!elements.modal) {
+    const modalHtml = `
+      <div class="modal fade" id="post-modal" tabindex="-1" aria-labelledby="post-modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="post-modal-label">Просмотр поста</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div id="modal-content">
+                <!-- Контент модального окна будет заполняться динамически -->
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+              <a href="#" class="btn btn-primary" id="modal-full-article" target="_blank" rel="noopener noreferrer">Читать полностью</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    `
+    document.body.insertAdjacentHTML('beforeend', modalHtml)
+    elements.modal = document.getElementById('post-modal')
   }
 }
 
@@ -178,7 +207,7 @@ const updateFeedsList = (feeds) => {
   `
 }
 
-const updatePostsList = (posts) => {
+const updatePostsList = (posts, readPosts, onPreviewClick) => {
   const { postsContainer } = elements
   
   if (!postsContainer) return
@@ -194,19 +223,34 @@ const updatePostsList = (posts) => {
   
   const sortedPosts = [...posts].reverse()
   
-  const postsHtml = sortedPosts.map((post) => `
+  const postsHtml = sortedPosts.map((post) => {
+    const isRead = readPosts.has(post.id)
+    const titleClass = isRead ? 'fw-normal' : 'fw-bold'
+    
+    return `
     <div class="mb-3 fade-in">
-      <a href="${post.link}" class="post-link text-decoration-none" target="_blank" rel="noopener noreferrer">
-        <div class="card border-0 bg-light-hover">
-          <div class="card-body py-3">
-            <h6 class="card-title mb-2 text-dark">${post.title}</h6>
-            <p class="card-text text-muted small mb-0">${post.description.substring(0, 100)}${post.description.length > 100 ? '...' : ''}</p>
-            <small class="text-muted">Из: ${post.feedId}</small>
+      <div class="card border-0 bg-light-hover">
+        <div class="card-body py-3">
+          <div class="d-flex justify-content-between align-items-start">
+            <div class="flex-grow-1 me-3">
+              <h6 class="card-title mb-2 text-dark ${titleClass}">${post.title}</h6>
+              <p class="card-text text-muted small mb-2">${post.description.substring(0, 100)}${post.description.length > 100 ? '...' : ''}</p>
+              <small class="text-muted">Из: ${post.feedId}</small>
+            </div>
+            <div class="d-flex flex-column gap-2">
+              <a href="${post.link}" class="btn btn-outline-primary btn-sm" target="_blank" rel="noopener noreferrer">
+                <i class="bi bi-box-arrow-up-right"></i>
+              </a>
+              <button type="button" class="btn btn-outline-secondary btn-sm preview-btn" data-post-id="${post.id}">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
           </div>
         </div>
-      </a>
+      </div>
     </div>
-  `).join('')
+    `
+  }).join('')
   
   postsContainer.innerHTML = `
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -215,16 +259,61 @@ const updatePostsList = (posts) => {
     </div>
     ${postsHtml}
   `
+  
+  // Добавляем обработчики для кнопок предпросмотра
+  const previewButtons = postsContainer.querySelectorAll('.preview-btn')
+  previewButtons.forEach(button => {
+    button.addEventListener('click', (event) => {
+      const postId = event.currentTarget.getAttribute('data-post-id')
+      const post = posts.find(p => p.id === postId)
+      if (post) {
+        onPreviewClick(post)
+      }
+    })
+  })
+}
+
+const updateModal = (modalState) => {
+  const { modal } = elements
+  
+  if (!modal) return
+  
+  const modalInstance = bootstrap.Modal.getInstance(modal) || new bootstrap.Modal(modal)
+  
+  if (modalState.isOpen && modalState.post) {
+    // Заполняем контент модального окна
+    const modalContent = document.getElementById('modal-content')
+    const fullArticleLink = document.getElementById('modal-full-article')
+    
+    if (modalContent && fullArticleLink) {
+      modalContent.innerHTML = `
+        <h4 class="mb-3">${modalState.post.title}</h4>
+        <div class="post-description">
+          ${modalState.post.description || '<p class="text-muted">Описание отсутствует</p>'}
+        </div>
+      `
+      fullArticleLink.href = modalState.post.link
+    }
+    
+    // Показываем модальное окно
+    modalInstance.show()
+  } else {
+    // Скрываем модальное окно
+    modalInstance.hide()
+  }
 }
 
 const initView = (state, watchedState) => {
   updateUITexts()
   createUpdateStatusElement()
+  createModalElement()
   
   i18next.on('languageChanged', () => {
     updateUITexts()
     updateFeedsList(watchedState.feeds)
-    updatePostsList(watchedState.posts)
+    updatePostsList(watchedState.posts, watchedState.readPosts, (post) => {
+      watchedState.openModal(post)
+    })
   })
   
   const { rssUrlInput } = elements
@@ -254,7 +343,9 @@ const initView = (state, watchedState) => {
         setFormSubmitting(false)
         clearForm()
         updateFeedsList(watchedState.feeds)
-        updatePostsList(watchedState.posts)
+        updatePostsList(watchedState.posts, watchedState.readPosts, (post) => {
+          watchedState.openModal(post)
+        })
         showNotification(t('notifications.success'), 'success')
         watchedState.form.state = 'filling'
         break
@@ -275,7 +366,15 @@ const initView = (state, watchedState) => {
   })
   
   watchedState.posts = onChange(watchedState.posts, () => {
-    updatePostsList(watchedState.posts)
+    updatePostsList(watchedState.posts, watchedState.readPosts, (post) => {
+      watchedState.openModal(post)
+    })
+  })
+  
+  watchedState.readPosts = onChange(watchedState.readPosts, () => {
+    updatePostsList(watchedState.posts, watchedState.readPosts, (post) => {
+      watchedState.openModal(post)
+    })
   })
   
   watchedState.ui.notification = onChange(watchedState.ui.notification, (path, value) => {
@@ -284,9 +383,20 @@ const initView = (state, watchedState) => {
     }
   })
   
+  watchedState.ui.modal = onChange(watchedState.ui.modal, (path, value) => {
+    updateModal(value)
+  })
+  
   watchedState.lng = onChange(watchedState.lng, (path, value) => {
     i18next.changeLanguage(value)
   })
+  
+  // Обработчик закрытия модального окна
+  if (elements.modal) {
+    elements.modal.addEventListener('hidden.bs.modal', () => {
+      watchedState.closeModal()
+    })
+  }
   
   showUpdateStatus('Автообновление включено')
   
@@ -306,6 +416,7 @@ export {
   clearForm,
   updateFeedsList,
   updatePostsList,
+  updateModal,
   initView,
   updateUITexts,
   showUpdateStatus,

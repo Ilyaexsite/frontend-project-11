@@ -318,3 +318,44 @@ body {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+/* Стили для модального окна */
+.post-description {
+  max-height: 400px;
+  overflow-y: auto;
+  line-height: 1.6;
+}
+
+.post-description img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Стили для кнопок постов */
+.preview-btn:hover {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  color: white;
+}
+
+/* Стили для прочитанных постов */
+.fw-normal {
+  color: #6c757d;
+}
+
+.fw-bold {
+  color: #212529;
+}
+
+/* Анимация для новых постов */
+@keyframes highlightNew {
+  0% {
+    background-color: rgba(13, 110, 253, 0.1);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.new-post {
+  animation: highlightNew 2s ease-in-out;
+}
