@@ -359,12 +359,13 @@ body {
 .new-post {
   animation: highlightNew 2s ease-in-out;
 }
-.post-link {
-  color: #212529 !important;
-  text-decoration: none !important;
+.post-link-style {
+  flex: 1 1 auto;
+  color: #212529;
+  text-decoration: none;
 }
 
-.post-link:hover {
-  color: #0d6efd !important;
-  text-decoration: underline !important;
+.post-link-style:hover {
+  color: #0d6efd;
+  text-decoration: underline;
 }
