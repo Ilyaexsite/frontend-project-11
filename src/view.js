@@ -16,11 +16,10 @@ const createFeedbackElement = () => {
     const feedbackElement = document.createElement('div')
     feedbackElement.id = 'feedback'
     feedbackElement.className = 'mb-3'
+    
     const form = document.getElementById('rss-form')
-    if (form) {
+    if (form && form.parentNode) {
       form.parentNode.insertBefore(feedbackElement, form)
-    } else {
-      document.querySelector('.card-body').prepend(feedbackElement)
     }
     elements.feedback = feedbackElement
   }
@@ -66,13 +65,6 @@ const showFeedback = (message, type = 'success') => {
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
   `
-  
-  // Убираем автоскрытие для тестов
-  // setTimeout(() => {
-  //   if (elements.feedback) {
-  //     elements.feedback.innerHTML = ''
-  //   }
-  // }, 5000)
 }
 
 const clearFeedback = () => {

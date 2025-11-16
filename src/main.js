@@ -35,7 +35,6 @@ const app = async () => {
       
       if (updateResult.newPosts.length > 0) {
         addNewPosts(currentState, updateResult.newPosts)
-        console.log(`Added ${updateResult.newPosts.length} new posts from ${feedUrl}`)
       }
       
       return updateResult
@@ -83,34 +82,16 @@ const app = async () => {
         setFormState(state, 'submitting')
         setLoading(state, true)
         
-        // Имитируем успешное добавление для тестов
-        // В реальном приложении здесь будет загрузка RSS
-        console.log('Adding RSS feed:', url)
+        // Используем реальную загрузку RSS
+        const rssData = await loadRssFeed(url)
         
-        // Создаем mock данные для тестирования
-        const mockRssData = {
-          url: url,
-          feed: {
-            title: 'Test Feed',
-            description: 'Test Description'
-          },
-          posts: [
-            {
-              id: 'post-1',
-              title: 'Test Post 1',
-              link: 'https://example.com/1',
-              description: 'Test post description 1'
-            }
-          ]
-        }
-        
-        addFeed(state, mockRssData)
-        addPosts(state, mockRssData.posts.map(post => ({
+        addFeed(state, rssData)
+        addPosts(state, rssData.posts.map(post => ({
           ...post,
-          feedId: mockRssData.url,
+          feedId: rssData.url,
         })))
         
-        feedUpdater.addFeed({ url: mockRssData.url })
+        feedUpdater.addFeed({ url: rssData.url })
         feedUpdater.start()
         
         setFormState(state, 'success')
