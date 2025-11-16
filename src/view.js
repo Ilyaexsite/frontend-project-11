@@ -200,11 +200,9 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
     
     return `
     <div class="list-group-item d-flex justify-content-between align-items-start border-0">
-      <div class="me-auto text-decoration-none">
-        <a href="${post.link}" class="${titleClass}" target="_blank" rel="noopener noreferrer" data-testid="post-link">
-          ${post.title}
-        </a>
-      </div>
+      <a href="${post.link}" class="${titleClass} me-auto text-decoration-none" target="_blank" rel="noopener noreferrer" data-testid="post-link">
+        ${post.title}
+      </a>
       <button type="button" class="btn btn-outline-primary btn-sm" data-post-id="${post.id}" data-testid="view-button">
         Просмотр
       </button>
