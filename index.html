@@ -7,41 +7,43 @@
     <title>RSS агрегатор</title>
   </head>
   <body>
-    <div class="container-fluid min-vh-100 bg-light">
-      <div class="row justify-content-center align-items-center min-vh-100">
-        <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8 col-xl-6 col-xxl-5">
+          <!-- Заголовок -->
           <div class="text-center mb-5">
-            <h1 class="display-4 fw-light text-dark mb-3">RSS агрегатор</h1>
+            <h1 class="display-3 fw-normal text-dark mb-3">RSS агрегатор</h1>
             <p class="lead text-muted mb-4">
               Начните читать RSS сегодня! Это легко, это красиво.
             </p>
           </div>
 
-          <div class="card border-0 shadow-sm rounded-3">
-            <div class="card-body p-4">
+          <!-- Форма -->
+          <div class="card border-0 bg-light shadow-sm">
+            <div class="card-body p-4 p-md-5">
               <form id="rss-form" class="rss-form" novalidate>
-                <div class="mb-3">
-                  <label for="rss-url" class="form-label text-dark fw-medium mb-3">Ссылка RSS</label>
-                  <div class="input-group">
+                <div class="mb-4">
+                  <label for="rss-url" class="form-label text-dark fw-semibold mb-3 fs-5">Ссылка RSS</label>
+                  <div class="input-group input-group-lg">
                     <input 
                       type="url" 
-                      class="form-control form-control-lg border-end-0" 
+                      class="form-control form-control-lg border-end-0 py-3 px-4" 
                       id="rss-url" 
                       name="rss-url"
                       placeholder="https://example.com/rss"
                       required
                       autofocus
-                      style="border-color: #e9ecef;"
+                      style="border-color: #dee2e6; font-size: 1.1rem;"
                     >
                     <button 
                       type="submit" 
-                      class="btn btn-primary btn-lg px-4"
-                      style="border-top-left-radius: 0; border-bottom-left-radius: 0;"
+                      class="btn btn-primary btn-lg px-4 py-3 fw-semibold"
+                      style="border-top-left-radius: 0; border-bottom-left-radius: 0; font-size: 1.1rem;"
                     >
                       Добавить
                     </button>
                   </div>
-                  <div class="form-text text-muted mt-2">
+                  <div class="form-text text-muted mt-3 fs-6">
                     <strong>Пример:</strong> https://lorem-rss.hexlet.app/feed
                   </div>
                 </div>
@@ -49,15 +51,12 @@
             </div>
           </div>
 
-          <div id="feeds-container" class="mt-5">
-            <div class="text-center text-muted py-5">
-              <p>Пока нет RSS потоков. Добавьте первый!</p>
-            </div>
-          </div>
+          <!-- Контейнер для фидов -->
+          <div id="feeds-container" class="mt-5"></div>
 
+          <!-- Подпись -->
           <div class="text-center mt-5 pt-4">
             <p class="text-muted small">created by Hexlet</p>
-            <small class="text-muted">Ctrl+L to switch language</small>
           </div>
         </div>
       </div>
