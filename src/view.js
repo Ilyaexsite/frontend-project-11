@@ -298,25 +298,27 @@ const initView = (state, watchedState) => {
           }, 10000);
           break;
           
-        case 'error':
-          console.log('💥 Form error');
-          setFormSubmitting(false);
-          const error = watchedState.ui?.error;
-          console.log('Error details:', error);
-          let errorMessage = t('errors.network');
-          if (error === 'rssError') {
-            errorMessage = t('errors.invalidRss');
-          } else if (error) {
-            errorMessage = error;
-          }
-          showFeedback(errorMessage, 'error');
-          
-          setTimeout(() => {
-            if (watchedState.form.state === 'error') {
-              watchedState.form.state = 'filling';
+          case 'error':
+            console.log('💥 Form error');
+            setFormSubmitting(false);
+            const error = watchedState.ui?.error;
+            console.log('Error details:', error);
+            let errorMessage = t('errors.network'); // Всегда используем перевод
+            if (error === 'rssError') {
+              errorMessage = t('errors.invalidRss');
+            } else if (error && error.includes('Failed to fetch')) {
+              errorMessage = t('errors.network'); // Для network ошибок
+            } else if (error) {
+              errorMessage = error; // Оригинальное сообщение как fallback
             }
-          }, 5000);
-          break;
+            showFeedback(errorMessage, 'error');
+            
+            setTimeout(() => {
+              if (watchedState.form.state === 'error') {
+                watchedState.form.state = 'filling';
+              }
+            }, 5000);
+            break;
           
         default:
           break;
