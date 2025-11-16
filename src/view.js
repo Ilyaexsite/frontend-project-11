@@ -29,11 +29,11 @@ const createFeedbackElement = () => {
     feedback.id = 'feedback';
     feedback.className = 'mb-3';
     const form = elements.rssForm;
-    if (form) {
+    if (form && form.parentNode) {
       form.parentNode.insertBefore(feedback, form);
       console.log('✅ Feedback element created and inserted before form');
     } else {
-      console.error('❌ Form not found for feedback insertion');
+      console.error('❌ Form or form parent not found for feedback insertion');
     }
   }
   return feedback;
@@ -234,105 +234,102 @@ const initView = (state, watchedState) => {
     
     console.log('✅ View initialized with elements');
     
-    console.log('⚠️ TEMPORARY: Skipping onChange logic');
+    // ВКЛЮЧАЕМ логику для состояния формы
+    watchedState.form.state = onChange(watchedState.form.state, (path, value) => {
+      console.log('🔄 Form state changed to:', value);
+      
+      switch (value) {
+        case 'validating':
+          console.log('🔍 Validating form...');
+          setFormSubmitting(false);
+          clearValidationError(rssUrlInput);
+          clearFeedback();
+          break;
+          
+        case 'invalid':
+          console.log('❌ Form invalid');
+          setFormSubmitting(false);
+          const errors = watchedState.form.errors?.url || [];
+          console.log('Validation errors:', errors);
+          if (errors.length > 0 && rssUrlInput) {
+            showValidationError(rssUrlInput, errors[0]);
+          }
+          break;
+          
+        case 'submitting':
+          console.log('⏳ Submitting form...');
+          setFormSubmitting(true);
+          clearValidationError(rssUrlInput);
+          clearFeedback();
+          break;
+          
+        case 'success':
+          console.log('✅ Form success - showing feedback');
+          setFormSubmitting(false);
+          clearForm();
+          updateFeedsList(watchedState.feeds);
+          updatePostsList(watchedState.posts, watchedState.readPosts, (post) => {
+            watchedState.openModal(post);
+          });
+          showFeedback(t('rssLoaded'), 'success');
+          
+          // НЕ сбрасываем состояние сразу для тестов
+          setTimeout(() => {
+            if (watchedState.form.state === 'success') {
+              watchedState.form.state = 'filling';
+            }
+          }, 10000);
+          break;
+          
+        case 'error':
+          console.log('💥 Form error');
+          setFormSubmitting(false);
+          const error = watchedState.ui?.error;
+          console.log('Error details:', error);
+          let errorMessage = t('errors.network');
+          if (error === 'rssError') {
+            errorMessage = t('errors.invalidRss');
+          } else if (error) {
+            errorMessage = error;
+          }
+          showFeedback(errorMessage, 'error');
+          
+          setTimeout(() => {
+            if (watchedState.form.state === 'error') {
+              watchedState.form.state = 'filling';
+            }
+          }, 5000);
+          break;
+          
+        default:
+          break;
+      }
+    });
+    
+    // ВКЛЮЧАЕМ логику для feeds
+    watchedState.feeds = onChange(watchedState.feeds, () => {
+      console.log('📰 Feeds updated:', watchedState.feeds.length);
+      updateFeedsList(watchedState.feeds);
+    });
+    
+    // ВКЛЮЧАЕМ логику для posts
+    watchedState.posts = onChange(watchedState.posts, () => {
+      console.log('📝 Posts updated:', watchedState.posts.length);
+      updatePostsList(watchedState.posts, watchedState.readPosts, (post) => {
+        watchedState.openModal(post);
+      });
+    });
     
     setTimeout(() => {
       if (rssUrlInput) rssUrlInput.focus();
     }, 100);
     
-    console.log('✅ View initialization complete (minimal)');
+    console.log('✅ View initialization complete');
     
   } catch (error) {
     console.error('💥 Error in initView:', error);
     console.error('Error stack:', error.stack);
   }
-  /* watchedState.form.state = onChange(watchedState.form.state, (path, value) => {
-    console.log('🔄 Form state changed to:', value);
-    
-    switch (value) {
-      case 'validating':
-        console.log('🔍 Validating form...');
-        setFormSubmitting(false);
-        clearValidationError(rssUrlInput);
-        clearFeedback();
-        break;
-        
-      case 'invalid':
-        console.log('❌ Form invalid');
-        setFormSubmitting(false);
-        const errors = watchedState.form.errors?.url || [];
-        console.log('Validation errors:', errors);
-        if (errors.length > 0 && rssUrlInput) {
-          showValidationError(rssUrlInput, errors[0]);
-        }
-        break;
-        
-      case 'submitting':
-        console.log('⏳ Submitting form...');
-        setFormSubmitting(true);
-        clearValidationError(rssUrlInput);
-        clearFeedback();
-        break;
-        
-      case 'success':
-        console.log('✅ Form success - showing feedback');
-        setFormSubmitting(false);
-        clearForm();
-        updateFeedsList(watchedState.feeds);
-        updatePostsList(watchedState.posts, watchedState.readPosts, (post) => {
-          watchedState.openModal(post);
-        });
-        showFeedback(t('rssLoaded'), 'success');
-        
-        // НЕ сбрасываем состояние сразу для тестов
-        setTimeout(() => {
-          if (watchedState.form.state === 'success') {
-            watchedState.form.state = 'filling';
-          }
-        }, 10000);
-        break;
-        
-      case 'error':
-        console.log('💥 Form error');
-        setFormSubmitting(false);
-        const error = watchedState.ui?.error;
-        console.log('Error details:', error);
-        let errorMessage = t('errors.network');
-        if (error === 'rssError') {
-          errorMessage = t('errors.invalidRss');
-        } else if (error) {
-          errorMessage = error;
-        }
-        showFeedback(errorMessage, 'error');
-        
-        setTimeout(() => {
-          if (watchedState.form.state === 'error') {
-            watchedState.form.state = 'filling';
-          }
-        }, 5000);
-        break;
-        
-      default:
-        break;
-    }
-  });
-  
-  watchedState.feeds = onChange(watchedState.feeds, () => {
-    console.log('📰 Feeds updated:', watchedState.feeds.length);
-    updateFeedsList(watchedState.feeds);
-  });
-  
-  watchedState.posts = onChange(watchedState.posts, () => {
-    console.log('📝 Posts updated:', watchedState.posts.length);
-    updatePostsList(watchedState.posts, watchedState.readPosts, (post) => {
-      watchedState.openModal(post);
-    });
-  });
-  */
-  
-  setTimeout(() => {
-    if (rssUrlInput) rssUrlInput.focus();
-  }, 100);
 };
 
 export {
