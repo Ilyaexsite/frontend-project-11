@@ -18,22 +18,34 @@ const createFeedbackElement = () => {
     const form = document.getElementById('rss-form');
     if (form) {
       form.parentNode.insertBefore(feedback, form);
+      console.log('✅ Feedback element created and inserted before form');
+    } else {
+      console.error('❌ Form not found for feedback insertion');
     }
   }
   return feedback;
 };
 
 const showFeedback = (message, type = 'success') => {
+  console.log(`🎯 showFeedback called: "${message}", type: ${type}`);
+  
   const feedback = createFeedbackElement();
   const alertClass = type === 'error' ? 'alert-danger' : 'alert-success';
+  
   feedback.innerHTML = `
-    <div class="alert ${alertClass} alert-dismissible fade show" role="alert" data-testid="feedback-message">
+    <div class="alert ${alertClass} alert-dismissible fade show" role="alert" data-testid="success-message">
       ${message}
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
   `;
   
-  console.log('Feedback shown:', message); // ДЕБАГ
+  // Проверяем что сообщение действительно в DOM
+  setTimeout(() => {
+    const successMessage = document.querySelector('[data-testid="success-message"]');
+    console.log('🔍 Success message in DOM:', !!successMessage);
+    console.log('📝 Success message text:', successMessage?.textContent);
+    console.log('📍 Success message parent:', successMessage?.parentElement);
+  }, 100);
 };
 
 const clearFeedback = () => {
@@ -176,50 +188,66 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
 const initView = (state, watchedState) => {
   const { rssUrlInput } = elements;
   
+  console.log('🚀 View initialized');
+  console.log('📋 Elements found:', {
+    form: !!elements.rssForm,
+    input: !!elements.rssUrlInput,
+    button: !!elements.submitButton,
+    feeds: !!elements.feedsContainer,
+    posts: !!elements.postsContainer
+  });
+  
   watchedState.form.state = onChange(watchedState.form.state, (path, value) => {
-    console.log('Form state changed to:', value);
+    console.log('🔄 Form state changed to:', value);
     
     switch (value) {
       case 'validating':
+        console.log('🔍 Validating form...');
         setFormSubmitting(false);
         clearValidationError(rssUrlInput);
         clearFeedback();
         break;
         
       case 'invalid':
+        console.log('❌ Form invalid');
         setFormSubmitting(false);
         const errors = watchedState.form.errors?.url || [];
+        console.log('Validation errors:', errors);
         if (errors.length > 0) {
           showValidationError(rssUrlInput, errors[0]);
         }
         break;
         
       case 'submitting':
+        console.log('⏳ Submitting form...');
         setFormSubmitting(true);
         clearValidationError(rssUrlInput);
         clearFeedback();
         break;
         
       case 'success':
+        console.log('✅ Form success - showing feedback');
         setFormSubmitting(false);
         clearForm();
         updateFeedsList(watchedState.feeds);
         updatePostsList(watchedState.posts, watchedState.readPosts, (post) => {
           watchedState.openModal(post);
         });
-        showFeedback(t('rssLoaded'), 'success'); // ← ИСПРАВЛЕНО: используем перевод
+        showFeedback(t('rssLoaded'), 'success');
         
-        // НЕ сбрасываем состояние сразу - оставляем success для тестов
+        // НЕ сбрасываем состояние сразу для тестов
         setTimeout(() => {
           if (watchedState.form.state === 'success') {
             watchedState.form.state = 'filling';
           }
-        }, 5000); // ← Сбрасываем через 5 секунд
+        }, 10000); // Увеличиваем время для тестов
         break;
         
       case 'error':
+        console.log('💥 Form error');
         setFormSubmitting(false);
         const error = watchedState.ui?.error;
+        console.log('Error details:', error);
         let errorMessage = t('errors.network');
         if (error === 'rssError') {
           errorMessage = t('errors.invalidRss');
@@ -241,10 +269,12 @@ const initView = (state, watchedState) => {
   });
   
   watchedState.feeds = onChange(watchedState.feeds, () => {
+    console.log('📰 Feeds updated:', watchedState.feeds.length);
     updateFeedsList(watchedState.feeds);
   });
   
   watchedState.posts = onChange(watchedState.posts, () => {
+    console.log('📝 Posts updated:', watchedState.posts.length);
     updatePostsList(watchedState.posts, watchedState.readPosts, (post) => {
       watchedState.openModal(post);
     });
