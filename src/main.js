@@ -46,7 +46,7 @@ const app = async () => {
   if (rssForm) {
     console.log('✅ Adding submit handler to form');
     rssForm.addEventListener('submit', async (event) => {
-      console.log('🎯 FORM SUBMIT EVENT FIRED!');
+      console.log('🎯 MAIN.JS FORM SUBMIT EVENT FIRED!'); // ← ДОБАВЬТЕ ЭТО
       event.preventDefault();
       event.stopPropagation();
       
