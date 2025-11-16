@@ -1,0 +1,33 @@
+{
+  "app": {
+    "title": "RSS агрегатор",
+    "description": "Начните читать RSS сегодня! Это легко, это красиво.",
+    "createdBy": "created by Hexlet"
+  },
+  "form": {
+    "label": "Ссылка RSS",
+    "placeholder": "https://example.com/rss",
+    "submit": "Добавить",
+    "submitting": "Добавление...",
+    "example": "Пример: {{example}}"
+  },
+  "errors": {
+    "required": "Не должно быть пустым",
+    "url": "Ссылка должна быть валидным URL",
+    "notOneOf": "RSS уже существует",
+    "network": "Ошибка сети",
+    "rss": "Ресурс не содержит валидный RSS",
+    "unknown": "Неизвестная ошибка. Попробуйте снова."
+  },
+  "notifications": {
+    "success": "RSS успешно добавлен",
+    "error": "Ошибка при добавлении RSS",
+    "networkError": "Ошибка сети. Проверьте подключение и попробуйте снова.",
+    "rssError": "Ресурс не содержит валидный RSS"
+  },
+  "feeds": {
+    "empty": "Пока нет RSS потоков. Добавьте первый!",
+    "added": "RSS поток успешно добавлен",
+    "title": "Добавленные RSS потоки"
+  }
+}

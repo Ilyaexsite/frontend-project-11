@@ -1,4 +1,5 @@
-import './styles/main.css';
+import './styles/main.css'
+import { initI18n, t } from './i18n.js'
 import createState, {
   getFormUrl,
   getFeeds,
@@ -8,80 +9,83 @@ import createState, {
   clearForm as clearFormState,
   addFeed,
   setNotification,
-} from './state.js';
-import validateRssUrl from './validation.js';
-import { elements, initView } from './view.js';
+  setLanguage,
+} from './state.js'
+import { validateRssUrl } from './validation.js'
+import { elements, initView } from './view.js'
 
-// Инициализация приложения
-const app = () => {
-  // Создаем состояние приложения
-  const state = createState();
+const app = async () => {
+  await initI18n()
   
-  // Инициализируем View с наблюдаемым состоянием
-  initView(state, state);
+  const state = createState()
   
-  const { rssForm, rssUrlInput } = elements;
+  initView(state, state)
   
-  // Обработчик изменения input
-  rssUrlInput.addEventListener('input', (event) => {
-    setFormUrl(state, event.target.value.trim());
-  });
+  const { rssForm, rssUrlInput } = elements
   
-  // Обработчик отправки формы
-  rssForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    
-    const url = getFormUrl(state);
-    const existingUrls = getFeeds(state);
-    
-    // Начинаем валидацию
-    setFormState(state, 'validating');
-    
-    validateRssUrl(url, existingUrls)
-      .then((validationResult) => {
+  if (rssUrlInput) {
+    rssUrlInput.addEventListener('input', (event) => {
+      setFormUrl(state, event.target.value.trim())
+    })
+  }
+  
+  if (rssForm) {
+    rssForm.addEventListener('submit', async (event) => {
+      event.preventDefault()
+      
+      const url = getFormUrl(state)
+      const existingUrls = getFeeds(state).map(feed => feed.url)
+      
+      setFormState(state, 'validating')
+      
+      try {
+        const validationResult = await validateRssUrl(url, existingUrls)
+        
         if (!validationResult.isValid) {
-          setFormErrors(state, { url: validationResult.errors });
-          setFormState(state, 'invalid');
-          return;
+          setFormErrors(state, { url: validationResult.errors })
+          setFormState(state, 'invalid')
+          return
         }
         
-        // Валидация прошла успешно - начинаем добавление
-        setFormState(state, 'submitting');
+        setFormState(state, 'submitting')
         
-        // Имитируем добавление RSS (в реальном приложении здесь будет запрос к бэкенду)
-        return new Promise((resolve) => {
+        await new Promise((resolve) => {
           setTimeout(() => {
-            addFeed(state, url);
-            resolve();
-          }, 1500);
-        });
-      })
-      .then(() => {
-        // Успешное добавление
-        setFormState(state, 'success');
+            addFeed(state, url)
+            resolve()
+          }, 1500)
+        })
+        
+        setFormState(state, 'success')
         setNotification(state, {
-          message: 'RSS успешно добавлен',
+          message: t('notifications.success'),
           type: 'success',
-        });
-      })
-      .catch((error) => {
-        // Ошибка при добавлении
-        console.error('Error adding RSS:', error);
-        setFormState(state, 'error');
+        })
+        
+      } catch (error) {
+        console.error('Error adding RSS:', error)
+        setFormState(state, 'error')
         setNotification(state, {
-          message: 'Ошибка при добавлении RSS',
+          message: t('notifications.error'),
           type: 'error',
-        });
-      });
-  });
+        })
+      }
+    })
+  }
   
-  // Обработчик сброса формы по Escape
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
-      clearFormState(state);
+      clearFormState(state)
     }
-  });
-};
+  })
+  
+  document.addEventListener('keydown', (event) => {
+    if (event.ctrlKey && event.key === 'l') {
+      const currentLng = i18next.language
+      const newLng = currentLng === 'ru' ? 'en' : 'ru'
+      setLanguage(state, newLng)
+    }
+  })
+}
 
-// Запуск приложения после загрузки DOM
-document.addEventListener('DOMContentLoaded', app);
+document.addEventListener('DOMContentLoaded', app)

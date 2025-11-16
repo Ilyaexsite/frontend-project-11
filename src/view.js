@@ -1,195 +1,244 @@
-// Селекторы элементов
+import { t } from './i18n.js'
+import i18next from './i18n.js'
+
 const elements = {
   rssForm: document.getElementById('rss-form'),
   rssUrlInput: document.getElementById('rss-url'),
   submitButton: document.querySelector('button[type="submit"]'),
-  feedbackContainer: document.getElementById('feedback-container'),
   feedsContainer: document.getElementById('feeds-container'),
-};
+  postsContainer: document.getElementById('posts-container'),
+  appTitle: document.getElementById('app-title'),
+  appDescription: document.getElementById('app-description'),
+  formLabel: document.getElementById('form-label'),
+  exampleText: document.getElementById('example-text'),
+  createdBy: document.getElementById('created-by'),
+}
 
-// Валидация UI
-const showValidationError = (input, message) => {
-  input.classList.add('is-invalid');
-  
-  // Удаляем предыдущие сообщения об ошибках
-  const existingFeedback = input.parentNode.querySelector('.invalid-feedback');
-  if (existingFeedback) {
-    existingFeedback.remove();
+const initUIElements = () => {
+  if (!elements.appTitle) {
+    const titleElement = document.querySelector('h1.display-4')
+    if (titleElement) {
+      titleElement.id = 'app-title'
+      elements.appTitle = titleElement
+    }
   }
   
-  // Добавляем новое сообщение об ошибке
-  const feedback = document.createElement('div');
-  feedback.className = 'invalid-feedback';
-  feedback.textContent = message;
-  input.parentNode.appendChild(feedback);
-};
+  if (!elements.appDescription) {
+    const descElement = document.querySelector('.lead')
+    if (descElement) {
+      descElement.id = 'app-description'
+      elements.appDescription = descElement
+    }
+  }
+}
+
+const updateUITexts = () => {
+  const {
+    appTitle,
+    appDescription,
+    formLabel,
+    exampleText,
+    createdBy,
+    rssUrlInput,
+    submitButton,
+  } = elements
+  
+  if (appTitle) appTitle.textContent = t('app.title')
+  if (appDescription) appDescription.textContent = t('app.description')
+  if (formLabel) formLabel.textContent = t('form.label')
+  if (exampleText) exampleText.innerHTML = t('form.example', { example: `<strong>${t('form.exampleUrl')}</strong>` })
+  if (createdBy) createdBy.textContent = t('app.createdBy')
+  if (rssUrlInput) rssUrlInput.placeholder = t('form.placeholder')
+  if (submitButton) submitButton.textContent = t('form.submit')
+}
+
+const showValidationError = (input, message) => {
+  input.classList.add('is-invalid')
+  
+  const existingFeedback = input.parentNode.querySelector('.invalid-feedback')
+  if (existingFeedback) {
+    existingFeedback.remove()
+  }
+  
+  const feedback = document.createElement('div')
+  feedback.className = 'invalid-feedback'
+  feedback.textContent = message
+  input.parentNode.appendChild(feedback)
+}
 
 const clearValidationError = (input) => {
-  input.classList.remove('is-invalid');
+  input.classList.remove('is-invalid')
   
-  const existingFeedback = input.parentNode.querySelector('.invalid-feedback');
+  const existingFeedback = input.parentNode.querySelector('.invalid-feedback')
   if (existingFeedback) {
-    existingFeedback.remove();
+    existingFeedback.remove()
   }
-};
+}
 
 const showSuccessValidation = (input) => {
-  input.classList.remove('is-invalid');
-  input.classList.add('is-valid');
-};
+  input.classList.remove('is-invalid')
+  input.classList.add('is-valid')
+}
 
 const clearSuccessValidation = (input) => {
-  input.classList.remove('is-valid');
-};
+  input.classList.remove('is-valid')
+}
 
-// Уведомления
 const showNotification = (message, type = 'success') => {
-  // Удаляем предыдущие уведомления
-  const existingAlert = document.querySelector('.alert');
+  const existingAlert = document.querySelector('.alert')
   if (existingAlert) {
-    existingAlert.remove();
+    existingAlert.remove()
   }
   
-  const alertClass = type === 'error' ? 'alert-danger' : 'alert-success';
+  const alertClass = type === 'error' ? 'alert-danger' : 'alert-success'
   const alertHtml = `
     <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
       ${message}
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
-  `;
+  `
   
-  const container = document.querySelector('.container-fluid');
+  const container = document.querySelector('.container-fluid')
   if (container) {
-    container.insertAdjacentHTML('afterbegin', alertHtml);
+    container.insertAdjacentHTML('afterbegin', alertHtml)
     
-    // Автоматически скрываем через 5 секунд
     setTimeout(() => {
-      const alert = document.querySelector('.alert');
+      const alert = document.querySelector('.alert')
       if (alert) {
-        alert.remove();
+        alert.remove()
       }
-    }, 5000);
+    }, 5000)
   }
-};
+}
 
-// Состояния формы
 const setFormSubmitting = (isSubmitting) => {
-  const { submitButton, rssUrlInput } = elements;
+  const { submitButton, rssUrlInput } = elements
   
   if (isSubmitting) {
-    submitButton.disabled = true;
-    submitButton.textContent = 'Добавление...';
-    rssUrlInput.disabled = true;
+    submitButton.disabled = true
+    submitButton.textContent = t('form.submitting')
+    rssUrlInput.disabled = true
   } else {
-    submitButton.disabled = false;
-    submitButton.textContent = 'Добавить';
-    rssUrlInput.disabled = false;
+    submitButton.disabled = false
+    submitButton.textContent = t('form.submit')
+    rssUrlInput.disabled = false
   }
-};
+}
 
 const clearForm = () => {
-  const { rssUrlInput } = elements;
+  const { rssUrlInput } = elements
   
-  rssUrlInput.value = '';
-  clearValidationError(rssUrlInput);
-  clearSuccessValidation(rssUrlInput);
+  rssUrlInput.value = ''
+  clearValidationError(rssUrlInput)
+  clearSuccessValidation(rssUrlInput)
   
-  // Возвращаем фокус на input
   setTimeout(() => {
-    rssUrlInput.focus();
-  }, 100);
-};
+    rssUrlInput.focus()
+  }, 100)
+}
 
-// Обновление списка фидов
 const updateFeedsList = (feeds) => {
-  const { feedsContainer } = elements;
+  const { feedsContainer } = elements
   
-  if (!feedsContainer) return;
+  if (!feedsContainer) return
   
   if (feeds.length === 0) {
     feedsContainer.innerHTML = `
       <div class="text-center text-muted py-5">
-        <p>Пока нет RSS потоков. Добавьте первый!</p>
+        <p>${t('feeds.empty')}</p>
       </div>
-    `;
-    return;
+    `
+    return
   }
   
-  const feedsHtml = feeds.map((feedUrl, index) => `
+  const feedsHtml = feeds.map((feed, index) => `
     <div class="card mb-3 fade-in">
       <div class="card-body">
         <h5 class="card-title d-flex align-items-center">
           <span class="badge bg-primary me-2">${index + 1}</span>
-          ${feedUrl}
+          ${feed.title}
         </h5>
         <p class="card-text text-success">
-          ✓ RSS поток успешно добавлен
+          ✓ ${t('feeds.added')}
         </p>
+        <small class="text-muted">${feed.url}</small>
       </div>
     </div>
-  `).join('');
+  `).join('')
   
-  feedsContainer.innerHTML = feedsHtml;
-};
+  feedsContainer.innerHTML = `
+    <h3 class="h4 mb-4">${t('feeds.title')}</h3>
+    ${feedsHtml}
+  `
+}
 
-// Инициализация View
 const initView = (state, watchedState) => {
-  const { rssUrlInput } = elements;
+  const { rssUrlInput } = elements
   
-  // Наблюдаем за изменениями состояния
+  initUIElements()
+  updateUITexts()
+  
+  i18next.on('languageChanged', (lng) => {
+    updateUITexts()
+    updateFeedsList(watchedState.feeds)
+  })
+  
   watchedState.form.state = onChange(watchedState.form.state, (path, value) => {
     switch (value) {
       case 'validating':
-        setFormSubmitting(false);
-        clearValidationError(rssUrlInput);
-        break;
+        setFormSubmitting(false)
+        clearValidationError(rssUrlInput)
+        break
         
       case 'invalid':
-        setFormSubmitting(false);
-        const errors = watchedState.form.errors.url || [];
+        setFormSubmitting(false)
+        const errors = watchedState.form.errors.url || []
         if (errors.length > 0) {
-          showValidationError(rssUrlInput, errors[0]);
+          showValidationError(rssUrlInput, errors[0])
         }
-        break;
+        break
         
       case 'submitting':
-        setFormSubmitting(true);
-        clearValidationError(rssUrlInput);
-        showSuccessValidation(rssUrlInput);
-        break;
+        setFormSubmitting(true)
+        clearValidationError(rssUrlInput)
+        showSuccessValidation(rssUrlInput)
+        break
         
       case 'success':
-        setFormSubmitting(false);
-        clearForm();
-        updateFeedsList(watchedState.feeds);
-        showNotification('RSS успешно добавлен', 'success');
-        watchedState.form.state = 'filling';
-        break;
+        setFormSubmitting(false)
+        clearForm()
+        updateFeedsList(watchedState.feeds)
+        showNotification(t('notifications.success'), 'success')
+        watchedState.form.state = 'filling'
+        break
         
       case 'error':
-        setFormSubmitting(false);
-        showNotification('Ошибка при добавлении RSS', 'error');
-        watchedState.form.state = 'filling';
-        break;
+        setFormSubmitting(false)
+        showNotification(t('notifications.error'), 'error')
+        watchedState.form.state = 'filling'
+        break
         
       default:
-        break;
+        break
     }
-  });
+  })
   
   watchedState.feeds = onChange(watchedState.feeds, () => {
-    updateFeedsList(watchedState.feeds);
-  });
+    updateFeedsList(watchedState.feeds)
+  })
   
   watchedState.ui.notification = onChange(watchedState.ui.notification, (path, value) => {
     if (value) {
-      showNotification(value.message, value.type);
+      showNotification(value.message, value.type)
     }
-  });
+  })
   
-  // Фокус на input при загрузке
+  watchedState.lng = onChange(watchedState.lng, (path, value) => {
+    i18next.changeLanguage(value)
+  })
+  
   setTimeout(() => {
-    rssUrlInput.focus()
+    if (rssUrlInput) rssUrlInput.focus()
   }, 100)
 }
 
@@ -204,4 +253,5 @@ export {
   clearForm,
   updateFeedsList,
   initView,
+  updateUITexts,
 }

@@ -1,0 +1,33 @@
+{
+  "app": {
+    "title": "RSS Aggregator",
+    "description": "Start reading RSS today! It's easy, it's beautiful.",
+    "createdBy": "created by Hexlet"
+  },
+  "form": {
+    "label": "RSS Link",
+    "placeholder": "https://example.com/rss",
+    "submit": "Add",
+    "submitting": "Adding...",
+    "example": "Example: {{example}}"
+  },
+  "errors": {
+    "required": "Must not be empty",
+    "url": "Must be a valid URL",
+    "notOneOf": "RSS already exists",
+    "network": "Network error",
+    "rss": "Resource does not contain valid RSS",
+    "unknown": "Unknown error. Please try again."
+  },
+  "notifications": {
+    "success": "RSS successfully added",
+    "error": "Error adding RSS",
+    "networkError": "Network error. Check your connection and try again.",
+    "rssError": "Resource does not contain valid RSS"
+  },
+  "feeds": {
+    "empty": "No RSS feeds yet. Add the first one!",
+    "added": "RSS feed successfully added",
+    "title": "Added RSS Feeds"
+  }
+}
