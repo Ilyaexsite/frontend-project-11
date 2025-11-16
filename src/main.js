@@ -19,6 +19,8 @@ import { elements, initView } from './view.js';
 const app = async () => {
   await initI18n();
   
+  console.log('🚀 App starting...');
+  
   const state = createState();
   
   state.openModal = (post) => {
@@ -29,14 +31,22 @@ const app = async () => {
   
   const { rssForm, rssUrlInput } = elements;
   
+  console.log('📋 Main.js elements:', {
+    form: !!rssForm,
+    input: !!rssUrlInput
+  });
+  
   if (rssUrlInput) {
     rssUrlInput.addEventListener('input', (event) => {
+      console.log('📝 Input changed:', event.target.value);
       setFormUrl(state, event.target.value.trim());
     });
   }
   
   if (rssForm) {
+    console.log('✅ Adding submit handler to form');
     rssForm.addEventListener('submit', async (event) => {
+      console.log('🎯 FORM SUBMIT EVENT FIRED!');
       event.preventDefault();
       event.stopPropagation();
       
@@ -91,6 +101,8 @@ const app = async () => {
         setFormState(state, 'error');
       }
     });
+  } else {
+    console.error('❌ Form element not found!');
   }
   
   document.addEventListener('keydown', (event) => {
@@ -98,6 +110,8 @@ const app = async () => {
       clearFormState(state);
     }
   });
+  
+  console.log('✅ App initialization complete');
 };
 
 document.addEventListener('DOMContentLoaded', app);
