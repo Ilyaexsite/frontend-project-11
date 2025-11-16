@@ -1,5 +1,4 @@
 import { t } from './i18n.js';
-import onChange from 'on-change';
 
 // Создаем объект с геттерами чтобы всегда получать актуальные элементы
 const elements = {
@@ -8,6 +7,24 @@ const elements = {
   get submitButton() { return document.querySelector('button[type="submit"]'); },
   get feedsContainer() { return document.getElementById('feeds-container'); },
   get postsContainer() { return document.getElementById('posts-container'); },
+};
+
+// Простой наблюдатель состояний вместо onChange
+const createStateObserver = (state, callback) => {
+  let currentState = state;
+  
+  return {
+    setState(newState) {
+      if (newState !== currentState) {
+        const oldState = currentState;
+        currentState = newState;
+        callback(oldState, newState);
+      }
+    },
+    getState() {
+      return currentState;
+    }
+  };
 };
 
 // Функция для проверки что элементы найдены
@@ -234,11 +251,11 @@ const initView = (state, watchedState) => {
     
     console.log('✅ View initialized with elements');
     
-    // ВКЛЮЧАЕМ логику для состояния формы
-    watchedState.form.state = onChange(watchedState.form.state, (path, value) => {
-      console.log('🔄 Form state changed to:', value);
+    // Простой наблюдатель за состоянием формы
+    const formStateObserver = createStateObserver(watchedState.form.state, (oldState, newState) => {
+      console.log('🔄 Form state changed from', oldState, 'to', newState);
       
-      switch (value) {
+      switch (newState) {
         case 'validating':
           console.log('🔍 Validating form...');
           setFormSubmitting(false);
@@ -306,19 +323,40 @@ const initView = (state, watchedState) => {
       }
     });
     
-    // ВКЛЮЧАЕМ логику для feeds
-    watchedState.feeds = onChange(watchedState.feeds, () => {
-      console.log('📰 Feeds updated:', watchedState.feeds.length);
-      updateFeedsList(watchedState.feeds);
+    // Перехватываем изменения состояния формы
+    const originalFormStateSetter = Object.getOwnPropertyDescriptor(watchedState.form, 'state').set;
+    Object.defineProperty(watchedState.form, 'state', {
+      get() {
+        return formStateObserver.getState();
+      },
+      set(newState) {
+        formStateObserver.setState(newState);
+        if (originalFormStateSetter) {
+          originalFormStateSetter.call(watchedState.form, newState);
+        }
+      }
     });
     
-    // ВКЛЮЧАЕМ логику для posts
-    watchedState.posts = onChange(watchedState.posts, () => {
-      console.log('📝 Posts updated:', watchedState.posts.length);
-      updatePostsList(watchedState.posts, watchedState.readPosts, (post) => {
-        watchedState.openModal(post);
-      });
-    });
+    // Простые наблюдатели для feeds и posts
+    let currentFeeds = [...watchedState.feeds];
+    let currentPosts = [...watchedState.posts];
+    
+    // Проверяем изменения каждые 100ms
+    setInterval(() => {
+      if (watchedState.feeds.length !== currentFeeds.length) {
+        console.log('📰 Feeds updated:', watchedState.feeds.length);
+        updateFeedsList(watchedState.feeds);
+        currentFeeds = [...watchedState.feeds];
+      }
+      
+      if (watchedState.posts.length !== currentPosts.length) {
+        console.log('📝 Posts updated:', watchedState.posts.length);
+        updatePostsList(watchedState.posts, watchedState.readPosts, (post) => {
+          watchedState.openModal(post);
+        });
+        currentPosts = [...watchedState.posts];
+      }
+    }, 100);
     
     setTimeout(() => {
       if (rssUrlInput) rssUrlInput.focus();
