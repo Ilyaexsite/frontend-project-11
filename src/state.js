@@ -12,44 +12,35 @@ const initialState = {
   },
   feeds: [],
   posts: [],
-  readPosts: new Set(), // Храним ID прочитанных постов
+  readPosts: new Set(),
   ui: {
-    notification: null,
     loading: false,
     error: null,
-    updating: false,
-    modal: {
-      isOpen: false,
-      post: null,
-    },
   },
 }
 
 const createState = (initial = initialState) => {
   const state = onChange(initial, (path, value, previousValue) => {
-    console.log(`State changed: ${path}`, value)
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`State changed: ${path}`, value)
+    }
   })
 
   return state
 }
 
-// Геттеры
 const getFormState = (state) => state.form.state
 const getFormUrl = (state) => state.form.fields.url
 const getFormErrors = (state) => state.form.errors
 const getFeeds = (state) => state.feeds
 const getPosts = (state) => state.posts
 const getPostsByFeed = (state, feedUrl) => state.posts.filter(post => post.feedId === feedUrl)
-const getNotification = (state) => state.ui.notification
 const getLanguage = (state) => state.lng
 const getLoading = (state) => state.ui.loading
 const getError = (state) => state.ui.error
-const getUpdating = (state) => state.ui.updating
-const getModal = (state) => state.ui.modal
 const getReadPosts = (state) => state.readPosts
 const isPostRead = (state, postId) => state.readPosts.has(postId)
 
-// Сеттеры
 const setFormState = (state, newState) => {
   state.form.state = newState
 }
@@ -92,14 +83,6 @@ const addNewPosts = (state, newPosts) => {
   state.posts = [...state.posts, ...newPosts]
 }
 
-const setNotification = (state, notification) => {
-  state.ui.notification = notification
-}
-
-const clearNotification = (state) => {
-  state.ui.notification = null
-}
-
 const setLanguage = (state, lng) => {
   state.lng = lng
 }
@@ -116,26 +99,6 @@ const clearError = (state) => {
   state.ui.error = null
 }
 
-const setUpdating = (state, updating) => {
-  state.ui.updating = updating
-}
-
-const openModal = (state, post) => {
-  state.ui.modal = {
-    isOpen: true,
-    post,
-  }
-  // Помечаем пост как прочитанный при открытии модального окна
-  markPostAsRead(state, post.id)
-}
-
-const closeModal = (state) => {
-  state.ui.modal = {
-    isOpen: false,
-    post: null,
-  }
-}
-
 const markPostAsRead = (state, postId) => {
   state.readPosts.add(postId)
 }
@@ -147,12 +110,9 @@ export {
   getFeeds,
   getPosts,
   getPostsByFeed,
-  getNotification,
   getLanguage,
   getLoading,
   getError,
-  getUpdating,
-  getModal,
   getReadPosts,
   isPostRead,
   setFormState,
@@ -162,15 +122,10 @@ export {
   addFeed,
   addPosts,
   addNewPosts,
-  setNotification,
-  clearNotification,
   setLanguage,
   setLoading,
   setError,
   clearError,
-  setUpdating,
-  openModal,
-  closeModal,
   markPostAsRead,
 }
 

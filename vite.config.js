@@ -9,8 +9,9 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
+    emptyOutDir: true,
   },
   css: {
-    devSourcemap: true
+    devSourcemap: false
   }
 })

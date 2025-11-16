@@ -8,85 +8,29 @@ const elements = {
   submitButton: document.querySelector('button[type="submit"]'),
   feedsContainer: document.getElementById('feeds-container'),
   postsContainer: document.getElementById('posts-container'),
-  appTitle: document.querySelector('h1'),
-  appDescription: document.querySelector('.lead'),
-  exampleText: document.querySelector('.form-text'),
-  createdBy: document.querySelector('.text-muted.small'),
-  updateStatus: document.getElementById('update-status'),
-  modal: document.getElementById('post-modal'),
+  feedback: document.getElementById('feedback'),
 }
 
-const createUpdateStatusElement = () => {
-  if (!elements.updateStatus) {
-    const statusElement = document.createElement('div')
-    statusElement.id = 'update-status'
-    statusElement.className = 'text-center mb-3'
-    document.querySelector('.container').insertBefore(statusElement, document.querySelector('.row'))
-    elements.updateStatus = statusElement
-  }
-}
-
-const createModalElement = () => {
-  if (!elements.modal) {
-    const modalHtml = `
-      <div class="modal fade" id="post-modal" tabindex="-1" aria-labelledby="post-modal-label" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="post-modal-label">Просмотр поста</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <div id="modal-content">
-                <!-- Контент модального окна будет заполняться динамически -->
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-              <a href="#" class="btn btn-primary" id="modal-full-article" target="_blank" rel="noopener noreferrer">Читать полностью</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    `
-    document.body.insertAdjacentHTML('beforeend', modalHtml)
-    elements.modal = document.getElementById('post-modal')
+const createFeedbackElement = () => {
+  if (!elements.feedback) {
+    const feedbackElement = document.createElement('div')
+    feedbackElement.id = 'feedback'
+    feedbackElement.className = 'mb-3'
+    const form = document.getElementById('rss-form')
+    if (form) {
+      form.parentNode.insertBefore(feedbackElement, form)
+    } else {
+      document.querySelector('.card-body').prepend(feedbackElement)
+    }
+    elements.feedback = feedbackElement
   }
 }
 
 const updateUITexts = () => {
-  const {
-    appTitle,
-    appDescription,
-    exampleText,
-    createdBy,
-    rssUrlInput,
-    submitButton,
-  } = elements
+  const { rssUrlInput, submitButton } = elements
 
-  if (appTitle) appTitle.textContent = t('app.title')
-  if (appDescription) appDescription.textContent = t('app.description')
-  if (exampleText) exampleText.innerHTML = t('form.example', { example: '<strong>https://lorem-rss.hexlet.app/feed</strong>' })
-  if (createdBy) createdBy.textContent = t('app.createdBy')
   if (rssUrlInput) rssUrlInput.placeholder = t('form.placeholder')
   if (submitButton) submitButton.textContent = t('form.submit')
-}
-
-const showUpdateStatus = (message, type = 'info') => {
-  createUpdateStatusElement()
-  
-  const statusClass = type === 'error' ? 'text-danger' : 'text-success'
-  elements.updateStatus.innerHTML = `
-    <small class="${statusClass}">
-      <i class="bi bi-arrow-repeat"></i> ${message}
-    </small>
-  `
-}
-
-const clearUpdateStatus = () => {
-  if (elements.updateStatus) {
-    elements.updateStatus.innerHTML = ''
-  }
 }
 
 const showValidationError = (input, message) => {
@@ -112,39 +56,27 @@ const clearValidationError = (input) => {
   }
 }
 
-const showSuccessValidation = (input) => {
-  input.classList.remove('is-invalid')
-  input.classList.add('is-valid')
-}
-
-const clearSuccessValidation = (input) => {
-  input.classList.remove('is-valid')
-}
-
-const showNotification = (message, type = 'success') => {
-  const existingAlert = document.querySelector('.alert')
-  if (existingAlert) {
-    existingAlert.remove()
-  }
+const showFeedback = (message, type = 'success') => {
+  createFeedbackElement()
   
   const alertClass = type === 'error' ? 'alert-danger' : 'alert-success'
-  const alertHtml = `
+  elements.feedback.innerHTML = `
     <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
       ${message}
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
   `
   
-  const container = document.querySelector('.container')
-  if (container) {
-    container.insertAdjacentHTML('afterbegin', alertHtml)
-    
-    setTimeout(() => {
-      const alert = document.querySelector('.alert')
-      if (alert) {
-        alert.remove()
-      }
-    }, 5000)
+  setTimeout(() => {
+    if (elements.feedback) {
+      elements.feedback.innerHTML = ''
+    }
+  }, 5000)
+}
+
+const clearFeedback = () => {
+  if (elements.feedback) {
+    elements.feedback.innerHTML = ''
   }
 }
 
@@ -167,7 +99,6 @@ const clearForm = () => {
   
   rssUrlInput.value = ''
   clearValidationError(rssUrlInput)
-  clearSuccessValidation(rssUrlInput)
   
   setTimeout(() => {
     rssUrlInput.focus()
@@ -181,29 +112,32 @@ const updateFeedsList = (feeds) => {
   
   if (feeds.length === 0) {
     feedsContainer.innerHTML = `
-      <div class="text-center text-muted py-5">
-        <p class="fs-5">${t('feeds.empty')}</p>
+      <div class="card border-0">
+        <div class="card-body">
+          <h2 class="card-title h4">${t('feeds.title')}</h2>
+          <p class="card-text text-muted">${t('feeds.empty')}</p>
+        </div>
       </div>
     `
     return
   }
   
   const feedsHtml = feeds.map((feed) => `
-    <div class="feed-card card mb-4 fade-in">
-      <div class="card-body p-4">
-        <h5 class="card-title mb-3 fs-5 text-primary">${feed.title}</h5>
-        <p class="card-text text-muted mb-3">${feed.description}</p>
-        <div class="d-flex justify-content-between align-items-center">
-          <small class="text-muted">${feed.url}</small>
-          <span class="badge bg-success">✓ Добавлен</span>
-        </div>
+    <div class="card mb-3">
+      <div class="card-body">
+        <h3 class="card-title h6">${feed.title}</h3>
+        <p class="card-text">${feed.description}</p>
       </div>
     </div>
   `).join('')
   
   feedsContainer.innerHTML = `
-    <h3 class="h3 mb-4 text-dark">Фиды</h3>
-    ${feedsHtml}
+    <div class="card border-0">
+      <div class="card-body">
+        <h2 class="card-title h4">${t('feeds.title')}</h2>
+        ${feedsHtml}
+      </div>
+    </div>
   `
 }
 
@@ -214,8 +148,11 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
   
   if (posts.length === 0) {
     postsContainer.innerHTML = `
-      <div class="text-center text-muted py-4">
-        <p class="fs-6">Пока нет постов. Новые посты будут появляться автоматически.</p>
+      <div class="card border-0">
+        <div class="card-body">
+          <h2 class="card-title h4">${t('posts.title')}</h2>
+          <p class="card-text text-muted">${t('posts.empty')}</p>
+        </div>
       </div>
     `
     return
@@ -228,41 +165,32 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
     const titleClass = isRead ? 'fw-normal' : 'fw-bold'
     
     return `
-    <div class="mb-3 fade-in">
-      <div class="card border-0 bg-light-hover">
-        <div class="card-body py-3">
-          <div class="d-flex justify-content-between align-items-start">
-            <div class="flex-grow-1 me-3">
-              <h6 class="card-title mb-2 text-dark ${titleClass}">${post.title}</h6>
-              <p class="card-text text-muted small mb-2">${post.description.substring(0, 100)}${post.description.length > 100 ? '...' : ''}</p>
-              <small class="text-muted">Из: ${post.feedId}</small>
-            </div>
-            <div class="d-flex flex-column gap-2">
-              <a href="${post.link}" class="btn btn-outline-primary btn-sm" target="_blank" rel="noopener noreferrer">
-                <i class="bi bi-box-arrow-up-right"></i>
-              </a>
-              <button type="button" class="btn btn-outline-secondary btn-sm preview-btn" data-post-id="${post.id}">
-                <i class="bi bi-eye"></i>
-              </button>
-            </div>
-          </div>
-        </div>
+    <div class="list-group-item d-flex justify-content-between align-items-start border-0">
+      <div class="ms-2 me-auto">
+        <a href="${post.link}" class="${titleClass} text-dark text-decoration-none" target="_blank" rel="noopener noreferrer">
+          ${post.title}
+        </a>
       </div>
+      <button type="button" class="btn btn-outline-primary btn-sm" data-post-id="${post.id}">
+        ${t('posts.view')}
+      </button>
     </div>
     `
   }).join('')
   
   postsContainer.innerHTML = `
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h3 class="h3 text-dark mb-0">Посты</h3>
-      <small class="text-muted">Автообновление каждые 5 секунд</small>
+    <div class="card border-0">
+      <div class="card-body">
+        <h2 class="card-title h4">${t('posts.title')}</h2>
+        <div class="list-group">
+          ${postsHtml}
+        </div>
+      </div>
     </div>
-    ${postsHtml}
   `
   
-  // Добавляем обработчики для кнопок предпросмотра
-  const previewButtons = postsContainer.querySelectorAll('.preview-btn')
-  previewButtons.forEach(button => {
+  const viewButtons = postsContainer.querySelectorAll('button[data-post-id]')
+  viewButtons.forEach(button => {
     button.addEventListener('click', (event) => {
       const postId = event.currentTarget.getAttribute('data-post-id')
       const post = posts.find(p => p.id === postId)
@@ -273,40 +201,8 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
   })
 }
 
-const updateModal = (modalState) => {
-  const { modal } = elements
-  
-  if (!modal) return
-  
-  const modalInstance = bootstrap.Modal.getInstance(modal) || new bootstrap.Modal(modal)
-  
-  if (modalState.isOpen && modalState.post) {
-    // Заполняем контент модального окна
-    const modalContent = document.getElementById('modal-content')
-    const fullArticleLink = document.getElementById('modal-full-article')
-    
-    if (modalContent && fullArticleLink) {
-      modalContent.innerHTML = `
-        <h4 class="mb-3">${modalState.post.title}</h4>
-        <div class="post-description">
-          ${modalState.post.description || '<p class="text-muted">Описание отсутствует</p>'}
-        </div>
-      `
-      fullArticleLink.href = modalState.post.link
-    }
-    
-    // Показываем модальное окно
-    modalInstance.show()
-  } else {
-    // Скрываем модальное окно
-    modalInstance.hide()
-  }
-}
-
 const initView = (state, watchedState) => {
   updateUITexts()
-  createUpdateStatusElement()
-  createModalElement()
   
   i18next.on('languageChanged', () => {
     updateUITexts()
@@ -323,6 +219,7 @@ const initView = (state, watchedState) => {
       case 'validating':
         setFormSubmitting(false)
         clearValidationError(rssUrlInput)
+        clearFeedback()
         break
         
       case 'invalid':
@@ -336,7 +233,7 @@ const initView = (state, watchedState) => {
       case 'submitting':
         setFormSubmitting(true)
         clearValidationError(rssUrlInput)
-        showSuccessValidation(rssUrlInput)
+        clearFeedback()
         break
         
       case 'success':
@@ -346,13 +243,20 @@ const initView = (state, watchedState) => {
         updatePostsList(watchedState.posts, watchedState.readPosts, (post) => {
           watchedState.openModal(post)
         })
-        showNotification(t('notifications.success'), 'success')
+        showFeedback(t('notifications.success'), 'success')
         watchedState.form.state = 'filling'
         break
         
       case 'error':
         setFormSubmitting(false)
-        showNotification(t('notifications.error'), 'error')
+        const error = watchedState.ui.error
+        let errorMessage = t('notifications.error')
+        if (error === 'networkError') {
+          errorMessage = t('notifications.networkError')
+        } else if (error === 'rssError') {
+          errorMessage = t('notifications.rssError')
+        }
+        showFeedback(errorMessage, 'error')
         watchedState.form.state = 'filling'
         break
         
@@ -377,28 +281,12 @@ const initView = (state, watchedState) => {
     })
   })
   
-  watchedState.ui.notification = onChange(watchedState.ui.notification, (path, value) => {
-    if (value) {
-      showNotification(value.message, value.type)
-    }
-  })
-  
-  watchedState.ui.modal = onChange(watchedState.ui.modal, (path, value) => {
-    updateModal(value)
+  watchedState.ui.error = onChange(watchedState.ui.error, (path, value) => {
   })
   
   watchedState.lng = onChange(watchedState.lng, (path, value) => {
     i18next.changeLanguage(value)
   })
-  
-  // Обработчик закрытия модального окна
-  if (elements.modal) {
-    elements.modal.addEventListener('hidden.bs.modal', () => {
-      watchedState.closeModal()
-    })
-  }
-  
-  showUpdateStatus('Автообновление включено')
   
   setTimeout(() => {
     if (rssUrlInput) rssUrlInput.focus()
@@ -409,16 +297,12 @@ export {
   elements,
   showValidationError,
   clearValidationError,
-  showSuccessValidation,
-  clearSuccessValidation,
-  showNotification,
+  showFeedback,
+  clearFeedback,
   setFormSubmitting,
   clearForm,
   updateFeedsList,
   updatePostsList,
-  updateModal,
   initView,
   updateUITexts,
-  showUpdateStatus,
-  clearUpdateStatus,
 }

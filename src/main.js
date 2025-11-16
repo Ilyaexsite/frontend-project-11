@@ -11,14 +11,10 @@ import createState, {
   addFeed,
   addPosts,
   addNewPosts,
-  setNotification,
   setLanguage,
   setLoading,
   setError,
   clearError,
-  setUpdating,
-  openModal,
-  closeModal,
   markPostAsRead,
 } from './state.js'
 import { validateRssUrl } from './validation.js'
@@ -26,46 +22,33 @@ import { loadRssFeed, checkFeedUpdates } from './rss.js'
 import { elements, initView } from './view.js'
 import FeedUpdater from './updater.js'
 
-let feedUpdater = null
-
-const handleFeedUpdate = (state) => async (feedUrl) => {
-  const existingPosts = getPostsByFeed(state, feedUrl)
-  
-  try {
-    const updateResult = await checkFeedUpdates(feedUrl, existingPosts)
-    
-    if (updateResult.newPosts.length > 0) {
-      addNewPosts(state, updateResult.newPosts)
-      
-      setNotification(state, {
-        message: `Добавлено ${updateResult.newPosts.length} новых постов из ${feedUrl}`,
-        type: 'success',
-      })
-      
-      console.log(`Added ${updateResult.newPosts.length} new posts from ${feedUrl}`)
-    }
-    
-    return updateResult
-  } catch (error) {
-    console.error(`Error in handleFeedUpdate for ${feedUrl}:`, error)
-    return { newPosts: [], feedUrl, error: error.message }
-  }
-}
-
 const app = async () => {
   await initI18n()
   
   const state = createState()
   
-  feedUpdater = new FeedUpdater(handleFeedUpdate(state), 5000)
-  
-  // Добавляем методы для работы с модальным окном в наблюдаемое состояние
-  state.openModal = (post) => {
-    openModal(state, post)
+  const handleFeedUpdate = (currentState) => async (feedUrl) => {
+    const existingPosts = getPostsByFeed(currentState, feedUrl)
+    
+    try {
+      const updateResult = await checkFeedUpdates(feedUrl, existingPosts)
+      
+      if (updateResult.newPosts.length > 0) {
+        addNewPosts(currentState, updateResult.newPosts)
+        console.log(`Added ${updateResult.newPosts.length} new posts from ${feedUrl}`)
+      }
+      
+      return updateResult
+    } catch (error) {
+      console.error(`Error in handleFeedUpdate for ${feedUrl}:`, error)
+      return { newPosts: [], feedUrl, error: error.message }
+    }
   }
+
+  const feedUpdater = new FeedUpdater(handleFeedUpdate(state), 5000)
   
-  state.closeModal = () => {
-    closeModal(state)
+  state.openModal = (post) => {
+    markPostAsRead(state, post.id)
   }
   
   initView(state, state)
@@ -112,27 +95,11 @@ const app = async () => {
         feedUpdater.start()
         
         setFormState(state, 'success')
-        setNotification(state, {
-          message: t('notifications.success'),
-          type: 'success',
-        })
         
       } catch (error) {
         console.error('Error loading RSS:', error)
-        
-        let errorMessage = t('notifications.error')
-        if (error.message === 'networkError') {
-          errorMessage = t('notifications.networkError')
-        } else if (error.message === 'rssError') {
-          errorMessage = t('notifications.rssError')
-        }
-        
-        setFormState(state, 'error')
-        setNotification(state, {
-          message: errorMessage,
-          type: 'error',
-        })
         setError(state, error.message)
+        setFormState(state, 'error')
       } finally {
         setLoading(state, false)
       }
@@ -140,13 +107,11 @@ const app = async () => {
   }
   
   state.feeds = onChange(state.feeds, () => {
-    if (feedUpdater) {
-      feedUpdater.setFeeds(getFeeds(state))
-      if (state.feeds.length > 0) {
-        feedUpdater.start()
-      } else {
-        feedUpdater.stop()
-      }
+    feedUpdater.setFeeds(getFeeds(state))
+    if (state.feeds.length > 0) {
+      feedUpdater.start()
+    } else {
+      feedUpdater.stop()
     }
   })
   
@@ -154,24 +119,14 @@ const app = async () => {
     if (event.key === 'Escape') {
       clearFormState(state)
     }
-    
-    if (event.ctrlKey && event.key === 'l') {
-      const currentLng = i18next.language
-      const newLng = currentLng === 'ru' ? 'en' : 'ru'
-      setLanguage(state, newLng)
-    }
   })
   
-  if (getFeeds(state).length > 0) {
-    feedUpdater.setFeeds(getFeeds(state))
-    feedUpdater.start()
-  }
-  
   window.addEventListener('beforeunload', () => {
-    if (feedUpdater) {
-      feedUpdater.stop()
-    }
+    feedUpdater.stop()
   })
 }
 
-document.addEventListener('DOMContentLoaded', app)
+if (!window.appInitialized) {
+  window.appInitialized = true
+  document.addEventListener('DOMContentLoaded', app)
+}

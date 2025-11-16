@@ -5,69 +5,44 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RSS агрегатор</title>
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
   </head>
   <body>
-    <div class="container">
+    <div class="container-fluid my-4">
       <div class="row justify-content-center">
-        <div class="col-12 col-md-10 col-lg-8 col-xl-6 col-xxl-5">
-          <!-- Заголовок -->
-          <div class="text-center mb-5">
-            <h1 class="display-3 fw-normal text-dark mb-3">RSS агрегатор</h1>
-            <p class="lead text-muted mb-4">
-              Начните читать RSS сегодня! Это легко, это красиво.
-            </p>
+        <div class="col-12 col-md-10 col-lg-8 col-xl-6">
+          <div class="text-center mb-4">
+            <h1>RSS агрегатор</h1>
+            <p class="lead">Начните читать RSS сегодня! Это легко, это красиво.</p>
           </div>
 
-          <!-- Форма -->
-          <div class="card border-0 bg-light shadow-sm">
-            <div class="card-body p-4 p-md-5">
-              <form id="rss-form" class="rss-form" novalidate>
-                <div class="mb-4">
-                  <label for="rss-url" class="form-label text-dark fw-semibold mb-3 fs-5">Ссылка RSS</label>
-                  <div class="input-group input-group-lg">
-                    <input 
-                      type="url" 
-                      class="form-control form-control-lg border-end-0 py-3 px-4" 
-                      id="rss-url" 
-                      name="rss-url"
-                      placeholder="https://example.com/rss"
-                      required
-                      autofocus
-                      style="border-color: #dee2e6; font-size: 1.1rem;"
-                    >
-                    <button 
-                      type="submit" 
-                      class="btn btn-primary btn-lg px-4 py-3 fw-semibold"
-                      style="border-top-left-radius: 0; border-bottom-left-radius: 0; font-size: 1.1rem;"
-                    >
-                      Добавить
-                    </button>
-                  </div>
-                  <div class="form-text text-muted mt-3 fs-6">
-                    <strong>Пример:</strong> https://lorem-rss.hexlet.app/feed
-                  </div>
+          <form id="rss-form" class="rss-form bg-light rounded p-3 mb-4" novalidate>
+            <div class="row">
+              <div class="col">
+                <div class="form-floating">
+                  <input 
+                    type="url" 
+                    class="form-control form-control-lg" 
+                    id="rss-url" 
+                    name="rss-url"
+                    placeholder="ссылка RSS"
+                    required
+                    autofocus
+                  >
+                  <label for="rss-url">Ссылка RSS</label>
+                  <div class="form-text">Пример: https://lorem-rss.hexlet.app/feed</div>
                 </div>
-              </form>
+              </div>
+              <div class="col-auto">
+                <button type="submit" class="btn btn-primary btn-lg h-100">Добавить</button>
+              </div>
             </div>
-          </div>
+          </form>
 
-          <!-- Контейнер для фидов -->
-          <div id="feeds-container" class="mt-5"></div>
-
-          <!-- Контейнер для постов -->
+          <div id="feeds-container"></div>
           <div id="posts-container" class="mt-4"></div>
-
-          <!-- Подпись -->
-          <div class="text-center mt-5 pt-4">
-            <p class="text-muted small">created by Hexlet</p>
-          </div>
         </div>
       </div>
     </div>
-
-    <!-- Модальное окно будет создано динамически -->
 
     <script type="module" src="/src/main.js"></script>
   </body>

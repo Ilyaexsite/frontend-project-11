@@ -6,10 +6,10 @@
   },
   "form": {
     "label": "Ссылка RSS",
-    "placeholder": "https://example.com/rss",
+    "placeholder": "ссылка RSS",
     "submit": "Добавить",
     "submitting": "Добавление...",
-    "example": "Пример: {{example}}"
+    "example": "Пример: https://lorem-rss.hexlet.app/feed"
   },
   "errors": {
     "required": "Не должно быть пустым",
@@ -20,14 +20,19 @@
     "unknown": "Неизвестная ошибка. Попробуйте снова."
   },
   "notifications": {
-    "success": "RSS успешно добавлен",
-    "error": "Ошибка при добавлении RSS",
-    "networkError": "Ошибка сети. Проверьте подключение и попробуйте снова.",
+    "success": "RSS успешно загружен",
+    "error": "Ошибка сети",
+    "networkError": "Ошибка сети",
     "rssError": "Ресурс не содержит валидный RSS"
   },
   "feeds": {
     "empty": "Пока нет RSS потоков. Добавьте первый!",
     "added": "RSS поток успешно добавлен",
-    "title": "Добавленные RSS потоки"
+    "title": "Фиды"
+  },
+  "posts": {
+    "title": "Посты",
+    "view": "Просмотр",
+    "empty": "Пока нет постов. Новые посты будут появляться автоматически."
   }
 }

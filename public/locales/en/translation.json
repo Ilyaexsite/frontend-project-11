@@ -6,28 +6,33 @@
   },
   "form": {
     "label": "RSS Link",
-    "placeholder": "https://example.com/rss",
+    "placeholder": "RSS link",
     "submit": "Add",
     "submitting": "Adding...",
-    "example": "Example: {{example}}"
+    "example": "Example: https://lorem-rss.hexlet.app/feed"
   },
   "errors": {
     "required": "Must not be empty",
-    "url": "Must be a valid URL",
+    "url": "Link must be a valid URL",
     "notOneOf": "RSS already exists",
     "network": "Network error",
     "rss": "Resource does not contain valid RSS",
     "unknown": "Unknown error. Please try again."
   },
   "notifications": {
-    "success": "RSS successfully added",
-    "error": "Error adding RSS",
-    "networkError": "Network error. Check your connection and try again.",
+    "success": "RSS successfully loaded",
+    "error": "Network error",
+    "networkError": "Network error",
     "rssError": "Resource does not contain valid RSS"
   },
   "feeds": {
     "empty": "No RSS feeds yet. Add the first one!",
     "added": "RSS feed successfully added",
-    "title": "Added RSS Feeds"
+    "title": "Feeds"
+  },
+  "posts": {
+    "title": "Posts",
+    "view": "View",
+    "empty": "No posts yet. New posts will appear automatically."
   }
 }
