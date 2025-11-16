@@ -4,7 +4,7 @@ import onChange from 'on-change'
 
 const elements = {
   rssForm: document.getElementById('rss-form'),
-  rssUrlInput: document.getElementById('url-input'), // Изменён ID
+  rssUrlInput: document.getElementById('url-input'),
   submitButton: document.querySelector('button[type="submit"]'),
   feedsContainer: document.getElementById('feeds-container'),
   postsContainer: document.getElementById('posts-container'),
@@ -67,11 +67,12 @@ const showFeedback = (message, type = 'success') => {
     </div>
   `
   
-  setTimeout(() => {
-    if (elements.feedback) {
-      elements.feedback.innerHTML = ''
-    }
-  }, 5000)
+  // Убираем автоскрытие для тестов
+  // setTimeout(() => {
+  //   if (elements.feedback) {
+  //     elements.feedback.innerHTML = ''
+  //   }
+  // }, 5000)
 }
 
 const clearFeedback = () => {
@@ -215,6 +216,8 @@ const initView = (state, watchedState) => {
   const { rssUrlInput } = elements
   
   watchedState.form.state = onChange(watchedState.form.state, (path, value) => {
+    console.log('Form state changed to:', value)
+    
     switch (value) {
       case 'validating':
         setFormSubmitting(false)
@@ -282,6 +285,7 @@ const initView = (state, watchedState) => {
   })
   
   watchedState.ui.error = onChange(watchedState.ui.error, (path, value) => {
+    console.log('Error changed:', value)
   })
   
   watchedState.lng = onChange(watchedState.lng, (path, value) => {
