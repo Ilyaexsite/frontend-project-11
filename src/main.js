@@ -39,7 +39,6 @@ const app = async () => {
       
       return updateResult
     } catch (error) {
-      console.error(`Error in handleFeedUpdate for ${feedUrl}:`, error)
       return { newPosts: [], feedUrl, error: error.message }
     }
   }
@@ -82,7 +81,7 @@ const app = async () => {
         setFormState(state, 'submitting')
         setLoading(state, true)
         
-        // Используем реальную загрузку RSS
+        // Загружаем RSS
         const rssData = await loadRssFeed(url)
         
         addFeed(state, rssData)
