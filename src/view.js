@@ -196,7 +196,6 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
   
   const postsHtml = posts.map((post) => {
     const isRead = readPosts.has(post.id);
-    // Для непрочитанных постов используем только fw-bold, для прочитанных - пустую строку
     const titleClass = isRead ? '' : 'fw-bold';
     
     return `
@@ -206,7 +205,7 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
           ${post.title}
         </a>
       </div>
-      <button type="button" class="btn btn-outline-primary btn-sm" data-post-id="${post.id}">
+      <button type="button" class="btn btn-outline-primary btn-sm" data-post-id="${post.id}" data-testid="view-button">
         Просмотр
       </button>
     </div>
@@ -224,16 +223,20 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
     </div>
   `;
   
+  // Добавляем обработчики событий для кнопок просмотра
   const viewButtons = postsContainer.querySelectorAll('button[data-post-id]');
   viewButtons.forEach(button => {
     button.addEventListener('click', (event) => {
       const postId = event.currentTarget.getAttribute('data-post-id');
       const post = posts.find(p => p.id === postId);
+      console.log('🔄 Button clicked for post:', post?.title);
       if (post) {
         onPreviewClick(post);
       }
     });
   });
+  
+  console.log('✅ Posts list updated, buttons count:', viewButtons.length);
 };
 
 const initView = (state, watchedState) => {
