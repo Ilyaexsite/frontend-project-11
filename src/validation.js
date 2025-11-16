@@ -4,22 +4,28 @@ import { t } from './i18n.js'
 const createRssSchema = (existingUrls = []) => yup.object({
   url: yup
     .string()
-    .required()
-    .url()
-    .notOneOf(existingUrls),
+    .required('errors.required')
+    .url('errors.url')
+    .notOneOf(existingUrls, 'errors.notOneOf'),
 })
 
 const validateRssUrl = (url, existingUrls = []) => {
+  console.log('🛠️ Validating URL:', url);
+  console.log('📊 Existing URLs:', existingUrls);
+  
   const schema = createRssSchema(existingUrls)
   
   return new Promise((resolve) => {
     schema.validate({ url }, { abortEarly: false })
       .then(() => {
+        console.log('✅ URL validation passed');
         resolve({ isValid: true, errors: [] })
       })
       .catch((validationError) => {
+        console.log('❌ URL validation failed:', validationError.errors);
         const errors = validationError.inner.map((err) => {
-          return t(err.message, { values: err.params })
+          // Используем ключ перевода из сообщения
+          return t(err.message)
         })
         resolve({ isValid: false, errors })
       })

@@ -1,60 +1,71 @@
-import axios from 'axios';
-
 const loadRssFeed = async (url) => {
+  console.log('🌐 Loading RSS from:', url);
+  
   try {
-    // В тестовом окружении используем прямой URL
-    const targetUrl = url.includes('localhost') ? url : `https://allorigins.hexlet.app/get?url=${encodeURIComponent(url)}&disableCache=true`;
+    // Используем прокси для обхода CORS
+    const proxyUrl = 'https://allorigins.hexlet.app/get?disableCache=true&url=';
+    const fullUrl = proxyUrl + encodeURIComponent(url);
     
-    const response = await axios.get(targetUrl, { timeout: 5000 });
+    console.log('🔗 Fetching from proxy:', fullUrl);
     
-    let xmlContent;
-    if (url.includes('localhost')) {
-      // Тестовый режим - получаем XML напрямую
-      xmlContent = response.data;
-    } else {
-      // Продакшен режим - через прокси
-      xmlContent = response.data.contents;
+    const response = await fetch(fullUrl);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-
-    // Парсим RSS
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(xmlContent, 'text/xml');
     
-    const channel = doc.querySelector('channel');
-    if (!channel) {
+    const data = await response.json();
+    console.log('📦 RSS data received, contents length:', data.contents?.length);
+    
+    if (!data.contents) {
+      throw new Error('No content received from RSS feed');
+    }
+    
+    // Парсинг RSS
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(data.contents, 'text/xml');
+    
+    const parseError = doc.querySelector('parsererror');
+    if (parseError) {
+      console.error('❌ RSS parsing error:', parseError.textContent);
       throw new Error('rssError');
     }
     
-    const feedTitle = channel.querySelector('title')?.textContent || 'Без названия';
-    const feedDescription = channel.querySelector('description')?.textContent || 'Без описания';
+    const title = doc.querySelector('channel > title')?.textContent || 
+                 doc.querySelector('title')?.textContent || 
+                 'Без названия';
+    const description = doc.querySelector('channel > description')?.textContent || 
+                       doc.querySelector('description')?.textContent || 
+                       'Без описания';
     
     const items = doc.querySelectorAll('item');
-    const posts = Array.from(items).map((item, index) => {
-      const title = item.querySelector('title')?.textContent || `Пост ${index + 1}`;
-      const link = item.querySelector('link')?.textContent || '#';
-      const description = item.querySelector('description')?.textContent || '';
-      
-      return {
-        id: `post-${Date.now()}-${index}`,
-        title,
-        link,
-        description,
-      };
+    console.log('📰 Found items:', items.length);
+    
+    const posts = Array.from(items).map((item, index) => ({
+      id: `${url}-${index}-${Date.now()}`,
+      title: item.querySelector('title')?.textContent || 'Без названия',
+      link: item.querySelector('link')?.textContent || '#',
+      description: item.querySelector('description')?.textContent || '',
+    }));
+    
+    console.log('✅ Parsed feed successfully:', { 
+      title, 
+      description, 
+      postsCount: posts.length 
     });
     
+    // Возвращаем правильную структуру
     return {
-      feed: {
-        title: feedTitle,
-        description: feedDescription,
-      },
-      posts,
       url,
+      title, // ← прямой доступ
+      description, // ← прямой доступ
+      posts,
     };
+    
   } catch (error) {
-    if (error.code === 'ECONNABORTED') {
-      throw new Error('networkError');
-    }
-    throw new Error('rssError');
+    console.error('💥 RSS loading error:', error);
+    console.error('Error details:', error.message);
+    throw error;
   }
 };
 

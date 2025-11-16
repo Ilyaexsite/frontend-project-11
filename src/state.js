@@ -37,6 +37,7 @@ const getReadPosts = (state) => state.readPosts;
 
 // Сеттеры
 const setFormState = (state, newState) => {
+  console.log('🔄 Setting form state from', state.form.state, 'to', newState);
   state.form.state = newState;
 };
 
@@ -55,17 +56,21 @@ const clearForm = (state) => {
 };
 
 const addFeed = (state, feedData) => {
+  console.log('💾 Adding feed to state:', feedData);
   const newFeed = {
     id: `feed-${Date.now()}`,
     url: feedData.url,
-    title: feedData.feed.title,
-    description: feedData.feed.description,
+    title: feedData.title, // ← ИСПРАВЛЕНО: прямой доступ
+    description: feedData.description, // ← ИСПРАВЛЕНО: прямой доступ
   };
   state.feeds.push(newFeed);
+  console.log('✅ Feed added, total feeds:', state.feeds.length);
 };
 
 const addPosts = (state, postsData) => {
+  console.log('📝 Adding posts to state:', postsData.length);
   state.posts = [...state.posts, ...postsData];
+  console.log('✅ Posts added, total posts:', state.posts.length);
 };
 
 const setError = (state, error) => {

@@ -45,32 +45,48 @@ const app = async () => {
       const url = getFormUrl(state);
       const existingUrls = getFeeds(state).map(feed => feed.url);
       
+      console.log('📝 URL to validate:', url);
+      console.log('📋 Existing URLs:', existingUrls);
+      
       setFormState(state, 'validating');
       clearError(state);
       
       try {
+        console.log('🔍 Starting validation...');
         const validationResult = await validateRssUrl(url, existingUrls);
+        console.log('✅ Validation result:', validationResult);
         
         if (!validationResult.isValid) {
+          console.log('❌ Validation failed with errors:', validationResult.errors);
           setFormErrors(state, { url: validationResult.errors });
           setFormState(state, 'invalid');
           return;
         }
         
+        console.log('🎯 Validation passed, setting state to submitting');
         setFormState(state, 'submitting');
         
+        console.log('📥 Starting RSS load...');
         const rssData = await loadRssFeed(url);
+        console.log('✅ RSS loaded successfully:', {
+          title: rssData.title,
+          description: rssData.description,
+          postsCount: rssData.posts?.length
+        });
         
+        console.log('💾 Adding feed to state...');
         addFeed(state, rssData);
         addPosts(state, rssData.posts.map(post => ({
           ...post,
           feedId: rssData.url,
         })));
         
+        console.log('🎉 Setting state to SUCCESS');
         setFormState(state, 'success');
         
       } catch (error) {
-        console.error('Error loading RSS:', error);
+        console.error('💥 Error in form submission:', error);
+        console.error('Error message:', error.message);
         setError(state, error.message);
         setFormState(state, 'error');
       }
