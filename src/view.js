@@ -221,19 +221,32 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
 const initView = (state, watchedState) => {
   console.log('🚀 View initializing...');
   
-  // Проверяем элементы
-  checkElements();
-  
-  const { rssUrlInput } = elements;
-  
-  if (!rssUrlInput) {
-    console.error('❌ Input element not found in initView');
-    return;
+  try {
+    // Проверяем элементы
+    checkElements();
+    
+    const { rssUrlInput } = elements;
+    
+    if (!rssUrlInput) {
+      console.error('❌ Input element not found in initView');
+      return;
+    }
+    
+    console.log('✅ View initialized with elements');
+    
+    console.log('⚠️ TEMPORARY: Skipping onChange logic');
+    
+    setTimeout(() => {
+      if (rssUrlInput) rssUrlInput.focus();
+    }, 100);
+    
+    console.log('✅ View initialization complete (minimal)');
+    
+  } catch (error) {
+    console.error('💥 Error in initView:', error);
+    console.error('Error stack:', error.stack);
   }
-  
-  console.log('✅ View initialized with elements');
-  
-  watchedState.form.state = onChange(watchedState.form.state, (path, value) => {
+  /* watchedState.form.state = onChange(watchedState.form.state, (path, value) => {
     console.log('🔄 Form state changed to:', value);
     
     switch (value) {
@@ -315,6 +328,7 @@ const initView = (state, watchedState) => {
       watchedState.openModal(post);
     });
   });
+  */
   
   setTimeout(() => {
     if (rssUrlInput) rssUrlInput.focus();
