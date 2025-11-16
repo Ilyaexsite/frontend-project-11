@@ -4,7 +4,7 @@ import onChange from 'on-change'
 
 const elements = {
   rssForm: document.getElementById('rss-form'),
-  rssUrlInput: document.getElementById('rss-url'),
+  rssUrlInput: document.getElementById('url-input'), // Изменён ID
   submitButton: document.querySelector('button[type="submit"]'),
   feedsContainer: document.getElementById('feeds-container'),
   postsContainer: document.getElementById('posts-container'),

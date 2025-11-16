@@ -6,7 +6,7 @@
   },
   "form": {
     "label": "Ссылка RSS",
-    "placeholder": "ссылка RSS",
+    "placeholder": "ссылка RSS", 
     "submit": "Добавить",
     "submitting": "Добавление...",
     "example": "Пример: https://lorem-rss.hexlet.app/feed"
@@ -22,7 +22,7 @@
   "notifications": {
     "success": "RSS успешно загружен",
     "error": "Ошибка сети",
-    "networkError": "Ошибка сети",
+    "networkError": "Ошибка сети", 
     "rssError": "Ресурс не содержит валидный RSS"
   },
   "feeds": {
