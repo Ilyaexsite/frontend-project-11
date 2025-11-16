@@ -27,7 +27,31 @@ const app = async () => {
     console.log('✅ State created');
     
     state.openModal = (post) => {
+      console.log('🔄 Opening modal for post:', post.title);
+      
+      // Добавляем пост в прочитанные
       state.readPosts.add(post.id);
+      
+      // Заполняем модальное окно
+      const modalBody = document.getElementById('modalBodyContent');
+      const modalTitle = document.getElementById('postModalLabel');
+      const readMoreLink = document.getElementById('modalReadMore');
+      
+      if (modalBody && modalTitle && readMoreLink) {
+        modalBody.innerHTML = `
+          <h6>${post.title}</h6>
+          <p>${post.description || 'Описание недоступно'}</p>
+          <small class="text-muted">Цель: Научиться извлекать из дерева необходимые данные</small>
+        `;
+        modalTitle.textContent = post.title;
+        readMoreLink.href = post.link;
+        
+        // Показываем модальное окно
+        const modal = new bootstrap.Modal(document.getElementById('postModal'));
+        modal.show();
+      } else {
+        console.error('❌ Modal elements not found');
+      }
     };
     
     console.log('🔄 Calling initView...');
