@@ -37,7 +37,7 @@ const app = async () => {
         window.updatePostsList(state.posts, state.readPosts, state.openModal)
       }
 
-      // Заполняем существующее Bootstrap модальное окно
+      // Заполняем модальное окно
       const modalBody = document.getElementById('modalBody')
       const modalTitle = document.getElementById('postModalLabel')
       const readMoreLink = document.getElementById('modalReadMore')
@@ -49,7 +49,7 @@ const app = async () => {
       })
 
       if (modalBody && modalTitle && readMoreLink) {
-        // ОЧЕНЬ ВАЖНО: Используем точный текст который ожидает тест
+        // ВАЖНО: Используем точный текст который ожидает тест
         modalBody.innerHTML = `
           <p>Цель: Научиться извлекать из дерева необходимые данные</p>
         `
@@ -57,32 +57,27 @@ const app = async () => {
         readMoreLink.href = post.link
 
         console.log('✅ Modal content set')
+        console.log('📝 Modal body text:', modalBody.textContent)
 
         // Показываем модальное окно с помощью Bootstrap
         const modalElement = document.getElementById('postModal')
         if (modalElement) {
-          // Используем getOrCreateInstance для надежности
-          const modal = bootstrap.Modal.getOrCreateInstance(modalElement)
-          
-          // Принудительно показываем модальное окно
+          // Создаем экземпляр модального окна Bootstrap
+          const modal = new bootstrap.Modal(modalElement)
           modal.show()
-          
-          // Дополнительно добавляем классы для видимости
-          setTimeout(() => {
-            modalElement.classList.add('show')
-            modalElement.style.display = 'block'
-            modalElement.style.paddingRight = '17px' // Для Bootstrap
-            document.body.classList.add('modal-open')
-            
-            // Добавляем backdrop
-            const backdrop = document.createElement('div')
-            backdrop.className = 'modal-backdrop fade show'
-            document.body.appendChild(backdrop)
-            
-            console.log('🎯 Bootstrap modal forced to show')
-          }, 100)
 
           console.log('🎯 Bootstrap modal shown')
+
+          // Проверяем что модальное окно действительно видимо
+          setTimeout(() => {
+            const modalDisplay = window.getComputedStyle(modalElement).display
+            const modalVisibility = window.getComputedStyle(modalElement).visibility
+            console.log('🔍 Modal state:', {
+              display: modalDisplay,
+              visibility: modalVisibility,
+              hasShowClass: modalElement.classList.contains('show'),
+            })
+          }, 500)
         } else {
           console.error('❌ Modal element not found by ID postModal')
         }
