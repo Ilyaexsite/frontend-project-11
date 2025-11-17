@@ -26,6 +26,40 @@ const app = async () => {
     const state = createState();
     console.log('✅ State created');
     
+    // Функция для создания динамического модального окна (запасной вариант)
+    const createDynamicModal = (post) => {
+      console.log('🔄 Creating dynamic modal as fallback');
+      
+      // Удаляем существующее динамическое модальное окно если есть
+      const existingDynamicModal = document.getElementById('dynamicPostModal');
+      if (existingDynamicModal) {
+        existingDynamicModal.remove();
+      }
+      
+      const modalHtml = `
+        <div class="modal fade show" id="dynamicPostModal" tabindex="-1" style="display: block; background: rgba(0,0,0,0.5);">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">${post.title}</h5>
+                <button type="button" class="btn-close" onclick="document.getElementById('dynamicPostModal').remove()"></button>
+              </div>
+              <div class="modal-body">
+                <p>${post.description || 'Описание недоступно'}</p>
+              </div>
+              <div class="modal-footer">
+                <a href="${post.link}" class="btn btn-primary" target="_blank">Читать полностью</a>
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('dynamicPostModal').remove()">Закрыть</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+      console.log('✅ Dynamic modal created');
+    };
+    
     state.openModal = (post) => {
       console.log('🔄 Opening modal for post:', post.title);
       
@@ -37,7 +71,7 @@ const app = async () => {
         window.updatePostsList(state.posts, state.readPosts, state.openModal);
       }
       
-      // Заполняем модальное окно - ВАЖНО: используем правильные ID из HTML
+      // Заполняем модальное окно
       const modalBody = document.getElementById('modalBody');
       const modalTitle = document.getElementById('postModalLabel');
       const readMoreLink = document.getElementById('modalReadMore');
@@ -49,10 +83,9 @@ const app = async () => {
       });
       
       if (modalBody && modalTitle && readMoreLink) {
-        // ОЧЕНЬ ВАЖНО: Используем точный текст который ожидает тест
+        // УБРАН ДУБЛИРУЮЩИЙСЯ ТЕКСТ - оставляем только описание поста
         modalBody.innerHTML = `
           <p>${post.description || 'Описание недоступно'}</p>
-          <small class="text-muted">Цель: Научиться извлекать из дерева необходимые данные</small>
         `;
         modalTitle.textContent = post.title;
         readMoreLink.href = post.link;
@@ -78,14 +111,6 @@ const app = async () => {
               visibility: modalVisibility,
               hasShowClass: modalElement.classList.contains('show')
             });
-            
-            // Проверяем что текст есть в DOM
-            const bodyText = document.body.textContent;
-            if (bodyText.includes('Цель: Научиться извлекать из дерева необходимые данные')) {
-              console.log('✅ Target text found in DOM');
-            } else {
-              console.log('❌ Target text NOT found in DOM');
-            }
           }, 500);
           
         } else {
@@ -101,41 +126,6 @@ const app = async () => {
         // Запасной вариант: создаем модальное окно динамически
         createDynamicModal(post);
       }
-    };
-    
-    // Функция для создания динамического модального окна (запасной вариант)
-    const createDynamicModal = (post) => {
-      console.log('🔄 Creating dynamic modal as fallback');
-      
-      // Удаляем существующее динамическое модальное окно если есть
-      const existingDynamicModal = document.getElementById('dynamicPostModal');
-      if (existingDynamicModal) {
-        existingDynamicModal.remove();
-      }
-      
-      const modalHtml = `
-        <div class="modal fade show" id="dynamicPostModal" tabindex="-1" style="display: block; background: rgba(0,0,0,0.5);">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">${post.title}</h5>
-                <button type="button" class="btn-close" onclick="document.getElementById('dynamicPostModal').remove()"></button>
-              </div>
-              <div class="modal-body">
-                <p>${post.description || 'Описание недоступно'}</p>
-                <small class="text-muted">Цель: Научиться извлекать из дерева необходимые данные</small>
-              </div>
-              <div class="modal-footer">
-                <a href="${post.link}" class="btn btn-primary" target="_blank">Читать полностью</a>
-                <button type="button" class="btn btn-secondary" onclick="document.getElementById('dynamicPostModal').remove()">Закрыть</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-      
-      document.body.insertAdjacentHTML('beforeend', modalHtml);
-      console.log('✅ Dynamic modal created');
     };
     
     console.log('🔄 Calling initView...');
