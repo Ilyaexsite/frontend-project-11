@@ -12,9 +12,9 @@ const createRssSchema = (existingUrls = []) => yup.object({
 const validateRssUrl = (url, existingUrls = []) => {
   console.log('🛠️ Validating URL:', url)
   console.log('📊 Existing URLs:', existingUrls)
-  
+
   const schema = createRssSchema(existingUrls)
-  
+
   return new Promise((resolve) => {
     schema.validate({ url }, { abortEarly: false })
       .then(() => {
@@ -31,7 +31,7 @@ const validateRssUrl = (url, existingUrls = []) => {
   })
 }
 
-const validateRssContent = (content) => {
+const validateRssContent = () => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({ isValid: true, error: null })

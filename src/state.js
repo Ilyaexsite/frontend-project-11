@@ -18,20 +18,20 @@ const initialState = {
 }
 
 const createState = (initial = initialState) => {
-  return onChange(initial, (path, value, previousValue) => {
+  return onChange(initial, (path, value) => {
     if (path === 'form.state') {
       console.log('Form state changed:', value)
     }
   })
 }
 
-const getFormState = (state) => state.form.state
-const getFormUrl = (state) => state.form.fields.url
-const getFormErrors = (state) => state.form.errors
-const getFeeds = (state) => state.feeds
-const getPosts = (state) => state.posts
-const getError = (state) => state.ui.error
-const getReadPosts = (state) => state.readPosts
+const getFormState = state => state.form.state
+const getFormUrl = state => state.form.fields.url
+const getFormErrors = state => state.form.errors
+const getFeeds = state => state.feeds
+const getPosts = state => state.posts
+const getError = state => state.ui.error
+const getReadPosts = state => state.readPosts
 
 const setFormState = (state, newState) => {
   console.log('🔄 Setting form state from', state.form.state, 'to', newState)
@@ -57,7 +57,7 @@ const addFeed = (state, feedData) => {
   const newFeed = {
     id: `feed-${Date.now()}`,
     url: feedData.url,
-    title: feedData.title, 
+    title: feedData.title,
     description: feedData.description,
   }
   state.feeds.push(newFeed)

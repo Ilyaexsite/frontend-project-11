@@ -21,7 +21,7 @@ const createStateObserver = (state, callback) => {
     },
     getState() {
       return currentState
-    }
+    },
   }
 }
 
@@ -31,7 +31,7 @@ const checkElements = () => {
     input: !!elements.rssUrlInput,
     button: !!elements.submitButton,
     feeds: !!elements.feedsContainer,
-    posts: !!elements.postsContainer
+    posts: !!elements.postsContainer,
   })
   return elements.rssForm && elements.rssUrlInput
 }
@@ -172,7 +172,7 @@ const updateFeedsList = (feeds) => {
 }
 
 const updatePostsList = (posts, readPosts, onPreviewClick) => {
-  const { postsContainer } = elements;
+  const { postsContainer } = elements
   if (!postsContainer) {
     console.error('❌ Posts container not found')
     return
@@ -193,7 +193,7 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
   const postsHtml = posts.map((post) => {
     const isRead = readPosts.has(post.id)
     const titleClass = isRead ? '' : 'fw-bold'
-    
+
     return `
     <div class="list-group-item d-flex justify-content-between align-items-start border-0">
       <a href="${post.link}" class="${titleClass}" style="flex: 1; color: #212529; text-decoration: none;" target="_blank" rel="noopener noreferrer" data-testid="post-link">
@@ -218,7 +218,7 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
   `
 
   const viewButtons = postsContainer.querySelectorAll('button[data-post-id]')
-  viewButtons.forEach(button => {
+  viewButtons.forEach((button) => {
     button.addEventListener('click', (event) => {
       const postId = event.currentTarget.getAttribute('data-post-id')
       const post = posts.find(p => p.id === postId)
@@ -237,11 +237,11 @@ const initView = (state, watchedState) => {
 
   try {
     checkElements()
-    
+
     const { rssUrlInput } = elements
 
     if (!rssUrlInput) {
-      console.error('❌ Input element not found in initView');
+      console.error('❌ Input element not found in initView')
       return
     }
 
@@ -258,7 +258,7 @@ const initView = (state, watchedState) => {
           clearFeedback()
           break
 
-        case 'invalid':
+        case 'invalid': {
           console.log('❌ Form invalid')
           setFormSubmitting(false)
           const errors = watchedState.form.errors?.url || []
@@ -267,6 +267,7 @@ const initView = (state, watchedState) => {
             showValidationError(rssUrlInput, errors[0])
           }
           break
+        }
 
         case 'submitting':
           console.log('⏳ Submitting form...')
@@ -292,27 +293,29 @@ const initView = (state, watchedState) => {
           }, 10000)
           break
 
-          case 'error':
-            console.log('💥 Form error')
-            setFormSubmitting(false)
-            const error = watchedState.ui?.error
-            console.log('Error details:', error)
-            let errorMessage = t('errors.network')
-            if (error === 'rssError') {
-              errorMessage = t('errors.invalidRss')
-            } else if (error && error.includes('Failed to fetch')) {
-              errorMessage = t('errors.network')
-            } else if (error) {
-              errorMessage = error
-            }
-            showFeedback(errorMessage, 'error')
+        case 'error': {
+          console.log('💥 Form error')
+          setFormSubmitting(false)
+          const error = watchedState.ui?.error
+          console.log('Error details:', error)
+          let errorMessage = t('errors.network')
+          if (error === 'rssError') {
+            errorMessage = t('errors.invalidRss')
+          } else if (error && error.includes('Failed to fetch')) {
+            errorMessage = t('errors.network')
+          } else if (error) {
+            errorMessage = error
+          }
+          showFeedback(errorMessage, 'error')
 
-            setTimeout(() => {
-              if (watchedState.form.state === 'error') {
-                watchedState.form.state = 'filling'
-              }
-            }, 5000)
-            break
+          setTimeout(() => {
+            if (watchedState.form.state === 'error') {
+              watchedState.form.state = 'filling'
+            }
+          }, 5000)
+          break
+        }
+
         default:
           break
       }
@@ -328,7 +331,7 @@ const initView = (state, watchedState) => {
         if (originalFormStateSetter) {
           originalFormStateSetter.call(watchedState.form, newState)
         }
-      }
+      },
     })
 
     let currentFeeds = [...watchedState.feeds]
@@ -342,7 +345,7 @@ const initView = (state, watchedState) => {
       }
 
       if (watchedState.posts.length !== currentPosts.length) {
-        console.log('📝 Posts updated:', watchedState.posts.length);
+        console.log('📝 Posts updated:', watchedState.posts.length)
         updatePostsList(watchedState.posts, watchedState.readPosts, (post) => {
           watchedState.openModal(post)
         })
@@ -355,15 +358,15 @@ const initView = (state, watchedState) => {
     }, 100)
 
     console.log('✅ View initialization complete')
-
   } catch (error) {
     console.error('💥 Error in initView:', error)
     console.error('Error stack:', error.stack)
   }
 }
+
 window.updatePostsList = updatePostsList
 export {
   elements,
   initView,
-  checkElements
+  checkElements,
 }

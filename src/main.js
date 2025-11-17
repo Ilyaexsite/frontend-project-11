@@ -57,7 +57,7 @@ const app = async () => {
       console.log('✅ Dynamic modal created')
     }
 
-state.openModal = (post) => {
+    state.openModal = (post) => {
       console.log('🔄 Opening modal for post:', post.title)
       state.readPosts.add(post.id)
       if (window.updatePostsList) {
@@ -69,7 +69,7 @@ state.openModal = (post) => {
       console.log('🔍 Modal elements:', {
         modalBody: !!modalBody,
         modalTitle: !!modalTitle,
-        readMoreLink: !!readMoreLink
+        readMoreLink: !!readMoreLink,
       })
 
       if (modalBody && modalTitle && readMoreLink) {
@@ -79,12 +79,12 @@ state.openModal = (post) => {
         modalTitle.textContent = post.title
         readMoreLink.href = post.link
 
-        console.log('✅ Modal content set');
+        console.log('✅ Modal content set')
         console.log('📝 Modal body text:', modalBody.textContent)
 
         const modalElement = document.getElementById('postModal')
         if (modalElement) {
-          const modal = new bootstrap.Modal(modalElement)
+          const modal = bootstrap.Modal(modalElement)
           modal.show()
 
           console.log('🎯 Bootstrap modal shown')
@@ -95,7 +95,7 @@ state.openModal = (post) => {
             console.log('🔍 Modal state:', {
               display: modalDisplay,
               visibility: modalVisibility,
-              hasShowClass: modalElement.classList.contains('show')
+              hasShowClass: modalElement.classList.contains('show'),
             })
           }, 500)
         } else {
@@ -104,27 +104,27 @@ state.openModal = (post) => {
       } else {
         console.error('❌ One or more modal elements not found:', {
           modalBody: !!modalBody,
-          modalTitle: !!modalTitle, 
-          readMoreLink: !!readMoreLink
+          modalTitle: !!modalTitle,
+          readMoreLink: !!readMoreLink,
         })
         createDynamicModal(post)
       }
     }
 
-console.log('🔄 Calling initView...')
-initView(state, state)
-console.log('✅ View initialized')
+    console.log('🔄 Calling initView...')
+    initView(state, state)
+    console.log('✅ View initialized')
 
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 100))
     console.log('📋 Main.js elements after initView:', {
       form: !!elements.rssForm,
       input: !!elements.rssUrlInput,
       formId: elements.rssForm?.id,
-      inputId: elements.rssUrlInput?.id
+      inputId: elements.rssUrlInput?.id,
     })
 
     if (elements.rssUrlInput) {
-      console.log('✅ Adding input handler');
+      console.log('✅ Adding input handler')
       elements.rssUrlInput.addEventListener('input', (event) => {
         console.log('📝 Input changed:', event.target.value)
         setFormUrl(state, event.target.value.trim())
@@ -138,8 +138,8 @@ console.log('✅ View initialized')
 
       const formHandler = async (event) => {
         console.log('🎯 MAIN.JS FORM SUBMIT EVENT FIRED!')
-        event.preventDefault();
-        event.stopPropagation();
+        event.preventDefault()
+        event.stopPropagation()
 
         console.log('=== FORM SUBMISSION STARTED ===')
 
@@ -172,7 +172,7 @@ console.log('✅ View initialized')
           console.log('✅ RSS loaded successfully:', {
             title: rssData.title,
             description: rssData.description,
-            postsCount: rssData.posts?.length
+            postsCount: rssData.posts?.length,
           })
 
           console.log('💾 Adding feed to state...')
@@ -184,7 +184,6 @@ console.log('✅ View initialized')
 
           console.log('🎉 Setting state to SUCCESS')
           setFormState(state, 'success')
-
         } catch (error) {
           console.error('💥 Error in form submission:', error)
           console.error('Error message:', error.message)
@@ -195,7 +194,6 @@ console.log('✅ View initialized')
 
       elements.rssForm.addEventListener('submit', formHandler)
       console.log('✅ Submit handler added to form')
-
     } else {
       console.error('❌ Form element not found!')
       const formById = document.getElementById('rss-form')
@@ -209,7 +207,6 @@ console.log('✅ View initialized')
     })
 
     console.log('✅ App initialization complete')
-
   } catch (error) {
     console.error('💥 Error in app initialization:', error)
     console.error('Error stack:', error.stack)

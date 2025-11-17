@@ -42,12 +42,12 @@ class FeedUpdater {
     this.isUpdating = true
 
     try {
-      const updatePromises = this.feeds.map(feed => 
+      const updatePromises = this.feeds.map(feed =>
         this.updateCallback(feed.url)
       )
 
       const results = await Promise.allSettled(updatePromises)
-      
+
       results.forEach((result, index) => {
         if (result.status === 'fulfilled' && result.value) {
           const feedUrl = this.feeds[index].url
@@ -56,7 +56,6 @@ class FeedUpdater {
           console.error(`Error checking feed ${this.feeds[index].url}:`, result.reason)
         }
       })
-
     } catch (error) {
       console.error('Error during feed update cycle:', error)
     } finally {
@@ -67,9 +66,9 @@ class FeedUpdater {
 
   async forceUpdate() {
     if (this.isUpdating) return
-    
+
     await this.performUpdate()
-}
+  }
 }
 
 export default FeedUpdater

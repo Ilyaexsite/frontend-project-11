@@ -29,12 +29,12 @@ const loadRssFeed = async (url) => {
       throw new Error('rssError')
     }
 
-    const title = doc.querySelector('channel > title')?.textContent || 
-      doc.querySelector('title')?.textContent || 
-              'Без названия'
-    const description = doc.querySelector('channel > description')?.textContent || 
-              doc.querySelector('description')?.textContent || 
-                'Без описания'
+    const title = doc.querySelector('channel > title')?.textContent
+      || doc.querySelector('title')?.textContent
+      || 'Без названия'
+    const description = doc.querySelector('channel > description')?.textContent
+      || doc.querySelector('description')?.textContent
+      || 'Без описания'
 
     const items = doc.querySelectorAll('item')
     console.log('📰 Found items:', items.length)
@@ -46,19 +46,18 @@ const loadRssFeed = async (url) => {
       description: item.querySelector('description')?.textContent || '',
     }))
 
-    console.log('✅ Parsed feed successfully:', { 
-      title, 
-      description, 
-      postsCount: posts.length 
+    console.log('✅ Parsed feed successfully:', {
+      title,
+      description,
+      postsCount: posts.length,
     })
 
     return {
       url,
-      title, 
-      description, 
+      title,
+      description,
       posts,
     }
-
   } catch (error) {
     console.error('💥 RSS loading error:', error)
     console.error('Error details:', error.message)

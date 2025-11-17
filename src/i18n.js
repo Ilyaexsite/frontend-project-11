@@ -49,7 +49,7 @@ const translateError = (error) => {
     return t(error.key, error.options)
   }
   
-return t('errors.unknown')
+  return t('errors.unknown')
 }
 
 export { initI18n, t, translateError }
