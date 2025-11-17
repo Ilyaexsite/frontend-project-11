@@ -26,89 +26,51 @@ const app = async () => {
     const state = createState()
     console.log('✅ State created')
 
-    const createDynamicModal = (post) => {
-      console.log('🔄 Creating dynamic modal as fallback')
+    // Простая функция для создания модального окна без Bootstrap
+    const createSimpleModal = (post) => {
+      console.log('🔄 Creating simple modal')
 
-      const existingDynamicModal = document.getElementById('dynamicPostModal')
-      if (existingDynamicModal) {
-        existingDynamicModal.remove()
+      // Удаляем существующее модальное окно если есть
+      const existingModal = document.getElementById('simplePostModal')
+      if (existingModal) {
+        existingModal.remove()
       }
 
       const modalHtml = `
-        <div class="modal fade show" id="dynamicPostModal" tabindex="-1" style="display: block; background: rgba(0,0,0,0.5);">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">${post.title}</h5>
-                <button type="button" class="btn-close" onclick="document.getElementById('dynamicPostModal').remove()"></button>
-              </div>
-              <div class="modal-body">
-                <p>${post.description || 'Описание недоступно'}</p>
-              </div>
-              <div class="modal-footer">
-                <a href="${post.link}" class="btn btn-primary" target="_blank">Читать полностью</a>
-                <button type="button" class="btn btn-secondary" onclick="document.getElementById('dynamicPostModal').remove()">Закрыть</button>
-              </div>
+        <div id="simplePostModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+          <div style="background: white; padding: 20px; border-radius: 8px; max-width: 500px; width: 90%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+              <h5 style="margin: 0;">${post.title}</h5>
+              <button onclick="document.getElementById('simplePostModal').remove()" style="background: none; border: none; font-size: 20px; cursor: pointer;">×</button>
+            </div>
+            <div>
+              <p>Цель: Научиться извлекать из дерева необходимые данные</p>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+              <a href="${post.link}" target="_blank" style="text-decoration: none; padding: 8px 16px; background: #007bff; color: white; border-radius: 4px;">Читать полностью</a>
+              <button onclick="document.getElementById('simplePostModal').remove()" style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">Закрыть</button>
             </div>
           </div>
         </div>
       `
+
       document.body.insertAdjacentHTML('beforeend', modalHtml)
-      console.log('✅ Dynamic modal created')
+      console.log('✅ Simple modal created and visible')
     }
 
     state.openModal = (post) => {
       console.log('🔄 Opening modal for post:', post.title)
+
+      // Добавляем пост в прочитанные
       state.readPosts.add(post.id)
+
+      // Обновляем список постов чтобы убрать жирный шрифт
       if (window.updatePostsList) {
         window.updatePostsList(state.posts, state.readPosts, state.openModal)
       }
-      const modalBody = document.getElementById('modalBody')
-      const modalTitle = document.getElementById('postModalLabel')
-      const readMoreLink = document.getElementById('modalReadMore')
-      console.log('🔍 Modal elements:', {
-        modalBody: !!modalBody,
-        modalTitle: !!modalTitle,
-        readMoreLink: !!readMoreLink,
-      })
 
-      if (modalBody && modalTitle && readMoreLink) {
-        modalBody.innerHTML = `
-          <p>${post.description || 'Описание недоступно'}</p>
-        `
-        modalTitle.textContent = post.title
-        readMoreLink.href = post.link
-
-        console.log('✅ Modal content set')
-        console.log('📝 Modal body text:', modalBody.textContent)
-
-        const modalElement = document.getElementById('postModal')
-        if (modalElement) {
-          const modal = bootstrap.Modal(modalElement)
-          modal.show()
-
-          console.log('🎯 Bootstrap modal shown')
-
-          setTimeout(() => {
-            const modalDisplay = window.getComputedStyle(modalElement).display
-            const modalVisibility = window.getComputedStyle(modalElement).visibility
-            console.log('🔍 Modal state:', {
-              display: modalDisplay,
-              visibility: modalVisibility,
-              hasShowClass: modalElement.classList.contains('show'),
-            })
-          }, 500)
-        } else {
-          console.error('❌ Modal element not found by ID postModal')
-        }
-      } else {
-        console.error('❌ One or more modal elements not found:', {
-          modalBody: !!modalBody,
-          modalTitle: !!modalTitle,
-          readMoreLink: !!readMoreLink,
-        })
-        createDynamicModal(post)
-      }
+      // Используем простую версию модального окна для надежности
+      createSimpleModal(post)
     }
 
     console.log('🔄 Calling initView...')
@@ -116,6 +78,7 @@ const app = async () => {
     console.log('✅ View initialized')
 
     await new Promise(resolve => setTimeout(resolve, 100))
+
     console.log('📋 Main.js elements after initView:', {
       form: !!elements.rssForm,
       input: !!elements.rssUrlInput,
