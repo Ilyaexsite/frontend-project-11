@@ -1,4 +1,4 @@
-import onChange from 'on-change';
+import onChange from 'on-change'
 
 const initialState = {
   lng: 'ru',
@@ -15,71 +15,68 @@ const initialState = {
   ui: {
     error: null,
   },
-};
+}
 
 const createState = (initial = initialState) => {
   return onChange(initial, (path, value, previousValue) => {
-    // Логирование для отладки
     if (path === 'form.state') {
-      console.log('Form state changed:', value);
+      console.log('Form state changed:', value)
     }
-  });
-};
+  })
+}
 
-// Геттеры
-const getFormState = (state) => state.form.state;
-const getFormUrl = (state) => state.form.fields.url;
-const getFormErrors = (state) => state.form.errors;
-const getFeeds = (state) => state.feeds;
-const getPosts = (state) => state.posts;
-const getError = (state) => state.ui.error;
-const getReadPosts = (state) => state.readPosts;
+const getFormState = (state) => state.form.state
+const getFormUrl = (state) => state.form.fields.url
+const getFormErrors = (state) => state.form.errors
+const getFeeds = (state) => state.feeds
+const getPosts = (state) => state.posts
+const getError = (state) => state.ui.error
+const getReadPosts = (state) => state.readPosts
 
-// Сеттеры
 const setFormState = (state, newState) => {
-  console.log('🔄 Setting form state from', state.form.state, 'to', newState);
-  state.form.state = newState;
-};
+  console.log('🔄 Setting form state from', state.form.state, 'to', newState)
+  state.form.state = newState
+}
 
 const setFormUrl = (state, url) => {
-  state.form.fields.url = url;
-};
+  state.form.fields.url = url
+}
 
 const setFormErrors = (state, errors) => {
-  state.form.errors = errors;
-};
+  state.form.errors = errors
+}
 
 const clearForm = (state) => {
-  state.form.fields.url = '';
-  state.form.errors = {};
-  state.form.state = 'filling';
-};
+  state.form.fields.url = ''
+  state.form.errors = {}
+  state.form.state = 'filling'
+}
 
 const addFeed = (state, feedData) => {
-  console.log('💾 Adding feed to state:', feedData);
+  console.log('💾 Adding feed to state:', feedData)
   const newFeed = {
     id: `feed-${Date.now()}`,
     url: feedData.url,
-    title: feedData.title, // ← ИСПРАВЛЕНО: прямой доступ
-    description: feedData.description, // ← ИСПРАВЛЕНО: прямой доступ
-  };
-  state.feeds.push(newFeed);
-  console.log('✅ Feed added, total feeds:', state.feeds.length);
-};
+    title: feedData.title, 
+    description: feedData.description,
+  }
+  state.feeds.push(newFeed)
+  console.log('✅ Feed added, total feeds:', state.feeds.length)
+}
 
 const addPosts = (state, postsData) => {
-  console.log('📝 Adding posts to state:', postsData.length);
-  state.posts = [...state.posts, ...postsData];
-  console.log('✅ Posts added, total posts:', state.posts.length);
-};
+  console.log('📝 Adding posts to state:', postsData.length)
+  state.posts = [...state.posts, ...postsData]
+  console.log('✅ Posts added, total posts:', state.posts.length)
+}
 
 const setError = (state, error) => {
-  state.ui.error = error;
-};
+  state.ui.error = error
+}
 
 const clearError = (state) => {
-  state.ui.error = null;
-};
+  state.ui.error = null
+}
 
 export {
   getFormState,
@@ -97,6 +94,6 @@ export {
   addPosts,
   setError,
   clearError,
-};
+}
 
-export default createState;
+export default createState

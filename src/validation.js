@@ -18,13 +18,12 @@ const validateRssUrl = (url, existingUrls = []) => {
   return new Promise((resolve) => {
     schema.validate({ url }, { abortEarly: false })
       .then(() => {
-        console.log('✅ URL validation passed');
+        console.log('✅ URL validation passed')
         resolve({ isValid: true, errors: [] })
       })
       .catch((validationError) => {
-        console.log('❌ URL validation failed:', validationError.errors);
+        console.log('❌ URL validation failed:', validationError.errors)
         const errors = validationError.inner.map((err) => {
-          // Используем ключ перевода из сообщения
           return t(err.message)
         })
         resolve({ isValid: false, errors })

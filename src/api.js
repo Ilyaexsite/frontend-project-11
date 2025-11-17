@@ -8,7 +8,6 @@ const createProxyUrl = (url) => {
 }
 
 const fetchRssData = (url) => {
-  // В тестовом окружении используем прямой URL, а не прокси
   const targetUrl = process.env.NODE_ENV === 'test' ? url : createProxyUrl(url)
   
   return axios.get(targetUrl, { timeout: 10000 })
