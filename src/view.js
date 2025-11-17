@@ -10,7 +10,7 @@ const elements = {
 
 const createStateObserver = (state, callback) => {
   let currentState = state
-  
+
   return {
     setState(newState) {
       if (newState !== currentState) {
@@ -55,17 +55,17 @@ const createFeedbackElement = () => {
 
 const showFeedback = (message, type = 'success') => {
   console.log(`🎯 showFeedback called: "${message}", type: ${type}`)
-  
-  const feedback = createFeedbackElement();
+
+  const feedback = createFeedbackElement()
   const alertClass = type === 'error' ? 'alert-danger' : 'alert-success'
-  
+
   feedback.innerHTML = `
     <div class="alert ${alertClass} alert-dismissible fade show" role="alert" data-testid="success-message">
       ${message}
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
   `
-  
+
   setTimeout(() => {
     const successMessage = document.querySelector('[data-testid="success-message"]')
     console.log('🔍 Success message in DOM:', !!successMessage)
@@ -108,13 +108,13 @@ const setFormSubmitting = (isSubmitting) => {
     console.error('❌ Form elements not found for setFormSubmitting')
     return
   }
-  
+
   if (isSubmitting) {
-    submitButton.disabled = true;
+    submitButton.disabled = true
     submitButton.textContent = 'Добавление...'
     rssUrlInput.disabled = true
   } else {
-    submitButton.disabled = false;
+    submitButton.disabled = false
     submitButton.textContent = 'Добавить'
     rssUrlInput.disabled = false
   }
@@ -139,7 +139,7 @@ const updateFeedsList = (feeds) => {
     console.error('❌ Feeds container not found')
     return
   }
-  
+
   if (feeds.length === 0) {
     feedsContainer.innerHTML = `
       <div class="card border-0">
@@ -151,7 +151,7 @@ const updateFeedsList = (feeds) => {
     `
     return
   }
-  
+
   const feedsHtml = feeds.map((feed) => `
     <div class="card mb-3">
       <div class="card-body">
@@ -160,7 +160,7 @@ const updateFeedsList = (feeds) => {
       </div>
     </div>
   `).join('')
-  
+
   feedsContainer.innerHTML = `
     <div class="card border-0">
       <div class="card-body">
@@ -177,7 +177,7 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
     console.error('❌ Posts container not found')
     return
   }
-  
+
   if (posts.length === 0) {
     postsContainer.innerHTML = `
       <div class="card border-0">
@@ -189,7 +189,7 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
     `
     return
   }
-  
+
   const postsHtml = posts.map((post) => {
     const isRead = readPosts.has(post.id)
     const titleClass = isRead ? '' : 'fw-bold'
@@ -205,7 +205,7 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
     </div>
     `
   }).join('')
-  
+
   postsContainer.innerHTML = `
     <div class="card border-0">
       <div class="card-body">
@@ -216,7 +216,7 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
       </div>
     </div>
   `
-  
+
   const viewButtons = postsContainer.querySelectorAll('button[data-post-id]')
   viewButtons.forEach(button => {
     button.addEventListener('click', (event) => {
@@ -228,28 +228,28 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
       }
     })
   })
-  
+
   console.log('✅ Posts list updated, buttons count:', viewButtons.length)
 }
 
 const initView = (state, watchedState) => {
   console.log('🚀 View initializing...')
-  
+
   try {
     checkElements()
     
     const { rssUrlInput } = elements
-    
+
     if (!rssUrlInput) {
       console.error('❌ Input element not found in initView');
       return
     }
-    
+
     console.log('✅ View initialized with elements')
-    
+
     const formStateObserver = createStateObserver(watchedState.form.state, (oldState, newState) => {
       console.log('🔄 Form state changed from', oldState, 'to', newState)
-      
+
       switch (newState) {
         case 'validating':
           console.log('🔍 Validating form...')
@@ -257,7 +257,7 @@ const initView = (state, watchedState) => {
           clearValidationError(rssUrlInput)
           clearFeedback()
           break
-          
+
         case 'invalid':
           console.log('❌ Form invalid')
           setFormSubmitting(false)
@@ -267,14 +267,14 @@ const initView = (state, watchedState) => {
             showValidationError(rssUrlInput, errors[0])
           }
           break
-          
+
         case 'submitting':
           console.log('⏳ Submitting form...')
           setFormSubmitting(true)
           clearValidationError(rssUrlInput)
           clearFeedback()
           break
-          
+
         case 'success':
           console.log('✅ Form success - showing feedback')
           setFormSubmitting(false)
@@ -283,15 +283,15 @@ const initView = (state, watchedState) => {
           updatePostsList(watchedState.posts, watchedState.readPosts, (post) => {
             watchedState.openModal(post)
           })
-          showFeedback(t('rssLoaded'), 'success');
-          
+          showFeedback(t('rssLoaded'), 'success')
+
           setTimeout(() => {
             if (watchedState.form.state === 'success') {
               watchedState.form.state = 'filling'
             }
           }, 10000)
           break
-          
+
           case 'error':
             console.log('💥 Form error')
             setFormSubmitting(false)
@@ -306,19 +306,18 @@ const initView = (state, watchedState) => {
               errorMessage = error
             }
             showFeedback(errorMessage, 'error')
-            
+
             setTimeout(() => {
               if (watchedState.form.state === 'error') {
                 watchedState.form.state = 'filling'
               }
             }, 5000)
             break
-          
         default:
           break
       }
     })
-    
+
     const originalFormStateSetter = Object.getOwnPropertyDescriptor(watchedState.form, 'state').set
     Object.defineProperty(watchedState.form, 'state', {
       get() {
@@ -331,17 +330,17 @@ const initView = (state, watchedState) => {
         }
       }
     })
-    
+
     let currentFeeds = [...watchedState.feeds]
     let currentPosts = [...watchedState.posts]
-    
+
     setInterval(() => {
       if (watchedState.feeds.length !== currentFeeds.length) {
         console.log('📰 Feeds updated:', watchedState.feeds.length)
         updateFeedsList(watchedState.feeds)
         currentFeeds = [...watchedState.feeds]
       }
-      
+
       if (watchedState.posts.length !== currentPosts.length) {
         console.log('📝 Posts updated:', watchedState.posts.length);
         updatePostsList(watchedState.posts, watchedState.readPosts, (post) => {
@@ -350,18 +349,18 @@ const initView = (state, watchedState) => {
         currentPosts = [...watchedState.posts]
       }
     }, 100)
-    
+
     setTimeout(() => {
       if (rssUrlInput) rssUrlInput.focus()
     }, 100)
-    
+
     console.log('✅ View initialization complete')
-    
+
   } catch (error) {
     console.error('💥 Error in initView:', error)
     console.error('Error stack:', error.stack)
   }
-};
+}
 window.updatePostsList = updatePostsList
 export {
   elements,

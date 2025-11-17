@@ -1,5 +1,3 @@
-import { checkFeedUpdates } from './rss.js'
-
 class FeedUpdater {
   constructor(updateCallback, interval = 5000) {
     this.updateCallback = updateCallback
@@ -71,7 +69,7 @@ class FeedUpdater {
     if (this.isUpdating) return
     
     await this.performUpdate()
-  }
+}
 }
 
 export default FeedUpdater

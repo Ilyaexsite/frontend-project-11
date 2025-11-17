@@ -10,8 +10,8 @@ const createRssSchema = (existingUrls = []) => yup.object({
 })
 
 const validateRssUrl = (url, existingUrls = []) => {
-  console.log('🛠️ Validating URL:', url);
-  console.log('📊 Existing URLs:', existingUrls);
+  console.log('🛠️ Validating URL:', url)
+  console.log('📊 Existing URLs:', existingUrls)
   
   const schema = createRssSchema(existingUrls)
   

@@ -45,12 +45,11 @@ const translateError = (error) => {
   if (typeof error === 'string') {
     return t(error)
   }
-  
   if (error.key) {
     return t(error.key, error.options)
   }
   
-  return t('errors.unknown')
+return t('errors.unknown')
 }
 
 export { initI18n, t, translateError }

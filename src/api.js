@@ -9,7 +9,6 @@ const createProxyUrl = (url) => {
 
 const fetchRssData = (url) => {
   const targetUrl = process.env.NODE_ENV === 'test' ? url : createProxyUrl(url)
-  
   return axios.get(targetUrl, { timeout: 10000 })
     .then((response) => {
       if (response.data.status && response.data.status.http_code !== 200) {
