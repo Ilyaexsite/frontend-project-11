@@ -48,7 +48,7 @@ const translateError = (error) => {
   if (error.key) {
     return t(error.key, error.options)
   }
-  
+
   return t('errors.unknown')
 }
 

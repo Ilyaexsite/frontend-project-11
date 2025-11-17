@@ -218,7 +218,7 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
   `
 
   const viewButtons = postsContainer.querySelectorAll('button[data-post-id]')
-  viewButtons.forEach((button) => {
+  viewButtons.forEach(button => {
     button.addEventListener('click', (event) => {
       const postId = event.currentTarget.getAttribute('data-post-id')
       const post = posts.find(p => p.id === postId)
@@ -365,6 +365,7 @@ const initView = (state, watchedState) => {
 }
 
 window.updatePostsList = updatePostsList
+
 export {
   elements,
   initView,

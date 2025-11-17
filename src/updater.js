@@ -43,7 +43,7 @@ class FeedUpdater {
 
     try {
       const updatePromises = this.feeds.map(feed =>
-        this.updateCallback(feed.url)
+        this.updateCallback(feed.url),
       )
 
       const results = await Promise.allSettled(updatePromises)

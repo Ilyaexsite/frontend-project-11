@@ -63,7 +63,7 @@ const app = async () => {
         const modalElement = document.getElementById('postModal')
         if (modalElement) {
           // Создаем экземпляр модального окна Bootstrap
-          const modal = new bootstrap.Modal(modalElement)
+          const modal = new window.bootstrap.Modal(modalElement)
           modal.show()
 
           console.log('🎯 Bootstrap modal shown')
