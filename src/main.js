@@ -78,15 +78,13 @@ const app = async () => {
               hasShowClass: modalElement.classList.contains('show'),
             })
           }, 500)
-        } else 
-        {
+        } else {
           console.error('❌ Modal element not found by ID postModal')
         }
-      } else 
-      {
-        console.error('❌ Modal elements not found')
+        } else {
+          console.error('❌ Modal elements not found')
+        }
       }
-    }
 
     console.log('🔄 Calling initView...')
     initView(state, state)
@@ -107,8 +105,7 @@ const app = async () => {
         console.log('📝 Input changed:', event.target.value)
         setFormUrl(state, event.target.value.trim())
       })
-    } else 
-    {
+    } else {
       console.error('❌ Input element not found!')
     }
 
@@ -169,17 +166,14 @@ const app = async () => {
           setError(state, error.message)
           setFormState(state, 'error')
         }
-      }
-
+        }
       elements.rssForm.addEventListener('submit', formHandler)
       console.log('✅ Submit handler added to form')
-    } else 
-    {
+    } else {
       console.error('❌ Form element not found!')
       const formById = document.getElementById('rss-form')
       console.log('🔍 Form search by ID:', !!formById)
     }
-
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') {
         clearFormState(state)
@@ -187,12 +181,11 @@ const app = async () => {
     })
 
     console.log('✅ App initialization complete')
-  } catch (error) 
-  {
+  } catch (error) {
     console.error('💥 Error in app initialization:', error)
     console.error('Error stack:', error.stack)
   }
-}
+  }
 
 console.log('📜 Main.js module loaded')
 document.addEventListener('DOMContentLoaded', app)

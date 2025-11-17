@@ -58,12 +58,11 @@ const loadRssFeed = async (url) => {
       description,
       posts,
     }
-  } catch (error) 
-  {
+  } catch (error) {
     console.error('💥 RSS loading error:', error)
     console.error('Error details:', error.message)
     throw error
   }
-}
+  }
 
 export { loadRssFeed }
