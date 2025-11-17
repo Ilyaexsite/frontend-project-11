@@ -173,7 +173,7 @@ const app = async () => {
       }
       elements.rssForm.addEventListener('submit', formHandler)
       console.log('✅ Submit handler added to form')
-    } 
+    }
     else {
       console.error('❌ Form element not found!')
       const formById = document.getElementById('rss-form')
@@ -186,7 +186,7 @@ const app = async () => {
     })
 
     console.log('✅ App initialization complete')
-  } 
+  }
   catch (error) {
     console.error('💥 Error in app initialization:', error)
     console.error('Error stack:', error.stack)
