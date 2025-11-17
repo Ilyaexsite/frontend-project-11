@@ -52,13 +52,16 @@ class FeedUpdater {
         if (result.status === 'fulfilled' && result.value) {
           const feedUrl = this.feeds[index].url
           console.log(`Checked ${feedUrl}: ${result.value.newPosts.length} new posts`)
-        } else if (result.status === 'rejected') {
+        } else if (result.status === 'rejected') 
+        {
           console.error(`Error checking feed ${this.feeds[index].url}:`, result.reason)
         }
       })
-    } catch (error) {
+    } catch (error) 
+    {
       console.error('Error during feed update cycle:', error)
-    } finally {
+    } finally 
+    {
       this.isUpdating = false
       this.scheduleUpdate()
     }

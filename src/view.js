@@ -46,7 +46,8 @@ const createFeedbackElement = () => {
     if (form && form.parentNode) {
       form.parentNode.insertBefore(feedback, form)
       console.log('✅ Feedback element created and inserted before form')
-    } else {
+    } else 
+    {
       console.error('❌ Form or form parent not found for feedback insertion')
     }
   }
@@ -113,7 +114,8 @@ const setFormSubmitting = (isSubmitting) => {
     submitButton.disabled = true
     submitButton.textContent = 'Добавление...'
     rssUrlInput.disabled = true
-  } else {
+  } else 
+  {
     submitButton.disabled = false
     submitButton.textContent = 'Добавить'
     rssUrlInput.disabled = false
@@ -152,7 +154,7 @@ const updateFeedsList = (feeds) => {
     return
   }
 
-  const feedsHtml = feeds.map((feed) => `
+  const feedsHtml = feeds.map(feed => `
     <div class="card mb-3">
       <div class="card-body">
         <h3 class="card-title h6">${feed.title}</h3>
@@ -221,7 +223,7 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
   viewButtons.forEach(button => {
     button.addEventListener('click', (event) => {
       const postId = event.currentTarget.getAttribute('data-post-id')
-      const post = posts.find((p) => p.id === postId)
+      const post = posts.find(p => p.id === postId)
       console.log('🔄 Button clicked for post:', post?.title)
       if (post) {
         onPreviewClick(post)
@@ -301,9 +303,11 @@ const initView = (state, watchedState) => {
           let errorMessage = t('errors.network')
           if (error === 'rssError') {
             errorMessage = t('errors.invalidRss')
-          } else if (error && error.includes('Failed to fetch')) {
+          } else if (error && error.includes('Failed to fetch')) 
+          {
             errorMessage = t('errors.network')
-          } else if (error) {
+          } else if (error) 
+          {
             errorMessage = error
           }
           showFeedback(errorMessage, 'error')
@@ -358,7 +362,8 @@ const initView = (state, watchedState) => {
     }, 100)
 
     console.log('✅ View initialization complete')
-  } catch (error) {
+  } catch (error) 
+  {
     console.error('💥 Error in initView:', error)
     console.error('Error stack:', error.stack)
   }
