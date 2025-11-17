@@ -372,7 +372,7 @@ const initView = (state, watchedState) => {
     console.error('Error stack:', error.stack);
   }
 };
-
+window.updatePostsList = updatePostsList;
 export {
   elements,
   initView,
