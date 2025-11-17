@@ -78,13 +78,15 @@ const app = async () => {
               hasShowClass: modalElement.classList.contains('show'),
             })
           }, 500)
-        } else {
+        } 
+        else {
           console.error('❌ Modal element not found by ID postModal')
         }
-        } else {
-          console.error('❌ Modal elements not found')
-        }
+      } 
+      else {
+        console.error('❌ Modal elements not found')
       }
+    }
 
     console.log('🔄 Calling initView...')
     initView(state, state)
@@ -105,7 +107,8 @@ const app = async () => {
         console.log('📝 Input changed:', event.target.value)
         setFormUrl(state, event.target.value.trim())
       })
-    } else {
+    } 
+    else {
       console.error('❌ Input element not found!')
     }
 
@@ -160,7 +163,8 @@ const app = async () => {
 
           console.log('🎉 Setting state to SUCCESS')
           setFormState(state, 'success')
-        } catch (error) {
+        } 
+        catch (error) {
           console.error('💥 Error in form submission:', error)
           console.error('Error message:', error.message)
           setError(state, error.message)
@@ -185,7 +189,7 @@ const app = async () => {
     console.error('💥 Error in app initialization:', error)
     console.error('Error stack:', error.stack)
   }
-  }
+}
 
 console.log('📜 Main.js module loaded')
 document.addEventListener('DOMContentLoaded', app)

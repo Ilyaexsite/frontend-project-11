@@ -55,14 +55,16 @@ class FeedUpdater {
         } else if (result.status === 'rejected') {
           console.error(`Error checking feed ${this.feeds[index].url}:`, result.reason)
         }
-        })
-        } catch (error) {
-          console.error('Error during feed update cycle:', error)
-        } finally {
-          this.isUpdating = false
-          this.scheduleUpdate()
-        }
-        }
+      })
+    } 
+    catch (error) {
+      console.error('Error during feed update cycle:', error)
+    } 
+    finally {
+      this.isUpdating = false
+      this.scheduleUpdate()
+    }
+  }
 
   async forceUpdate() {
     if (this.isUpdating) return
