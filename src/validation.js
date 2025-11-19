@@ -17,14 +17,14 @@ const validateRssUrl = (url, existingUrls = []) => {
         resolve({ isValid: true, errors: [] })
       })
       .catch((validationError) => {
-        const errors = validationError.inner.map(err => err.message)
+        const errors = validationError.inner.map((err) => err.message)
         resolve({ isValid: false, errors })
       })
   })
 }
 
 const validateRssContent = () => {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     setTimeout(() => {
       resolve({ isValid: true, error: null })
     }, 1000)

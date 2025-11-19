@@ -16,120 +16,71 @@ import { validateRssUrl } from './validation.js'
 import { loadRssFeed } from './rss.js'
 import { elements, initView } from './view.js'
 
-// Простая функция для модального окна
-const showModal = () => {
-  const modal = document.getElementById('postModal')
-  if (modal) {
-    modal.style.display = 'block'
-    modal.classList.add('show')
-    
-    // Закрытие по клику вне модального окна
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        hideModal()
-      }
-    })
-    
-    // Закрытие по кнопке
-    const closeBtn = modal.querySelector('.btn-close')
-    if (closeBtn) {
-      closeBtn.addEventListener('click', hideModal)
-    }
-  }
-}
-
-const hideModal = () => {
-  const modal = document.getElementById('postModal')
-  if (modal) {
-    modal.style.display = 'none'
-    modal.classList.remove('show')
-  }
-}
-
 const app = async () => {
-  try {
-    await initI18n()
+  await initI18n()
+  const state = createState()
 
-    const state = createState()
-
-    state.openModal = (post) => {
-      state.readPosts.add(post.id)
-
-      if (window.updatePostsList) {
-        window.updatePostsList(state.posts, state.readPosts, state.openModal)
-      }
-
-      const modalBody = document.getElementById('modalBody')
-      const modalTitle = document.getElementById('postModalLabel')
-      const readMoreLink = document.getElementById('modalReadMore')
-
-      if (modalBody && modalTitle && readMoreLink) {
-        modalBody.innerHTML = `
-          <p>Цель: Научиться извлекать из дерева необходимые данные</p>
-        `
-        modalTitle.textContent = post.title
-        readMoreLink.href = post.link
-        showModal()
-      }
+  state.openModal = (post) => {
+    state.readPosts.add(post.id)
+    
+    const modal = document.getElementById('postModal')
+    const modalBody = document.getElementById('modalBody')
+    const modalTitle = document.getElementById('postModalLabel')
+    const readMoreLink = document.getElementById('modalReadMore')
+    
+    if (modal && modalBody && modalTitle && readMoreLink) {
+      modalBody.textContent = 'Цель: Научиться извлекать из дерева необходимые данные'
+      modalTitle.textContent = post.title
+      readMoreLink.href = post.link
+      modal.style.display = 'block'
     }
+  }
 
-    initView(state, state)
+  initView(state, state)
 
-    if (elements.rssUrlInput) {
-      elements.rssUrlInput.addEventListener('input', (event) => {
-        setFormUrl(state, event.target.value.trim())
-      })
-    }
+  const form = elements.rssForm()
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      
+      const url = getFormUrl(state)
+      const existingUrls = getFeeds(state).map(feed => feed.url)
 
-    if (elements.rssForm) {
-      const formHandler = async (event) => {
-        event.preventDefault()
-        event.stopPropagation()
+      setFormState(state, 'validating')
+      clearError(state)
 
-        const url = getFormUrl(state)
-        const existingUrls = getFeeds(state).map(feed => feed.url)
+      try {
+        const validationResult = await validateRssUrl(url, existingUrls)
 
-        setFormState(state, 'validating')
-        clearError(state)
-
-        try {
-          const validationResult = await validateRssUrl(url, existingUrls)
-
-          if (!validationResult.isValid) {
-            setFormErrors(state, { url: validationResult.errors })
-            setFormState(state, 'invalid')
-            return
-          }
-
-          setFormState(state, 'submitting')
-
-          const rssData = await loadRssFeed(url)
-
-          addFeed(state, rssData)
-          addPosts(state, rssData.posts.map(post => ({
-            ...post,
-            feedId: rssData.url,
-          })))
-
-          setFormState(state, 'success')
+        if (!validationResult.isValid) {
+          setFormErrors(state, { url: validationResult.errors })
+          setFormState(state, 'invalid')
+          return
         }
-        catch (error) {
-          setError(state, error.message)
-          setFormState(state, 'error')
-        }
-      }
-      elements.rssForm.addEventListener('submit', formHandler)
-    }
 
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') {
-        clearFormState(state)
-        hideModal()
+        setFormState(state, 'submitting')
+        const rssData = await loadRssFeed(url)
+
+        addFeed(state, rssData)
+        addPosts(state, rssData.posts.map(post => ({
+          ...post,
+          feedId: rssData.url,
+        })))
+
+        setFormState(state, 'success')
+      }
+      catch (error) {
+        setError(state, error.message)
+        setFormState(state, 'error')
       }
     })
   }
-  catch (error) {
-    console.error('Error in app initialization:', error)
+
+  const input = elements.rssUrlInput()
+  if (input) {
+    input.addEventListener('input', (e) => {
+      setFormUrl(state, e.target.value.trim())
+    })
   }
 }
 
