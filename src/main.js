@@ -71,23 +71,23 @@ const app = async () => {
 
         try {
           const validationResult = await validateRssUrl(url, existingUrls)
-
+        
           if (!validationResult.isValid) {
             setFormErrors(state, { url: validationResult.errors })
             setFormState(state, 'invalid')
             return
           }
-
+        
           setFormState(state, 'submitting')
-
+        
           const rssData = await loadRssFeed(url)
-
+        
           addFeed(state, rssData)
           addPosts(state, rssData.posts.map(post => ({
             ...post,
             feedId: rssData.url,
           })))
-
+        
           setFormState(state, 'success')
         }
         catch (error) {
