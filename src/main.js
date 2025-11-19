@@ -39,16 +39,21 @@ const app = async () => {
       modalBody.textContent = 'Цель: Научиться извлекать из дерева необходимые данные'
       modalTitle.textContent = post.title
       readMoreLink.href = post.link
+      readMoreLink.textContent = 'Читать полностью'
 
       // Показываем модальное окно с помощью Bootstrap
       const modalElement = document.getElementById('postModal')
-      if (modalElement && window.bootstrap) {
-        const modal = new bootstrap.Modal(modalElement)
-        modal.show()
-      } else if (modalElement) {
-        // Fallback если Bootstrap недоступен
-        modalElement.style.display = 'block'
-        modalElement.classList.add('show')
+      if (modalElement) {
+        // Используем Bootstrap если доступен
+        if (window.bootstrap && bootstrap.Modal) {
+          const modal = new bootstrap.Modal(modalElement)
+          modal.show()
+        } else {
+          // Fallback: показываем модальное окно напрямую
+          modalElement.style.display = 'block'
+          modalElement.classList.add('show')
+          modalElement.style.backgroundColor = 'rgba(0,0,0,0.5)'
+        }
       }
     }
   }
@@ -100,15 +105,39 @@ const app = async () => {
       setFormUrl(state, e.target.value.trim())
     })
   }
-
-  // Добавляем обработчик закрытия модального окна по клику вне
-  document.addEventListener('click', (e) => {
-    const modal = document.getElementById('postModal')
-    if (modal && e.target === modal) {
-      modal.style.display = 'none'
-      modal.classList.remove('show')
-    }
-  })
 }
 
 document.addEventListener('DOMContentLoaded', app)
+
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('postModal')
+  const closeButtons = document.querySelectorAll('[data-bs-dismiss="modal"], .btn-secondary')
+  
+  if (modal) {
+    // Закрытие по клику вне модального окна
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        if (window.bootstrap && bootstrap.Modal) {
+          const bsModal = bootstrap.Modal.getInstance(modal)
+          if (bsModal) bsModal.hide()
+        } else {
+          modal.style.display = 'none'
+          modal.classList.remove('show')
+        }
+      }
+    })
+    
+    // Закрытие по кнопкам
+    closeButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        if (window.bootstrap && bootstrap.Modal) {
+          const bsModal = bootstrap.Modal.getInstance(modal)
+          if (bsModal) bsModal.hide()
+        } else {
+          modal.style.display = 'none'
+          modal.classList.remove('show')
+        }
+      })
+    })
+  }
+})
