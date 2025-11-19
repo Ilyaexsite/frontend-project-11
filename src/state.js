@@ -20,7 +20,7 @@ const initialState = {
 const createState = (initial = initialState) => {
   return onChange(initial, (path, value) => {
     if (path === 'form.state') {
-      console.log('Form state changed:', value)
+      // Form state changed
     }
   })
 }
@@ -34,7 +34,6 @@ const getError = state => state.ui.error
 const getReadPosts = state => state.readPosts
 
 const setFormState = (state, newState) => {
-  console.log('🔄 Setting form state from', state.form.state, 'to', newState)
   state.form.state = newState
 }
 
@@ -53,7 +52,6 @@ const clearForm = (state) => {
 }
 
 const addFeed = (state, feedData) => {
-  console.log('💾 Adding feed to state:', feedData)
   const newFeed = {
     id: `feed-${Date.now()}`,
     url: feedData.url,
@@ -61,13 +59,10 @@ const addFeed = (state, feedData) => {
     description: feedData.description,
   }
   state.feeds.push(newFeed)
-  console.log('✅ Feed added, total feeds:', state.feeds.length)
 }
 
 const addPosts = (state, postsData) => {
-  console.log('📝 Adding posts to state:', postsData.length)
   state.posts = [...state.posts, ...postsData]
-  console.log('✅ Posts added, total posts:', state.posts.length)
 }
 
 const setError = (state, error) => {

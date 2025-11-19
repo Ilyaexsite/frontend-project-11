@@ -10,19 +10,14 @@ const createRssSchema = (existingUrls = []) => yup.object({
 })
 
 const validateRssUrl = (url, existingUrls = []) => {
-  console.log('🛠️ Validating URL:', url)
-  console.log('📊 Existing URLs:', existingUrls)
-
   const schema = createRssSchema(existingUrls)
 
   return new Promise((resolve) => {
     schema.validate({ url }, { abortEarly: false })
       .then(() => {
-        console.log('✅ URL validation passed')
         resolve({ isValid: true, errors: [] })
       })
       .catch((validationError) => {
-        console.log('❌ URL validation failed:', validationError.errors)
         const errors = validationError.inner.map((err) => {
           return t(err.message)
         })

@@ -50,16 +50,15 @@ class FeedUpdater {
 
       results.forEach((result, index) => {
         if (result.status === 'fulfilled' && result.value) {
-          const feedUrl = this.feeds[index].url
-          console.log(`Checked ${feedUrl}: ${result.value.newPosts.length} new posts`)
+          // Feed updated successfully
         }
         else if (result.status === 'rejected') {
-          console.error(`Error checking feed ${this.feeds[index].url}:`, result.reason)
+          // Feed update failed
         }
       })
     }
     catch (error) {
-      console.error('Error during feed update cycle:', error)
+      // Error during update cycle
     }
     finally {
       this.isUpdating = false
