@@ -156,6 +156,9 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
   })
 }
 
+// Делаем функцию глобальной для вызова из main.js
+window.updatePostsList = updatePostsList
+
 const handleStateChange = () => {
   if (!currentWatchedState) return
   
