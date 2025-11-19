@@ -50,12 +50,10 @@ class FeedUpdater {
 
       results.forEach((result) => {
         if (result.status === 'fulfilled' && result.value) {
-        }
+        } 
         else if (result.status === 'rejected') {
         }
       })
-    }
-    catch (error) {
     }
     finally {
       this.isUpdating = false

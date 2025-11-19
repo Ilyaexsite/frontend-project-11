@@ -1,5 +1,3 @@
-import { t } from './i18n.js'
-
 const elements = {
   get rssForm() { return document.getElementById('rss-form') },
   get rssUrlInput() { return document.getElementById('url-input') },
@@ -242,7 +240,7 @@ const initView = (state, watchedState) => {
           const error = watchedState.ui?.error
           let errorMessage = 'Ошибка сети'
           if (error === 'rssError') {
-          errorMessage = 'Ресурс не содержит валидный RSS'
+            errorMessage = 'Ресурс не содержит валидный RSS'
           }
           else if (error && error.includes('Failed to fetch')) {
             errorMessage = 'Ошибка сети'
@@ -306,5 +304,5 @@ const initView = (state, watchedState) => {
 
 export {
   elements,
-initView
+  initView,
 }
