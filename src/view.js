@@ -1,3 +1,5 @@
+import { t } from './i18n.js'
+
 const elements = {
   get rssForm() { return document.getElementById('rss-form') },
   get rssUrlInput() { return document.getElementById('url-input') },
@@ -46,12 +48,6 @@ const showFeedback = (message, type = 'success') => {
       ${message}
     </div>
   `
-}
-  const successElement = feedback.querySelector('[data-testid="success-message"]')
-  if (successElement) {
-    successElement.style.display = 'block'
-    successElement.style.opacity = '1'
-  }
 }
 
 const clearFeedback = () => {
