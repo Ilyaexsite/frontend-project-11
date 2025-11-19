@@ -18,9 +18,8 @@ const initialState = {
 }
 
 const createState = (initial = initialState) => {
-  return onChange(initial, (path, value) => {
+  return onChange(initial, (path) => {
     if (path === 'form.state') {
-      // Form state changed
     }
   })
 }

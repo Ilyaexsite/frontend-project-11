@@ -48,17 +48,14 @@ class FeedUpdater {
 
       const results = await Promise.allSettled(updatePromises)
 
-      results.forEach((result, index) => {
+      results.forEach((result) => {
         if (result.status === 'fulfilled' && result.value) {
-          // Feed updated successfully
         }
         else if (result.status === 'rejected') {
-          // Feed update failed
         }
       })
     }
     catch (error) {
-      // Error during update cycle
     }
     finally {
       this.isUpdating = false

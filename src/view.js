@@ -237,28 +237,28 @@ const initView = (state, watchedState) => {
           }, 10000)
           break
 
-          case 'error': {
-            setFormSubmitting(false)
-            const error = watchedState.ui?.error
-            let errorMessage = 'Ошибка сети'
-            if (error === 'rssError') {
-              errorMessage = 'Ресурс не содержит валидный RSS'
-            }
-            else if (error && error.includes('Failed to fetch')) {
-              errorMessage = 'Ошибка сети'
-            }
-            else if (error) {
-              errorMessage = error
-            }
-            showFeedback(errorMessage, 'error')
-          
-            setTimeout(() => {
-              if (watchedState.form.state === 'error') {
-                watchedState.form.state = 'filling'
-              }
-            }, 5000)
-            break
+        case 'error': {
+          setFormSubmitting(false)
+          const error = watchedState.ui?.error
+          let errorMessage = 'Ошибка сети'
+          if (error === 'rssError') {
+          errorMessage = 'Ресурс не содержит валидный RSS'
           }
+          else if (error && error.includes('Failed to fetch')) {
+            errorMessage = 'Ошибка сети'
+          }
+          else if (error) {
+            errorMessage = error
+          }
+          showFeedback(errorMessage, 'error')
+
+          setTimeout(() => {
+            if (watchedState.form.state === 'error') {
+              watchedState.form.state = 'filling'
+            }
+          }, 5000)
+          break
+        }
 
         default:
           break
@@ -306,5 +306,5 @@ const initView = (state, watchedState) => {
 
 export {
   elements,
-  initView
+initView
 }
