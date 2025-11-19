@@ -1,12 +1,11 @@
 import * as yup from 'yup'
-import { t } from './i18n.js'
 
 const createRssSchema = (existingUrls = []) => yup.object({
   url: yup
     .string()
-    .required('errors.required')
-    .url('errors.url')
-    .notOneOf(existingUrls, 'errors.notOneOf'),
+    .required('Не должно быть пустым')
+    .url('Ссылка должна быть валидным URL')
+    .notOneOf(existingUrls, 'RSS уже существует'),
 })
 
 const validateRssUrl = (url, existingUrls = []) => {
@@ -18,9 +17,7 @@ const validateRssUrl = (url, existingUrls = []) => {
         resolve({ isValid: true, errors: [] })
       })
       .catch((validationError) => {
-        const errors = validationError.inner.map((err) => {
-          return t(err.message)
-        })
+        const errors = validationError.inner.map((err) => err.message)
         resolve({ isValid: false, errors })
       })
   })
