@@ -44,8 +44,9 @@ const showFeedback = (message, type = 'success') => {
   const alertClass = type === 'error' ? 'alert-danger' : 'alert-success'
 
   feedback.innerHTML = `
-    <div class="alert ${alertClass}" role="alert" data-testid="success-message">
+    <div class="alert ${alertClass} alert-dismissible fade show" role="alert" data-testid="success-message">
       ${message}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
   `
 }
@@ -236,28 +237,27 @@ const initView = (state, watchedState) => {
           }, 10000)
           break
 
-        case 'error': {
-          setFormSubmitting(false)
-          const error = watchedState.ui?.error
-          let errorMessage = 'Ошибка сети'
-          if (error === 'rssError') {
-            errorMessage = 'Ресурс не содержит валидный RSS'
-          }
-          else if (error && error.includes('Failed to fetch')) {
-            errorMessage = 'Ошибка сети'
-          }
-          else if (error) {
-            errorMessage = error
-          }
-          showFeedback(errorMessage, 'error')
-
-          setTimeout(() => {
-            if (watchedState.form.state === 'error') {
-              watchedState.form.state = 'filling'
+          case 'error': {
+            setFormSubmitting(false)
+            const error = watchedState.ui?.error
+            let errorMessage = 'Ошибка сети'
+            if (error === 'rssError') {
+              errorMessage = 'Ресурс не содержит валидный RSS'
             }
-          }, 5000)
-          break
-        }
+            else if (error && error.includes('Failed to fetch')) {
+              errorMessage = 'Ошибка сети'
+            }
+            else if (error) {
+              errorMessage = error
+            }
+            showFeedback(errorMessage, 'error')
+            setTimeout(() => {
+              if (watchedState.form.state === 'error') {
+                watchedState.form.state = 'filling'
+              }
+            }, 5000)
+            break
+          }
 
         default:
           break
@@ -305,5 +305,5 @@ const initView = (state, watchedState) => {
 
 export {
   elements,
-  initView,
+  initView
 }
