@@ -155,15 +155,13 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
 
   const postsHtml = posts.map((post) => {
     const isRead = readPosts.has(post.id)
-    const titleClass = isRead ? 'fw-normal' : 'fw-bold'
+    const titleClass = isRead ? '' : 'fw-bold'
 
     return `
     <div class="list-group-item d-flex justify-content-between align-items-start border-0">
-      <div class="ms-2 me-auto">
-        <a href="${post.link}" class="${titleClass} text-dark text-decoration-none" target="_blank" rel="noopener noreferrer">
-          ${post.title}
-        </a>
-      </div>
+      <a href="${post.link}" class="${titleClass}" target="_blank" rel="noopener noreferrer">
+        ${post.title}
+      </a>
       <button type="button" class="btn btn-outline-primary btn-sm" data-post-id="${post.id}">
         Просмотр
       </button>
