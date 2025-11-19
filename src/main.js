@@ -16,41 +16,20 @@ import { validateRssUrl } from './validation.js'
 import { loadRssFeed } from './rss.js'
 import { elements, initView } from './view.js'
 
-// Простая функция для модального окна без зависимости от Bootstrap
-const initModal = () => {
-  const modal = document.getElementById('postModal')
-  const closeButtons = document.querySelectorAll('[data-bs-dismiss="modal"], .btn-secondary')
-  
-  if (modal) {
-    // Закрытие по клику вне модального окна
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        modal.style.display = 'none'
-      }
-    })
-    
-    // Закрытие по кнопкам
-    closeButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        modal.style.display = 'none'
-      })
-    })
-  }
-}
-
 const app = async () => {
   await initI18n()
   const state = createState()
 
-  // Инициализируем модальное окно при загрузке
-  initModal()
-
   state.openModal = (post) => {
+    console.log('🔄 openModal called with post:', post.title)
+    
     // Добавляем пост в прочитанные
     state.readPosts.add(post.id)
+    console.log('✅ Post added to readPosts:', post.id)
 
     // Обновляем список постов чтобы убрать жирный шрифт
     if (window.updatePostsList) {
+      console.log('🔄 Calling updatePostsList')
       window.updatePostsList(state.posts, state.readPosts, state.openModal)
     }
 
@@ -60,6 +39,13 @@ const app = async () => {
     const readMoreLink = document.getElementById('modalReadMore')
     const modalElement = document.getElementById('postModal')
 
+    console.log('🔍 Modal elements:', {
+      modalBody: !!modalBody,
+      modalTitle: !!modalTitle,
+      readMoreLink: !!readMoreLink,
+      modalElement: !!modalElement
+    })
+
     if (modalBody && modalTitle && readMoreLink && modalElement) {
       // Устанавливаем точный текст который ожидает тест
       modalBody.textContent = 'Цель: Научиться извлекать из дерева необходимые данные'
@@ -67,16 +53,27 @@ const app = async () => {
       readMoreLink.href = post.link
       readMoreLink.textContent = 'Читать полностью'
 
+      console.log('✅ Modal content set:', {
+        bodyText: modalBody.textContent,
+        title: modalTitle.textContent,
+        link: readMoreLink.href
+      })
+
       // Показываем модальное окно - используем простой способ
       modalElement.style.display = 'block'
       modalElement.classList.add('show')
+      
+      console.log('✅ Modal shown, display:', modalElement.style.display)
       
       // Добавляем backdrop если его нет
       if (!document.querySelector('.modal-backdrop')) {
         const backdrop = document.createElement('div')
         backdrop.className = 'modal-backdrop fade show'
         document.body.appendChild(backdrop)
+        console.log('✅ Backdrop created')
       }
+    } else {
+      console.error('❌ Modal elements not found!')
     }
   }
 
