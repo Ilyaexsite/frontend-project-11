@@ -16,6 +16,36 @@ import { validateRssUrl } from './validation.js'
 import { loadRssFeed } from './rss.js'
 import { elements, initView } from './view.js'
 
+// Простая функция для модального окна
+const showModal = () => {
+  const modal = document.getElementById('postModal')
+  if (modal) {
+    modal.style.display = 'block'
+    modal.classList.add('show')
+    
+    // Закрытие по клику вне модального окна
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        hideModal()
+      }
+    })
+    
+    // Закрытие по кнопке
+    const closeBtn = modal.querySelector('.btn-close')
+    if (closeBtn) {
+      closeBtn.addEventListener('click', hideModal)
+    }
+  }
+}
+
+const hideModal = () => {
+  const modal = document.getElementById('postModal')
+  if (modal) {
+    modal.style.display = 'none'
+    modal.classList.remove('show')
+  }
+}
+
 const app = async () => {
   try {
     await initI18n()
@@ -39,13 +69,7 @@ const app = async () => {
         `
         modalTitle.textContent = post.title
         readMoreLink.href = post.link
-
-        const modalElement = document.getElementById('postModal')
-        if (modalElement) {
-          // Просто показываем модальное окно без Bootstrap
-          modalElement.style.display = 'block'
-          modalElement.classList.add('show')
-        }
+        showModal()
       }
     }
 
@@ -97,11 +121,12 @@ const app = async () => {
       elements.rssForm.addEventListener('submit', formHandler)
     }
 
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-      clearFormState(state)
-    }
-  })
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        clearFormState(state)
+        hideModal()
+      }
+    })
   }
   catch (error) {
     console.error('Error in app initialization:', error)

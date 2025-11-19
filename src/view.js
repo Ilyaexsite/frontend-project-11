@@ -42,11 +42,11 @@ const showFeedback = (message, type = 'success') => {
   const alertClass = type === 'error' ? 'alert-danger' : 'alert-success'
 
   feedback.innerHTML = `
-    <div class="alert ${alertClass} alert-dismissible fade show" role="alert" data-testid="success-message">
+    <div class="alert ${alertClass}" role="alert" data-testid="success-message">
       ${message}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
   `
+}
   const successElement = feedback.querySelector('[data-testid="success-message"]')
   if (successElement) {
     successElement.style.display = 'block'
