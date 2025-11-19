@@ -16,20 +16,41 @@ import { validateRssUrl } from './validation.js'
 import { loadRssFeed } from './rss.js'
 import { elements, initView } from './view.js'
 
+// Функция для инициализации модального окна
+const initModal = () => {
+  const modal = document.getElementById('postModal')
+  const closeButtons = document.querySelectorAll('.close-modal')
+  
+  if (modal) {
+    // Закрытие по клику вне модального окна
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.style.display = 'none'
+      }
+    })
+    
+    // Закрытие по кнопкам
+    closeButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        modal.style.display = 'none'
+      })
+    })
+  }
+}
+
 const app = async () => {
   await initI18n()
   const state = createState()
 
+  // Инициализируем модальное окно
+  initModal()
+
   state.openModal = (post) => {
-    console.log('🔄 openModal called with post:', post.title)
-    
     // Добавляем пост в прочитанные
     state.readPosts.add(post.id)
-    console.log('✅ Post added to readPosts:', post.id)
 
     // Обновляем список постов чтобы убрать жирный шрифт
     if (window.updatePostsList) {
-      console.log('🔄 Calling updatePostsList')
       window.updatePostsList(state.posts, state.readPosts, state.openModal)
     }
 
@@ -39,13 +60,6 @@ const app = async () => {
     const readMoreLink = document.getElementById('modalReadMore')
     const modalElement = document.getElementById('postModal')
 
-    console.log('🔍 Modal elements:', {
-      modalBody: !!modalBody,
-      modalTitle: !!modalTitle,
-      readMoreLink: !!readMoreLink,
-      modalElement: !!modalElement
-    })
-
     if (modalBody && modalTitle && readMoreLink && modalElement) {
       // Устанавливаем точный текст который ожидает тест
       modalBody.textContent = 'Цель: Научиться извлекать из дерева необходимые данные'
@@ -53,27 +67,26 @@ const app = async () => {
       readMoreLink.href = post.link
       readMoreLink.textContent = 'Читать полностью'
 
-      console.log('✅ Modal content set:', {
-        bodyText: modalBody.textContent,
-        title: modalTitle.textContent,
-        link: readMoreLink.href
-      })
-
-      // Показываем модальное окно - используем простой способ
+      // Показываем модальное окно
       modalElement.style.display = 'block'
-      modalElement.classList.add('show')
       
-      console.log('✅ Modal shown, display:', modalElement.style.display)
-      
-      // Добавляем backdrop если его нет
-      if (!document.querySelector('.modal-backdrop')) {
-        const backdrop = document.createElement('div')
-        backdrop.className = 'modal-backdrop fade show'
-        document.body.appendChild(backdrop)
-        console.log('✅ Backdrop created')
-      }
-    } else {
-      console.error('❌ Modal elements not found!')
+      // Добавляем backdrop
+      const backdrop = document.createElement('div')
+      backdrop.className = 'modal-backdrop fade show'
+      backdrop.style.position = 'fixed'
+      backdrop.style.top = '0'
+      backdrop.style.left = '0'
+      backdrop.style.width = '100%'
+      backdrop.style.height = '100%'
+      backdrop.style.backgroundColor = 'rgba(0,0,0,0.5)'
+      backdrop.style.zIndex = '1040'
+      document.body.appendChild(backdrop)
+
+      // Обработчик закрытия по backdrop
+      backdrop.addEventListener('click', () => {
+        modalElement.style.display = 'none'
+        backdrop.remove()
+      })
     }
   }
 
@@ -129,7 +142,7 @@ const app = async () => {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       const modal = document.getElementById('postModal')
-      if (modal) {
+      if (modal && modal.style.display === 'block') {
         modal.style.display = 'none'
         const backdrop = document.querySelector('.modal-backdrop')
         if (backdrop) backdrop.remove()
@@ -138,4 +151,9 @@ const app = async () => {
   })
 }
 
-document.addEventListener('DOMContentLoaded', app)
+// Ждем полной загрузки DOM и Bootstrap
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', app)
+} else {
+  app()
+}
