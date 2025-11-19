@@ -42,15 +42,14 @@ const app = async () => {
 
         const modalElement = document.getElementById('postModal')
         if (modalElement) {
-          const modal = new window.bootstrap.Modal(modalElement)
-          modal.show()
+          // Просто показываем модальное окно без Bootstrap
+          modalElement.style.display = 'block'
+          modalElement.classList.add('show')
         }
       }
     }
 
     initView(state, state)
-
-    await new Promise(resolve => setTimeout(resolve, 100))
 
     if (elements.rssUrlInput) {
       elements.rssUrlInput.addEventListener('input', (event) => {
@@ -98,11 +97,11 @@ const app = async () => {
       elements.rssForm.addEventListener('submit', formHandler)
     }
 
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') {
-        clearFormState(state)
-      }
-    })
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      clearFormState(state)
+    }
+  })
   }
   catch (error) {
     console.error('Error in app initialization:', error)
@@ -110,4 +109,3 @@ const app = async () => {
 }
 
 document.addEventListener('DOMContentLoaded', app)
-

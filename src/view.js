@@ -47,6 +47,11 @@ const showFeedback = (message, type = 'success') => {
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
   `
+  const successElement = feedback.querySelector('[data-testid="success-message"]')
+  if (successElement) {
+    successElement.style.display = 'block'
+    successElement.style.opacity = '1'
+  }
 }
 
 const clearFeedback = () => {
