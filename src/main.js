@@ -42,21 +42,15 @@ const app = async () => {
 
         const modalElement = document.getElementById('postModal')
         if (modalElement) {
-          // Используем Bootstrap Modal напрямую, если доступен
-          const Modal = typeof bootstrap !== 'undefined' ? bootstrap.Modal : window.bootstrap?.Modal
-          if (Modal) {
-            const modal = new Modal(modalElement)
-            modal.show()
-          } else {
-            // Fallback: просто показываем модальное окно
-            modalElement.style.display = 'block'
-            modalElement.classList.add('show')
-          }
+          const modal = new window.bootstrap.Modal(modalElement)
+          modal.show()
         }
       }
     }
 
     initView(state, state)
+
+    await new Promise(resolve => setTimeout(resolve, 100))
 
     if (elements.rssUrlInput) {
       elements.rssUrlInput.addEventListener('input', (event) => {
@@ -116,3 +110,4 @@ const app = async () => {
 }
 
 document.addEventListener('DOMContentLoaded', app)
+
