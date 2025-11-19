@@ -130,6 +130,13 @@ const handleStateChange = () => {
       updateFeedsList(currentWatchedState.feeds)
       updatePostsList(currentWatchedState.posts, currentWatchedState.readPosts, currentWatchedState.openModal)
       showFeedback('RSS успешно загружен')
+      
+      // Автоматически сбрасываем состояние через 5 секунд
+      setTimeout(() => {
+        if (currentWatchedState.form.state === 'success') {
+          currentWatchedState.form.state = 'filling'
+        }
+      }, 5000)
       break
       
     case 'error':
@@ -144,15 +151,21 @@ const handleStateChange = () => {
 const initView = (state, watchedState) => {
   currentWatchedState = watchedState
   
+  // Создаем наблюдатель за состоянием формы
   const originalState = watchedState.form.state
+  let currentState = originalState
+  
   Object.defineProperty(watchedState.form, 'state', {
-    get() { return this._state || originalState },
+    get() { return currentState },
     set(newState) {
-      this._state = newState
-      handleStateChange()
+      if (newState !== currentState) {
+        currentState = newState
+        handleStateChange()
+      }
     }
   })
   
+  // Инициализируем начальное состояние
   handleStateChange()
 }
 

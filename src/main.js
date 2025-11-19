@@ -59,6 +59,7 @@ const app = async () => {
         }
 
         setFormState(state, 'submitting')
+
         const rssData = await loadRssFeed(url)
 
         addFeed(state, rssData)
@@ -67,6 +68,7 @@ const app = async () => {
           feedId: rssData.url,
         })))
 
+        // Убедимся, что состояние успеха устанавливается
         setFormState(state, 'success')
       }
       catch (error) {
