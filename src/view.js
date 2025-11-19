@@ -25,10 +25,6 @@ const createStateObserver = (state, callback) => {
   }
 }
 
-const checkElements = () => {
-  return elements.rssForm && elements.rssUrlInput
-}
-
 const createFeedbackElement = () => {
   let feedback = document.getElementById('feedback')
   if (!feedback) {
@@ -159,14 +155,16 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
 
   const postsHtml = posts.map((post) => {
     const isRead = readPosts.has(post.id)
-    const titleClass = isRead ? '' : 'fw-bold'
+    const titleClass = isRead ? 'fw-normal' : 'fw-bold'
 
     return `
     <div class="list-group-item d-flex justify-content-between align-items-start border-0">
-      <a href="${post.link}" class="${titleClass}" style="flex: 1; color: #212529; text-decoration: none;" target="_blank" rel="noopener noreferrer" data-testid="post-link">
-        ${post.title}
-      </a>
-      <button type="button" class="btn btn-outline-primary btn-sm" data-post-id="${post.id}" data-testid="view-button">
+      <div class="ms-2 me-auto">
+        <a href="${post.link}" class="${titleClass} text-dark text-decoration-none" target="_blank" rel="noopener noreferrer">
+          ${post.title}
+        </a>
+      </div>
+      <button type="button" class="btn btn-outline-primary btn-sm" data-post-id="${post.id}">
         Просмотр
       </button>
     </div>
@@ -198,8 +196,6 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
 
 const initView = (state, watchedState) => {
   try {
-    checkElements()
-
     const { rssUrlInput } = elements
 
     if (!rssUrlInput) return
@@ -234,7 +230,7 @@ const initView = (state, watchedState) => {
           updatePostsList(watchedState.posts, watchedState.readPosts, (post) => {
             watchedState.openModal(post)
           })
-          showFeedback(t('rssLoaded'), 'success')
+          showFeedback('RSS успешно загружен', 'success')
 
           setTimeout(() => {
             if (watchedState.form.state === 'success') {
@@ -310,10 +306,7 @@ const initView = (state, watchedState) => {
   }
 }
 
-window.updatePostsList = updatePostsList
-
 export {
   elements,
-  initView,
-  checkElements,
+  initView
 }
