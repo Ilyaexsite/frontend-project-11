@@ -16,9 +16,34 @@ import { validateRssUrl } from './validation.js'
 import { loadRssFeed } from './rss.js'
 import { elements, initView } from './view.js'
 
+// Простая функция для модального окна без зависимости от Bootstrap
+const initModal = () => {
+  const modal = document.getElementById('postModal')
+  const closeButtons = document.querySelectorAll('[data-bs-dismiss="modal"], .btn-secondary')
+  
+  if (modal) {
+    // Закрытие по клику вне модального окна
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.style.display = 'none'
+      }
+    })
+    
+    // Закрытие по кнопкам
+    closeButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        modal.style.display = 'none'
+      })
+    })
+  }
+}
+
 const app = async () => {
   await initI18n()
   const state = createState()
+
+  // Инициализируем модальное окно при загрузке
+  initModal()
 
   state.openModal = (post) => {
     // Добавляем пост в прочитанные
@@ -33,27 +58,24 @@ const app = async () => {
     const modalBody = document.getElementById('modalBody')
     const modalTitle = document.getElementById('postModalLabel')
     const readMoreLink = document.getElementById('modalReadMore')
+    const modalElement = document.getElementById('postModal')
 
-    if (modalBody && modalTitle && readMoreLink) {
+    if (modalBody && modalTitle && readMoreLink && modalElement) {
       // Устанавливаем точный текст который ожидает тест
       modalBody.textContent = 'Цель: Научиться извлекать из дерева необходимые данные'
       modalTitle.textContent = post.title
       readMoreLink.href = post.link
       readMoreLink.textContent = 'Читать полностью'
 
-      // Показываем модальное окно с помощью Bootstrap
-      const modalElement = document.getElementById('postModal')
-      if (modalElement) {
-        // Используем Bootstrap если доступен
-        if (window.bootstrap && bootstrap.Modal) {
-          const modal = new bootstrap.Modal(modalElement)
-          modal.show()
-        } else {
-          // Fallback: показываем модальное окно напрямую
-          modalElement.style.display = 'block'
-          modalElement.classList.add('show')
-          modalElement.style.backgroundColor = 'rgba(0,0,0,0.5)'
-        }
+      // Показываем модальное окно - используем простой способ
+      modalElement.style.display = 'block'
+      modalElement.classList.add('show')
+      
+      // Добавляем backdrop если его нет
+      if (!document.querySelector('.modal-backdrop')) {
+        const backdrop = document.createElement('div')
+        backdrop.className = 'modal-backdrop fade show'
+        document.body.appendChild(backdrop)
       }
     }
   }
@@ -105,39 +127,18 @@ const app = async () => {
       setFormUrl(state, e.target.value.trim())
     })
   }
+
+  // Обработчик Escape для закрытия модального окна
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const modal = document.getElementById('postModal')
+      if (modal) {
+        modal.style.display = 'none'
+        const backdrop = document.querySelector('.modal-backdrop')
+        if (backdrop) backdrop.remove()
+      }
+    }
+  })
 }
 
 document.addEventListener('DOMContentLoaded', app)
-
-document.addEventListener('DOMContentLoaded', () => {
-  const modal = document.getElementById('postModal')
-  const closeButtons = document.querySelectorAll('[data-bs-dismiss="modal"], .btn-secondary')
-  
-  if (modal) {
-    // Закрытие по клику вне модального окна
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        if (window.bootstrap && bootstrap.Modal) {
-          const bsModal = bootstrap.Modal.getInstance(modal)
-          if (bsModal) bsModal.hide()
-        } else {
-          modal.style.display = 'none'
-          modal.classList.remove('show')
-        }
-      }
-    })
-    
-    // Закрытие по кнопкам
-    closeButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        if (window.bootstrap && bootstrap.Modal) {
-          const bsModal = bootstrap.Modal.getInstance(modal)
-          if (bsModal) bsModal.hide()
-        } else {
-          modal.style.display = 'none'
-          modal.classList.remove('show')
-        }
-      })
-    })
-  }
-})

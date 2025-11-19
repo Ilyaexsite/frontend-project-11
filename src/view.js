@@ -148,17 +148,15 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
   `
 
   // Добавляем обработчики для кнопок просмотра
-  const viewButtons = container.querySelectorAll('button[data-post-id]')
-  viewButtons.forEach(button => {
-    // Удаляем старые обработчики чтобы избежать дублирования
-    button.replaceWith(button.cloneNode(true))
-  })
-
-  // Добавляем новые обработчики
-  container.querySelectorAll('button[data-post-id]').forEach(button => {
-    button.addEventListener('click', (event) => {
-      event.preventDefault()
-      const postId = button.getAttribute('data-post-id')
+  const buttons = container.querySelectorAll('button[data-post-id]')
+  buttons.forEach(button => {
+    // Удаляем существующие обработчики
+    const newButton = button.cloneNode(true)
+    button.parentNode.replaceChild(newButton, button)
+    
+    // Добавляем новый обработчик
+    newButton.addEventListener('click', () => {
+      const postId = newButton.getAttribute('data-post-id')
       const post = posts.find(p => p.id === postId)
       if (post && onPreviewClick) {
         onPreviewClick(post)
