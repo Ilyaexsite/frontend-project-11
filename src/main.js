@@ -23,16 +23,23 @@ const app = async () => {
   state.openModal = (post) => {
     state.readPosts.add(post.id)
     
-    const modal = document.getElementById('postModal')
     const modalBody = document.getElementById('modalBody')
     const modalTitle = document.getElementById('postModalLabel')
     const readMoreLink = document.getElementById('modalReadMore')
     
-    if (modal && modalBody && modalTitle && readMoreLink) {
-      modalBody.textContent = 'Цель: Научиться извлекать из дерева необходимые данные'
+    if (modalBody && modalTitle && readMoreLink) {
+      modalBody.innerHTML = `
+        <p>Цель: Научиться извлекать из дерева необходимые данные</p>
+      `
       modalTitle.textContent = post.title
       readMoreLink.href = post.link
-      modal.style.display = 'block'
+
+      // Используем Bootstrap Modal
+      const modalElement = document.getElementById('postModal')
+      if (modalElement && window.bootstrap) {
+        const modal = new bootstrap.Modal(modalElement)
+        modal.show()
+      }
     }
   }
 
@@ -68,7 +75,6 @@ const app = async () => {
           feedId: rssData.url,
         })))
 
-        // Убедимся, что состояние успеха устанавливается
         setFormState(state, 'success')
       }
       catch (error) {

@@ -16,11 +16,14 @@ const loadRssFeed = async (url) => {
     throw new Error('No content received from RSS feed')
   }
 
-  const parsedData = parseRssContent(data.contents)
-
-  return {
-    url,
-    ...parsedData,
+  try {
+    const parsedData = parseRssContent(data.contents)
+    return {
+      url,
+      ...parsedData,
+    }
+  } catch (error) {
+    throw new Error('rssError')
   }
 }
 

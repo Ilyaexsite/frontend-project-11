@@ -19,13 +19,36 @@ const showFeedback = (message) => {
     }
   }
   
-  feedback.innerHTML = `<div class="alert alert-success" data-testid="success-message">${message}</div>`
+  feedback.innerHTML = `
+    <div class="alert alert-success alert-dismissible fade show" role="alert" data-testid="success-message">
+      ${message}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  `
 }
 
 const clearFeedback = () => {
   const feedback = document.getElementById('feedback')
   if (feedback) {
     feedback.innerHTML = ''
+  }
+}
+
+const showValidationError = (input, message) => {
+  if (!input) return
+  input.classList.add('is-invalid')
+  const feedback = document.createElement('div')
+  feedback.className = 'invalid-feedback'
+  feedback.textContent = message
+  input.parentNode.appendChild(feedback)
+}
+
+const clearValidationError = (input) => {
+  if (!input) return
+  input.classList.remove('is-invalid')
+  const existingFeedback = input.parentNode.querySelector('.invalid-feedback')
+  if (existingFeedback) {
+    existingFeedback.remove()
   }
 }
 
@@ -44,6 +67,7 @@ const clearForm = () => {
   const input = elements.rssUrlInput()
   if (input) {
     input.value = ''
+    clearValidationError(input)
     input.focus()
   }
 }
@@ -53,20 +77,34 @@ const updateFeedsList = (feeds) => {
   if (!container) return
 
   if (feeds.length === 0) {
-    container.innerHTML = '<div class="card"><div class="card-body"><h2>Фиды</h2><p>Пока нет RSS потоков</p></div></div>'
+    container.innerHTML = `
+      <div class="card border-0">
+        <div class="card-body">
+          <h2 class="card-title h4">Фиды</h2>
+          <p class="card-text text-muted">Пока нет RSS потоков. Добавьте первый!</p>
+        </div>
+      </div>
+    `
     return
   }
 
   const feedsHtml = feeds.map(feed => `
     <div class="card mb-3">
       <div class="card-body">
-        <h3 class="h6">${feed.title}</h3>
-        <p>${feed.description}</p>
+        <h3 class="card-title h6">${feed.title}</h3>
+        <p class="card-text">${feed.description}</p>
       </div>
     </div>
   `).join('')
 
-  container.innerHTML = `<div class="card"><div class="card-body"><h2>Фиды</h2>${feedsHtml}</div></div>`
+  container.innerHTML = `
+    <div class="card border-0">
+      <div class="card-body">
+        <h2 class="card-title h4">Фиды</h2>
+        ${feedsHtml}
+      </div>
+    </div>
+  `
 }
 
 const updatePostsList = (posts, readPosts, onPreviewClick) => {
@@ -74,7 +112,14 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
   if (!container) return
 
   if (posts.length === 0) {
-    container.innerHTML = '<div class="card"><div class="card-body"><h2>Посты</h2><p>Пока нет постов</p></div></div>'
+    container.innerHTML = `
+      <div class="card border-0">
+        <div class="card-body">
+          <h2 class="card-title h4">Посты</h2>
+          <p class="card-text text-muted">Пока нет постов. Новые посты будут появляться автоматически.</p>
+        </div>
+      </div>
+    `
     return
   }
 
@@ -83,18 +128,20 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
     const titleClass = isRead ? '' : 'fw-bold'
     
     return `
-      <div class="list-group-item d-flex justify-content-between align-items-start">
-        <a href="${post.link}" class="${titleClass}" target="_blank">${post.title}</a>
+      <div class="list-group-item d-flex justify-content-between align-items-start border-0">
+        <a href="${post.link}" class="${titleClass}" target="_blank" rel="noopener noreferrer">${post.title}</a>
         <button type="button" class="btn btn-outline-primary btn-sm" data-post-id="${post.id}">Просмотр</button>
       </div>
     `
   }).join('')
 
   container.innerHTML = `
-    <div class="card">
+    <div class="card border-0">
       <div class="card-body">
-        <h2>Посты</h2>
-        <div class="list-group">${postsHtml}</div>
+        <h2 class="card-title h4">Посты</h2>
+        <div class="list-group">
+          ${postsHtml}
+        </div>
       </div>
     </div>
   `
@@ -110,39 +157,40 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
 
 const handleStateChange = () => {
   if (!currentWatchedState) return
-  
   const state = currentWatchedState.form.state
-  
   switch (state) {
     case 'validating':
       setFormSubmitting(false)
+      clearValidationError(elements.rssUrlInput())
       clearFeedback()
       break
-      
+    case 'invalid':
+      setFormSubmitting(false)
+      const errors = currentWatchedState.form.errors?.url || []
+      if (errors.length > 0) {
+        showValidationError(elements.rssUrlInput(), errors[0])
+      }
+      break
     case 'submitting':
       setFormSubmitting(true)
+      clearValidationError(elements.rssUrlInput())
       clearFeedback()
       break
-      
     case 'success':
       setFormSubmitting(false)
       clearForm()
       updateFeedsList(currentWatchedState.feeds)
       updatePostsList(currentWatchedState.posts, currentWatchedState.readPosts, currentWatchedState.openModal)
       showFeedback('RSS успешно загружен')
-      
-      // Автоматически сбрасываем состояние через 5 секунд
       setTimeout(() => {
         if (currentWatchedState.form.state === 'success') {
           currentWatchedState.form.state = 'filling'
         }
       }, 5000)
       break
-      
     case 'error':
       setFormSubmitting(false)
       break
-      
     default:
       break
   }
@@ -150,8 +198,6 @@ const handleStateChange = () => {
 
 const initView = (state, watchedState) => {
   currentWatchedState = watchedState
-  
-  // Создаем наблюдатель за состоянием формы
   const originalState = watchedState.form.state
   let currentState = originalState
   
@@ -164,8 +210,6 @@ const initView = (state, watchedState) => {
       }
     }
   })
-  
-  // Инициализируем начальное состояние
   handleStateChange()
 }
 

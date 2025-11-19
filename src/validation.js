@@ -24,7 +24,7 @@ const validateRssUrl = (url, existingUrls = []) => {
 }
 
 const validateRssContent = () => {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     setTimeout(() => {
       resolve({ isValid: true, error: null })
     }, 1000)
