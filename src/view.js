@@ -8,7 +8,7 @@ const elements = {
 
 let currentWatchedState = null
 
-const showFeedback = (message) => {
+const showFeedback = (message, type = 'success') => {
   let feedback = document.getElementById('feedback')
   if (!feedback) {
     feedback = document.createElement('div')
@@ -19,8 +19,9 @@ const showFeedback = (message) => {
     }
   }
   
+  const alertClass = type === 'error' ? 'alert-danger' : 'alert-success'
   feedback.innerHTML = `
-    <div class="alert alert-success alert-dismissible fade show" role="alert" data-testid="success-message">
+    <div class="alert ${alertClass} alert-dismissible fade show" role="alert" data-testid="${type === 'success' ? 'success-message' : 'error-message'}">
       ${message}
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
@@ -157,13 +158,16 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
 
 const handleStateChange = () => {
   if (!currentWatchedState) return
+  
   const state = currentWatchedState.form.state
+  
   switch (state) {
     case 'validating':
       setFormSubmitting(false)
       clearValidationError(elements.rssUrlInput())
       clearFeedback()
       break
+      
     case 'invalid':
       setFormSubmitting(false)
       const errors = currentWatchedState.form.errors?.url || []
@@ -171,26 +175,47 @@ const handleStateChange = () => {
         showValidationError(elements.rssUrlInput(), errors[0])
       }
       break
+      
     case 'submitting':
       setFormSubmitting(true)
       clearValidationError(elements.rssUrlInput())
       clearFeedback()
       break
+      
     case 'success':
       setFormSubmitting(false)
       clearForm()
       updateFeedsList(currentWatchedState.feeds)
       updatePostsList(currentWatchedState.posts, currentWatchedState.readPosts, currentWatchedState.openModal)
-      showFeedback('RSS успешно загружен')
+      showFeedback('RSS успешно загружен', 'success')
+      
       setTimeout(() => {
         if (currentWatchedState.form.state === 'success') {
           currentWatchedState.form.state = 'filling'
         }
       }, 5000)
       break
+      
     case 'error':
       setFormSubmitting(false)
+      const error = currentWatchedState.ui.error
+      let errorMessage = 'Ошибка сети'
+      if (error === 'rssError') {
+        errorMessage = 'Ресурс не содержит валидный RSS'
+      } else if (error && error.includes('Failed to fetch')) {
+        errorMessage = 'Ошибка сети'
+      } else if (error) {
+        errorMessage = error
+      }
+      showFeedback(errorMessage, 'error')
+      
+      setTimeout(() => {
+        if (currentWatchedState.form.state === 'error') {
+          currentWatchedState.form.state = 'filling'
+        }
+      }, 5000)
       break
+      
     default:
       break
   }
@@ -198,6 +223,7 @@ const handleStateChange = () => {
 
 const initView = (state, watchedState) => {
   currentWatchedState = watchedState
+  
   const originalState = watchedState.form.state
   let currentState = originalState
   
@@ -210,6 +236,7 @@ const initView = (state, watchedState) => {
       }
     }
   })
+  
   handleStateChange()
 }
 
