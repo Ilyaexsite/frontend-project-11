@@ -20,33 +20,15 @@ import { elements, initView } from './view.js'
 window.closeModal = function() {
   const modal = document.getElementById('postModal')
   if (modal) {
-    modal.classList.remove('show')
-    console.log('Modal closed - classes:', modal.className)
-  }
-}
-window.forceModalShow = function() {
-  const modal = document.getElementById('postModal')
-  const modalBody = document.getElementById('modalBody')
-  if (modal && modalBody) {
-    modal.style.display = 'block'
-    modal.style.visibility = 'visible'
-    modal.style.opacity = '1'
-    modalBody.style.display = 'block'
-    modalBody.style.visibility = 'visible'
-    modalBody.style.opacity = '1'
-    console.log('Forced modal to show with inline styles')
+    modal.style.display = 'none'
   }
 }
 
 window.openModal = function(post) {
-  console.log('openModal called')
-  
   const modalBody = document.getElementById('modalBody')
   const modalTitle = document.getElementById('postModalLabel')
   const readMoreLink = document.getElementById('modalReadMore')
   const modalElement = document.getElementById('postModal')
-
-  console.log('Elements found:', { modalBody, modalTitle, readMoreLink, modalElement })
 
   if (modalBody && modalTitle && readMoreLink && modalElement) {
     // Устанавливаем содержимое
@@ -54,31 +36,17 @@ window.openModal = function(post) {
     modalTitle.textContent = post.title
     readMoreLink.href = post.link
 
-    // Показываем модальное окно
-    modalElement.classList.add('show')
+    // ПРОСТО И ЯСНО: показываем модальное окно
+    modalElement.style.display = 'block'
     
-    // Проверяем стили после показа
+    // Дебаг
     setTimeout(() => {
-      const computedStyle = window.getComputedStyle(modalElement)
-      console.log('Modal styles after show:', {
-        display: computedStyle.display,
-        visibility: computedStyle.visibility,
-        opacity: computedStyle.opacity,
-        classes: modalElement.className
-      })
-      
-      // Проверяем видимость текста
-      const modalBodyStyle = window.getComputedStyle(modalBody)
-      console.log('ModalBody styles:', {
-        display: modalBodyStyle.display,
-        visibility: modalBodyStyle.visibility,
-        opacity: modalBodyStyle.opacity
-      })
+      window.debugModal()
     }, 100)
+    // Принудительно обновляем DOM
+    modalElement.offsetHeight
     
-    console.log('Modal should be visible now')
-  } else {
-    console.error('Missing modal elements:', { modalBody, modalTitle, readMoreLink, modalElement })
+    console.log('Modal opened with display:', modalElement.style.display)
   }
 }
 
@@ -88,8 +56,6 @@ const app = async () => {
 
   // Используем глобальную функцию для открытия модального окна
   state.openModal = function(post) {
-    console.log('state.openModal called for post:', post.title)
-    
     // Добавляем пост в прочитанные
     state.readPosts.add(post.id)
 
@@ -167,3 +133,28 @@ const app = async () => {
 }
 
 document.addEventListener('DOMContentLoaded', app)
+// Дебаг функция для проверки видимости
+window.debugModal = function() {
+  const modal = document.getElementById('postModal')
+  const modalBody = document.getElementById('modalBody')
+  
+  if (modal && modalBody) {
+    console.log('DEBUG Modal:', {
+      display: modal.style.display,
+      computedDisplay: window.getComputedStyle(modal).display,
+      visibility: window.getComputedStyle(modal).visibility,
+      opacity: window.getComputedStyle(modal).opacity,
+      text: modalBody.textContent
+    })
+    
+    // Принудительно показываем
+    modal.style.display = 'block'
+    modal.style.visibility = 'visible'
+    modal.style.opacity = '1'
+    
+    console.log('DEBUG After force show:', {
+      display: modal.style.display,
+      computedDisplay: window.getComputedStyle(modal).display
+    })
+  }
+}
