@@ -16,34 +16,17 @@ import { validateRssUrl } from './validation.js'
 import { loadRssFeed } from './rss.js'
 import { elements, initView } from './view.js'
 
-// Функция для инициализации модального окна
-const initModal = () => {
+// Глобальная функция для закрытия модального окна
+window.closeModal = () => {
   const modal = document.getElementById('postModal')
-  const closeButtons = document.querySelectorAll('.close-modal')
-  
   if (modal) {
-    // Закрытие по клику вне модального окна
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        modal.style.display = 'none'
-      }
-    })
-    
-    // Закрытие по кнопкам
-    closeButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        modal.style.display = 'none'
-      })
-    })
+    modal.style.display = 'none'
   }
 }
 
 const app = async () => {
   await initI18n()
   const state = createState()
-
-  // Инициализируем модальное окно
-  initModal()
 
   state.openModal = (post) => {
     // Добавляем пост в прочитанные
@@ -70,23 +53,13 @@ const app = async () => {
       // Показываем модальное окно
       modalElement.style.display = 'block'
       
-      // Добавляем backdrop
-      const backdrop = document.createElement('div')
-      backdrop.className = 'modal-backdrop fade show'
-      backdrop.style.position = 'fixed'
-      backdrop.style.top = '0'
-      backdrop.style.left = '0'
-      backdrop.style.width = '100%'
-      backdrop.style.height = '100%'
-      backdrop.style.backgroundColor = 'rgba(0,0,0,0.5)'
-      backdrop.style.zIndex = '1040'
-      document.body.appendChild(backdrop)
-
-      // Обработчик закрытия по backdrop
-      backdrop.addEventListener('click', () => {
-        modalElement.style.display = 'none'
-        backdrop.remove()
-      })
+      // Убедимся что модальное окно видимо и имеет правильный z-index
+      modalElement.style.zIndex = '1050'
+      modalElement.style.position = 'fixed'
+      modalElement.style.top = '0'
+      modalElement.style.left = '0'
+      modalElement.style.width = '100%'
+      modalElement.style.height = '100%'
     }
   }
 
@@ -141,19 +114,18 @@ const app = async () => {
   // Обработчик Escape для закрытия модального окна
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      const modal = document.getElementById('postModal')
-      if (modal && modal.style.display === 'block') {
-        modal.style.display = 'none'
-        const backdrop = document.querySelector('.modal-backdrop')
-        if (backdrop) backdrop.remove()
-      }
+      closeModal()
+    }
+  })
+
+  // Закрытие по клику вне модального окна
+  document.addEventListener('click', (e) => {
+    const modal = document.getElementById('postModal')
+    if (modal && e.target === modal) {
+      closeModal()
     }
   })
 }
 
-// Ждем полной загрузки DOM и Bootstrap
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', app)
-} else {
-  app()
-}
+// Ждем полной загрузки DOM
+document.addEventListener('DOMContentLoaded', app)

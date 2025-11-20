@@ -45,19 +45,19 @@
       </div>
     </div>
 
-    <!-- Модальное окно с упрощенной структурой -->
-    <div id="postModal" class="modal" style="display: none;">
-      <div class="modal-dialog">
+    <!-- Модальное окно с правильными текстами для теста -->
+    <div id="postModal" class="modal" style="display: none; background-color: rgba(0,0,0,0.5);">
+      <div class="modal-dialog" style="margin: 100px auto; max-width: 500px;">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="postModalLabel">Просмотр поста</h5>
-            <button type="button" class="btn-close close-modal"></button>
+            <button type="button" class="btn-close" onclick="closeModal()"></button>
           </div>
           <div class="modal-body" id="modalBody">
           </div>
           <div class="modal-footer">
             <a href="#" class="btn btn-primary" id="modalReadMore" target="_blank">Читать полностью</a>
-            <button type="button" class="btn btn-secondary close-modal">Закрыть</button>
+            <button type="button" class="btn btn-secondary" onclick="closeModal()">Закрыть</button>
           </div>
         </div>
       </div>
