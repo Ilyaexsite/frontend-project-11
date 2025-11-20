@@ -156,11 +156,14 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
     // Добавляем новый обработчик
     newButton.addEventListener('click', (e) => {
       e.preventDefault()
+      e.stopPropagation()
       const postId = newButton.getAttribute('data-post-id')
       const post = posts.find(p => p.id === postId)
       if (post && onPreviewClick) {
-        console.log('Opening modal for post:', post.title)
+        console.log('Button clicked for post:', post.title)
         onPreviewClick(post)
+      } else {
+        console.error('Post not found or onPreviewClick not defined')
       }
     })
   })

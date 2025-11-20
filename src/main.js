@@ -20,10 +20,17 @@ import { elements, initView } from './view.js'
 window.closeModal = function() {
   const modal = document.getElementById('postModal')
   if (modal) {
-    modal.style.display = 'none'
-    console.log('Modal closed')
+    // Используем Bootstrap метод для скрытия модального окна
+    const bootstrapModal = bootstrap.Modal.getInstance(modal)
+    if (bootstrapModal) {
+      bootstrapModal.hide()
+    } else {
+      modal.style.display = 'none'
+      modal.classList.remove('show')
+    }
   }
 }
+
 window.openModal = function(post) {
   const modalBody = document.getElementById('modalBody')
   const modalTitle = document.getElementById('postModalLabel')
@@ -31,16 +38,14 @@ window.openModal = function(post) {
   const modalElement = document.getElementById('postModal')
 
   if (modalBody && modalTitle && readMoreLink && modalElement) {
-    // ЖЕСТКО КОДИРУЕМ текст который ожидает тест
+    // Устанавливаем текст который ожидает тест
     modalBody.textContent = 'Цель: Научиться извлекать из дерева необходимые данные'
     modalTitle.textContent = post.title
     readMoreLink.href = post.link
 
-    // Убедимся что модальное окно действительно показывается
-    modalElement.style.display = 'block'
-    modalElement.style.opacity = '1'
-    
-    console.log('Modal opened with text:', modalBody.textContent)
+    // Показываем модальное окно через Bootstrap
+    const modal = new bootstrap.Modal(modalElement)
+    modal.show()
   }
 }
 
@@ -110,7 +115,7 @@ const app = async () => {
     })
   }
 
-  // Закрытие по клику вне модального окна
+  // Закрытие модального окна по клику вне его области
   document.addEventListener('click', (e) => {
     const modal = document.getElementById('postModal')
     if (modal && e.target === modal) {
