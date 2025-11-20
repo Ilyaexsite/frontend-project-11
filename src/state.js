@@ -18,11 +18,7 @@ const initialState = {
 }
 
 const createState = (initial = initialState) => {
-  return onChange(initial, (path, value, previousValue) => {
-    // Отслеживаем изменения состояния формы
-    if (path === 'form.state') {
-      // Состояние формы изменилось
-    }
+  return onChange(initial, (path) => {
   })
 }
 

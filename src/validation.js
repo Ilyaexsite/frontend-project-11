@@ -17,7 +17,7 @@ const validateRssUrl = (url, existingUrls = []) => {
         resolve({ isValid: true, errors: [] })
       })
       .catch((validationError) => {
-        const errors = validationError.inner.map((err) => err.message)
+        const errors = validationError.inner.map(err => err.message)
         resolve({ isValid: false, errors })
       })
   })

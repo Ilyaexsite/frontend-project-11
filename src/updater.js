@@ -46,7 +46,14 @@ class FeedUpdater {
         this.updateCallback(feed.url),
       )
 
-      await Promise.allSettled(updatePromises)
+      const results = await Promise.allSettled(updatePromises)
+
+      results.forEach((result) => {
+        if (result.status === 'fulfilled' && result.value) {
+        } 
+        else if (result.status === 'rejected') {
+        }
+      })
     }
     finally {
       this.isUpdating = false
