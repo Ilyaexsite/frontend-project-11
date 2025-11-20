@@ -21,24 +21,14 @@ window.closeModal = function() {
   const modal = document.getElementById('postModal')
   if (modal) {
     modal.style.display = 'none'
-    console.log('Modal closed')
   }
 }
 
 window.openModal = function(post) {
-  console.log('openModal called with post:', post?.title)
-  
   const modalBody = document.getElementById('modalBody')
   const modalTitle = document.getElementById('postModalLabel')
   const readMoreLink = document.getElementById('modalReadMore')
   const modalElement = document.getElementById('postModal')
-
-  console.log('Modal elements:', { 
-    modalBody: !!modalBody, 
-    modalTitle: !!modalTitle, 
-    readMoreLink: !!readMoreLink, 
-    modalElement: !!modalElement 
-  })
 
   if (modalBody && modalTitle && readMoreLink && modalElement) {
     // Устанавливаем содержимое
@@ -48,10 +38,6 @@ window.openModal = function(post) {
 
     // Показываем модальное окно
     modalElement.style.display = 'block'
-    
-    console.log('Modal opened successfully - display:', modalElement.style.display)
-  } else {
-    console.error('Missing modal elements')
   }
 }
 
@@ -59,10 +45,8 @@ const app = async () => {
   await initI18n()
   const state = createState()
 
-  // Создаем функцию openModal и делаем ее доступной ДО initView
+  // Создаем функцию openModal
   const openModalFunction = function(post) {
-    console.log('state.openModal called for post:', post.title)
-    
     // Добавляем пост в прочитанные
     state.readPosts.add(post.id)
 
@@ -72,11 +56,10 @@ const app = async () => {
     }
 
     // Открываем модальное окно
-    console.log('Calling window.openModal')
     window.openModal(post)
   }
 
-  // Присваиваем функцию state ДО initView
+  // Присваиваем функцию state
   state.openModal = openModalFunction
 
   initView(state, state)
@@ -141,9 +124,6 @@ const app = async () => {
       window.closeModal()
     }
   })
-
-  // Дебаг: проверим что state.openModal доступен
-  console.log('App initialized, state.openModal:', typeof state.openModal)
 }
 
 document.addEventListener('DOMContentLoaded', app)
