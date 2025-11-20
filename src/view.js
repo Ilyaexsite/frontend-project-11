@@ -147,23 +147,19 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
     </div>
   `
 
-  // Добавляем обработчики для кнопок просмотра
+  // Добавляем обработчики для кнопок просмотра - ИСПРАВЛЕННАЯ ВЕРСИЯ
   container.querySelectorAll('button[data-post-id]').forEach(button => {
-    // Удаляем старые обработчики
-    const newButton = button.cloneNode(true)
-    button.parentNode.replaceChild(newButton, button)
-    
-    // Добавляем новый обработчик
-    newButton.addEventListener('click', (e) => {
+    button.addEventListener('click', (e) => {
       e.preventDefault()
       e.stopPropagation()
-      const postId = newButton.getAttribute('data-post-id')
+      const postId = button.getAttribute('data-post-id')
       const post = posts.find(p => p.id === postId)
+      console.log('Preview button clicked for post:', post?.title)
       if (post && onPreviewClick) {
-        console.log('Button clicked for post:', post.title)
+        console.log('Calling onPreviewClick with post:', post.title)
         onPreviewClick(post)
       } else {
-        console.error('Post not found or onPreviewClick not defined')
+        console.error('Post not found or onPreviewClick not defined', { postId, post, onPreviewClick })
       }
     })
   })
