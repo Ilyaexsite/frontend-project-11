@@ -1,31 +1,78 @@
+import { t } from './i18n.js'
+
 const elements = {
-  rssForm: () => document.getElementById('rss-form'),
-  rssUrlInput: () => document.getElementById('url-input'),
-  submitButton: () => document.querySelector('button[type="submit"]'),
-  feedsContainer: () => document.getElementById('feeds-container'),
-  postsContainer: () => document.getElementById('posts-container'),
+  get rssForm() { return document.getElementById('rss-form') },
+  get rssUrlInput() { return document.getElementById('url-input') },
+  get submitButton() { return document.querySelector('button[type="submit"]') },
+  get feedsContainer() { return document.getElementById('feeds-container') },
+  get postsContainer() { return document.getElementById('posts-container') },
 }
 
-let currentWatchedState = null
+const createStateObserver = (state, callback) => {
+  let currentState = state
 
-const showFeedback = (message, type = 'success') => {
+  return {
+    setState(newState) {
+      if (newState !== currentState) {
+        const oldState = currentState
+        currentState = newState
+        callback(oldState, newState)
+      }
+    },
+    getState() {
+      return currentState
+    },
+  }
+}
+
+const checkElements = () => {
+  console.log('🔍 Checking elements:', {
+    form: !!elements.rssForm,
+    input: !!elements.rssUrlInput,
+    button: !!elements.submitButton,
+    feeds: !!elements.feedsContainer,
+    posts: !!elements.postsContainer,
+  })
+  return elements.rssForm && elements.rssUrlInput
+}
+
+const createFeedbackElement = () => {
   let feedback = document.getElementById('feedback')
   if (!feedback) {
     feedback = document.createElement('div')
     feedback.id = 'feedback'
-    const form = elements.rssForm()
+    feedback.className = 'mb-3'
+    const form = elements.rssForm
     if (form && form.parentNode) {
       form.parentNode.insertBefore(feedback, form)
+      console.log('✅ Feedback element created and inserted before form')
+    }
+    else {
+      console.error('❌ Form or form parent not found for feedback insertion')
     }
   }
-  
+  return feedback
+}
+
+const showFeedback = (message, type = 'success') => {
+  console.log(`🎯 showFeedback called: "${message}", type: ${type}`)
+
+  const feedback = createFeedbackElement()
   const alertClass = type === 'error' ? 'alert-danger' : 'alert-success'
+
   feedback.innerHTML = `
-    <div class="alert ${alertClass} alert-dismissible fade show" role="alert" data-testid="${type === 'success' ? 'success-message' : 'error-message'}">
+    <div class="alert ${alertClass} alert-dismissible fade show" role="alert" data-testid="success-message">
       ${message}
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
   `
+
+  setTimeout(() => {
+    const successMessage = document.querySelector('[data-testid="success-message"]')
+    console.log('🔍 Success message in DOM:', !!successMessage)
+    console.log('📝 Success message text:', successMessage?.textContent)
+    console.log('📍 Success message parent:', successMessage?.parentElement)
+  }, 100)
 }
 
 const clearFeedback = () => {
@@ -36,7 +83,10 @@ const clearFeedback = () => {
 }
 
 const showValidationError = (input, message) => {
-  if (!input) return
+  if (!input) {
+    console.error('❌ Input element not found for validation error')
+    return
+  }
   input.classList.add('is-invalid')
   const feedback = document.createElement('div')
   feedback.className = 'invalid-feedback'
@@ -54,31 +104,46 @@ const clearValidationError = (input) => {
 }
 
 const setFormSubmitting = (isSubmitting) => {
-  const button = elements.submitButton()
-  const input = elements.rssUrlInput()
-  
-  if (button && input) {
-    button.disabled = isSubmitting
-    input.disabled = isSubmitting
-    button.textContent = isSubmitting ? 'Добавление...' : 'Добавить'
+  const { submitButton, rssUrlInput } = elements
+  if (!submitButton || !rssUrlInput) {
+    console.error('❌ Form elements not found for setFormSubmitting')
+    return
+  }
+
+  if (isSubmitting) {
+    submitButton.disabled = true
+    submitButton.textContent = 'Добавление...'
+    rssUrlInput.disabled = true
+  }
+  else {
+    submitButton.disabled = false
+    submitButton.textContent = 'Добавить'
+    rssUrlInput.disabled = false
   }
 }
 
 const clearForm = () => {
-  const input = elements.rssUrlInput()
-  if (input) {
-    input.value = ''
-    clearValidationError(input)
-    input.focus()
+  const { rssUrlInput } = elements
+  if (!rssUrlInput) {
+    console.error('❌ Input element not found for clearForm')
+    return
   }
+  rssUrlInput.value = ''
+  clearValidationError(rssUrlInput)
+  setTimeout(() => {
+    if (rssUrlInput) rssUrlInput.focus()
+  }, 100)
 }
 
 const updateFeedsList = (feeds) => {
-  const container = elements.feedsContainer()
-  if (!container) return
+  const { feedsContainer } = elements
+  if (!feedsContainer) {
+    console.error('❌ Feeds container not found')
+    return
+  }
 
   if (feeds.length === 0) {
-    container.innerHTML = `
+    feedsContainer.innerHTML = `
       <div class="card border-0">
         <div class="card-body">
           <h2 class="card-title h4">Фиды</h2>
@@ -98,7 +163,7 @@ const updateFeedsList = (feeds) => {
     </div>
   `).join('')
 
-  container.innerHTML = `
+  feedsContainer.innerHTML = `
     <div class="card border-0">
       <div class="card-body">
         <h2 class="card-title h4">Фиды</h2>
@@ -109,11 +174,14 @@ const updateFeedsList = (feeds) => {
 }
 
 const updatePostsList = (posts, readPosts, onPreviewClick) => {
-  const container = elements.postsContainer()
-  if (!container) return
+  const { postsContainer } = elements
+  if (!postsContainer) {
+    console.error('❌ Posts container not found')
+    return
+  }
 
   if (posts.length === 0) {
-    container.innerHTML = `
+    postsContainer.innerHTML = `
       <div class="card border-0">
         <div class="card-body">
           <h2 class="card-title h4">Посты</h2>
@@ -124,19 +192,23 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
     return
   }
 
-  const postsHtml = posts.map(post => {
+  const postsHtml = posts.map((post) => {
     const isRead = readPosts.has(post.id)
     const titleClass = isRead ? '' : 'fw-bold'
-    
+
     return `
-      <div class="list-group-item d-flex justify-content-between align-items-start border-0">
-        <a href="${post.link}" class="${titleClass}" target="_blank" rel="noopener noreferrer">${post.title}</a>
-        <button type="button" class="btn btn-outline-primary btn-sm" data-post-id="${post.id}">Просмотр</button>
-      </div>
+    <div class="list-group-item d-flex justify-content-between align-items-start border-0">
+      <a href="${post.link}" class="${titleClass}" style="flex: 1; color: #212529; text-decoration: none;" target="_blank" rel="noopener noreferrer" data-testid="post-link">
+        ${post.title}
+      </a>
+      <button type="button" class="btn btn-outline-primary btn-sm" data-post-id="${post.id}" data-testid="view-button">
+        Просмотр
+      </button>
+    </div>
     `
   }).join('')
 
-  container.innerHTML = `
+  postsContainer.innerHTML = `
     <div class="card border-0">
       <div class="card-body">
         <h2 class="card-title h4">Посты</h2>
@@ -147,109 +219,160 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
     </div>
   `
 
-  // Добавляем обработчики для кнопок просмотра
-  container.querySelectorAll('button[data-post-id]').forEach(button => {
-    // Удаляем старые обработчики
-    const newButton = button.cloneNode(true)
-    button.parentNode.replaceChild(newButton, button)
-    
-    // Добавляем новый обработчик
-    newButton.addEventListener('click', (e) => {
-      e.preventDefault()
-      const postId = newButton.getAttribute('data-post-id')
+  const viewButtons = postsContainer.querySelectorAll('button[data-post-id]')
+  viewButtons.forEach((button) => {
+    button.addEventListener('click', (event) => {
+      const postId = event.currentTarget.getAttribute('data-post-id')
       const post = posts.find(p => p.id === postId)
-      if (post && onPreviewClick) {
+      console.log('🔄 Button clicked for post:', post?.title)
+      if (post) {
         onPreviewClick(post)
       }
     })
   })
-}
 
-// Делаем функцию глобальной
-window.updatePostsList = updatePostsList
-
-const handleStateChange = () => {
-  if (!currentWatchedState) return
-  
-  const state = currentWatchedState.form.state
-  
-  switch (state) {
-    case 'validating':
-      setFormSubmitting(false)
-      clearValidationError(elements.rssUrlInput())
-      clearFeedback()
-      break
-      
-    case 'invalid':
-      setFormSubmitting(false)
-      const errors = currentWatchedState.form.errors?.url || []
-      if (errors.length > 0) {
-        showValidationError(elements.rssUrlInput(), errors[0])
-      }
-      break
-      
-    case 'submitting':
-      setFormSubmitting(true)
-      clearValidationError(elements.rssUrlInput())
-      clearFeedback()
-      break
-      
-    case 'success':
-      setFormSubmitting(false)
-      clearForm()
-      updateFeedsList(currentWatchedState.feeds)
-      updatePostsList(currentWatchedState.posts, currentWatchedState.readPosts, currentWatchedState.openModal)
-      showFeedback('RSS успешно загружен', 'success')
-      
-      setTimeout(() => {
-        if (currentWatchedState.form.state === 'success') {
-          currentWatchedState.form.state = 'filling'
-        }
-      }, 5000)
-      break
-      
-    case 'error':
-      setFormSubmitting(false)
-      const error = currentWatchedState.ui.error
-      let errorMessage = 'Ошибка сети'
-      if (error === 'rssError') {
-        errorMessage = 'Ресурс не содержит валидный RSS'
-      } else if (error && error.includes('Failed to fetch')) {
-        errorMessage = 'Ошибка сети'
-      } else if (error) {
-        errorMessage = error
-      }
-      showFeedback(errorMessage, 'error')
-      
-      setTimeout(() => {
-        if (currentWatchedState.form.state === 'error') {
-          currentWatchedState.form.state = 'filling'
-        }
-      }, 5000)
-      break
-      
-    default:
-      break
-  }
+  console.log('✅ Posts list updated, buttons count:', viewButtons.length)
 }
 
 const initView = (state, watchedState) => {
-  currentWatchedState = watchedState
-  
-  const originalState = watchedState.form.state
-  let currentState = originalState
-  
-  Object.defineProperty(watchedState.form, 'state', {
-    get() { return currentState },
-    set(newState) {
-      if (newState !== currentState) {
-        currentState = newState
-        handleStateChange()
-      }
+  console.log('🚀 View initializing...')
+
+  try {
+    checkElements()
+
+    const { rssUrlInput } = elements
+
+    if (!rssUrlInput) {
+      console.error('❌ Input element not found in initView')
+      return
     }
-  })
-  
-  handleStateChange()
+
+    console.log('✅ View initialized with elements')
+
+    const formStateObserver = createStateObserver(watchedState.form.state, (oldState, newState) => {
+      console.log('🔄 Form state changed from', oldState, 'to', newState)
+
+      switch (newState) {
+        case 'validating':
+          console.log('🔍 Validating form...')
+          setFormSubmitting(false)
+          clearValidationError(rssUrlInput)
+          clearFeedback()
+          break
+
+        case 'invalid': {
+          console.log('❌ Form invalid')
+          setFormSubmitting(false)
+          const errors = watchedState.form.errors?.url || []
+          console.log('Validation errors:', errors)
+          if (errors.length > 0 && rssUrlInput) {
+            showValidationError(rssUrlInput, errors[0])
+          }
+          break
+        }
+
+        case 'submitting':
+          console.log('⏳ Submitting form...')
+          setFormSubmitting(true)
+          clearValidationError(rssUrlInput)
+          clearFeedback()
+          break
+
+        case 'success':
+          console.log('✅ Form success - showing feedback')
+          setFormSubmitting(false)
+          clearForm()
+          updateFeedsList(watchedState.feeds)
+          updatePostsList(watchedState.posts, watchedState.readPosts, (post) => {
+            watchedState.openModal(post)
+          })
+          showFeedback(t('rssLoaded'), 'success')
+
+          setTimeout(() => {
+            if (watchedState.form.state === 'success') {
+              watchedState.form.state = 'filling'
+            }
+          }, 10000)
+          break
+
+        case 'error': {
+          console.log('💥 Form error')
+          setFormSubmitting(false)
+          const error = watchedState.ui?.error
+          console.log('Error details:', error)
+          let errorMessage = t('errors.network')
+          if (error === 'rssError') {
+            errorMessage = t('errors.invalidRss')
+          }
+          else if (error && error.includes('Failed to fetch')) {
+            errorMessage = t('errors.network')
+          }
+          else if (error) {
+            errorMessage = error
+          }
+          showFeedback(errorMessage, 'error')
+
+          setTimeout(() => {
+            if (watchedState.form.state === 'error') {
+              watchedState.form.state = 'filling'
+            }
+          }, 5000)
+          break
+        }
+
+        default:
+          break
+      }
+    })
+
+    const originalFormStateSetter = Object.getOwnPropertyDescriptor(watchedState.form, 'state').set
+    Object.defineProperty(watchedState.form, 'state', {
+      get() {
+        return formStateObserver.getState()
+      },
+      set(newState) {
+        formStateObserver.setState(newState)
+        if (originalFormStateSetter) {
+          originalFormStateSetter.call(watchedState.form, newState)
+        }
+      },
+    })
+
+    let currentFeeds = [...watchedState.feeds]
+    let currentPosts = [...watchedState.posts]
+
+    setInterval(() => {
+      if (watchedState.feeds.length !== currentFeeds.length) {
+        console.log('📰 Feeds updated:', watchedState.feeds.length)
+        updateFeedsList(watchedState.feeds)
+        currentFeeds = [...watchedState.feeds]
+      }
+
+      if (watchedState.posts.length !== currentPosts.length) {
+        console.log('📝 Posts updated:', watchedState.posts.length)
+        updatePostsList(watchedState.posts, watchedState.readPosts, (post) => {
+          watchedState.openModal(post)
+        })
+        currentPosts = [...watchedState.posts]
+      }
+    }, 100)
+
+    setTimeout(() => {
+      if (rssUrlInput) rssUrlInput.focus()
+    }, 100)
+
+    console.log('✅ View initialization complete')
+  }
+  catch (error) {
+    console.error('💥 Error in initView:', error)
+    console.error('Error stack:', error.stack)
+  }
 }
 
-export { elements, initView }
+window.updatePostsList = updatePostsList
+
+export {
+  elements,
+  initView,
+  checkElements,
+}
