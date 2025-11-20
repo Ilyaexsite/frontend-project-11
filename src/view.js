@@ -147,9 +147,16 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
     </div>
   `
 
+  // Добавляем обработчики для кнопок просмотра
   container.querySelectorAll('button[data-post-id]').forEach(button => {
-    button.addEventListener('click', () => {
-      const postId = button.getAttribute('data-post-id')
+    // Удаляем старые обработчики
+    const newButton = button.cloneNode(true)
+    button.parentNode.replaceChild(newButton, button)
+    
+    // Добавляем новый обработчик
+    newButton.addEventListener('click', (e) => {
+      e.preventDefault()
+      const postId = newButton.getAttribute('data-post-id')
       const post = posts.find(p => p.id === postId)
       if (post && onPreviewClick) {
         onPreviewClick(post)
@@ -158,6 +165,7 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
   })
 }
 
+// Делаем функцию глобальной
 window.updatePostsList = updatePostsList
 
 const handleStateChange = () => {
