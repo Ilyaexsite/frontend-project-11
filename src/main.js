@@ -15,7 +15,6 @@ import createState, {
 import { validateRssUrl } from './validation.js'
 import { loadRssFeed } from './rss.js'
 import { elements, initView } from './view.js'
-
 // Глобальные функции для работы с модальным окном
 window.closeModal = function() {
   const modal = document.getElementById('postModal')
@@ -23,30 +22,25 @@ window.closeModal = function() {
     modal.style.display = 'none'
   }
 }
-
 window.openModal = function(post) {
   const modalBody = document.getElementById('modalBody')
   const modalTitle = document.getElementById('postModalLabel')
   const readMoreLink = document.getElementById('modalReadMore')
   const modalElement = document.getElementById('postModal')
-
   if (modalBody && modalTitle && readMoreLink && modalElement) {
     // Устанавливаем содержимое
     modalBody.textContent = 'Цель: Научиться извлекать из дерева необходимые данные'
     modalTitle.textContent = post.title
     readMoreLink.href = post.link
-
     // Показываем модальное окно с принудительными стилями
     modalElement.style.display = 'block'
     modalElement.style.visibility = 'visible'
     modalElement.style.opacity = '1'
     modalElement.style.zIndex = '10000'
-    
     // Принудительно обновляем стили текста
     modalBody.style.display = 'block'
     modalBody.style.visibility = 'visible'
     modalBody.style.opacity = '1'
-    
     // Принудительно обновляем DOM
     modalElement.offsetHeight
   }
