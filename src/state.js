@@ -18,7 +18,8 @@ const initialState = {
 }
 
 const createState = (initial = initialState) => {
-  return onChange(initial)
+  return onChange(initial, (path) => {
+  })
 }
 
 const getFormState = state => state.form.state
