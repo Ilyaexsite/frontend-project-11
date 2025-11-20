@@ -16,53 +16,35 @@ import { validateRssUrl } from './validation.js'
 import { loadRssFeed } from './rss.js'
 import { elements, initView } from './view.js'
 
-// Глобальные переменные для модального окна
-let postModal = null
-
-// Инициализация модального окна после загрузки DOM
-const initModal = () => {
-  const modalElement = document.getElementById('postModal')
-  if (modalElement && typeof bootstrap !== 'undefined') {
-    postModal = new bootstrap.Modal(modalElement)
-  }
-}
-
 // Глобальные функции для работы с модальным окном
 window.closeModal = function() {
-  if (postModal) {
-    postModal.hide()
+  const modal = document.getElementById('postModal')
+  if (modal) {
+    modal.classList.remove('show')
+    console.log('Modal closed')
   }
 }
 
 window.openModal = function(post) {
+  console.log('openModal called')
+  
   const modalBody = document.getElementById('modalBody')
   const modalTitle = document.getElementById('postModalLabel')
   const readMoreLink = document.getElementById('modalReadMore')
+  const modalElement = document.getElementById('postModal')
 
-  if (modalBody && modalTitle && readMoreLink) {
+  if (modalBody && modalTitle && readMoreLink && modalElement) {
     // Устанавливаем содержимое
     modalBody.textContent = 'Цель: Научиться извлекать из дерева необходимые данные'
     modalTitle.textContent = post.title
     readMoreLink.href = post.link
 
-    // Показываем модальное окно
-    if (postModal) {
-      postModal.show()
-    } else {
-      // Fallback если Bootstrap не загрузился
-      const modalElement = document.getElementById('postModal')
-      if (modalElement) {
-        modalElement.classList.add('show')
-        modalElement.style.display = 'block'
-        modalElement.setAttribute('aria-hidden', 'false')
-        
-        // Добавляем backdrop
-        const backdrop = document.createElement('div')
-        backdrop.className = 'modal-backdrop fade show'
-        document.body.appendChild(backdrop)
-        document.body.classList.add('modal-open')
-      }
-    }
+    // Показываем модальное окно - ПРОСТО И ПОНЯТНО
+    modalElement.classList.add('show')
+    
+    console.log('Modal should be visible now')
+    console.log('Modal classes:', modalElement.className)
+    console.log('Modal display:', window.getComputedStyle(modalElement).display)
   }
 }
 
@@ -70,11 +52,10 @@ const app = async () => {
   await initI18n()
   const state = createState()
 
-  // Инициализируем модальное окно
-  initModal()
-
   // Используем глобальную функцию для открытия модального окна
   state.openModal = function(post) {
+    console.log('state.openModal called for post:', post.title)
+    
     // Добавляем пост в прочитанные
     state.readPosts.add(post.id)
 
@@ -135,20 +116,15 @@ const app = async () => {
     })
   }
 
-  // Обработчики для модального окна (fallback)
+  // Закрытие по клику вне модального окна
   document.addEventListener('click', (e) => {
-    // Закрытие по клику вне модального окна
     const modal = document.getElementById('postModal')
     if (modal && e.target === modal) {
       window.closeModal()
     }
-    
-    // Закрытие по кнопке "Закрыть" если Bootstrap не работает
-    if (e.target.classList.contains('btn-secondary') && e.target.textContent === 'Закрыть') {
-      window.closeModal()
-    }
   })
 
+  // Закрытие по Escape
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       window.closeModal()
@@ -156,9 +132,4 @@ const app = async () => {
   })
 }
 
-// Инициализируем модальное окно когда DOM готов
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', app)
-} else {
-  app()
-}
+document.addEventListener('DOMContentLoaded', app)
