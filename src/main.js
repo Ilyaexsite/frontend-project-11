@@ -21,7 +21,20 @@ window.closeModal = function() {
   const modal = document.getElementById('postModal')
   if (modal) {
     modal.classList.remove('show')
-    console.log('Modal closed')
+    console.log('Modal closed - classes:', modal.className)
+  }
+}
+window.forceModalShow = function() {
+  const modal = document.getElementById('postModal')
+  const modalBody = document.getElementById('modalBody')
+  if (modal && modalBody) {
+    modal.style.display = 'block'
+    modal.style.visibility = 'visible'
+    modal.style.opacity = '1'
+    modalBody.style.display = 'block'
+    modalBody.style.visibility = 'visible'
+    modalBody.style.opacity = '1'
+    console.log('Forced modal to show with inline styles')
   }
 }
 
@@ -33,18 +46,39 @@ window.openModal = function(post) {
   const readMoreLink = document.getElementById('modalReadMore')
   const modalElement = document.getElementById('postModal')
 
+  console.log('Elements found:', { modalBody, modalTitle, readMoreLink, modalElement })
+
   if (modalBody && modalTitle && readMoreLink && modalElement) {
     // Устанавливаем содержимое
     modalBody.textContent = 'Цель: Научиться извлекать из дерева необходимые данные'
     modalTitle.textContent = post.title
     readMoreLink.href = post.link
 
-    // Показываем модальное окно - ПРОСТО И ПОНЯТНО
+    // Показываем модальное окно
     modalElement.classList.add('show')
     
+    // Проверяем стили после показа
+    setTimeout(() => {
+      const computedStyle = window.getComputedStyle(modalElement)
+      console.log('Modal styles after show:', {
+        display: computedStyle.display,
+        visibility: computedStyle.visibility,
+        opacity: computedStyle.opacity,
+        classes: modalElement.className
+      })
+      
+      // Проверяем видимость текста
+      const modalBodyStyle = window.getComputedStyle(modalBody)
+      console.log('ModalBody styles:', {
+        display: modalBodyStyle.display,
+        visibility: modalBodyStyle.visibility,
+        opacity: modalBodyStyle.opacity
+      })
+    }, 100)
+    
     console.log('Modal should be visible now')
-    console.log('Modal classes:', modalElement.className)
-    console.log('Modal display:', window.getComputedStyle(modalElement).display)
+  } else {
+    console.error('Missing modal elements:', { modalBody, modalTitle, readMoreLink, modalElement })
   }
 }
 
