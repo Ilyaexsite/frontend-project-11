@@ -36,8 +36,19 @@ window.openModal = function(post) {
     modalTitle.textContent = post.title
     readMoreLink.href = post.link
 
-    // Показываем модальное окно
+    // Показываем модальное окно с принудительными стилями
     modalElement.style.display = 'block'
+    modalElement.style.visibility = 'visible'
+    modalElement.style.opacity = '1'
+    modalElement.style.zIndex = '10000'
+    
+    // Принудительно обновляем стили текста
+    modalBody.style.display = 'block'
+    modalBody.style.visibility = 'visible'
+    modalBody.style.opacity = '1'
+    
+    // Принудительно обновляем DOM
+    modalElement.offsetHeight
   }
 }
 
