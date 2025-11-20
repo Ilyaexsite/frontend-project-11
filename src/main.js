@@ -16,21 +16,21 @@ import { validateRssUrl } from './validation.js'
 import { loadRssFeed } from './rss.js'
 import { elements, initView } from './view.js'
 
+// Глобальные переменные для модального окна
+let postModal = null
+
+// Инициализация модального окна после загрузки DOM
+const initModal = () => {
+  const modalElement = document.getElementById('postModal')
+  if (modalElement && typeof bootstrap !== 'undefined') {
+    postModal = new bootstrap.Modal(modalElement)
+  }
+}
+
 // Глобальные функции для работы с модальным окном
 window.closeModal = function() {
-  const modal = document.getElementById('postModal')
-  if (modal) {
-    modal.classList.remove('show')
-    modal.style.display = 'none'
-    modal.setAttribute('aria-hidden', 'true')
-    
-    // Убираем backdrop
-    const backdrop = document.querySelector('.modal-backdrop')
-    if (backdrop) {
-      backdrop.remove()
-    }
-    document.body.classList.remove('modal-open')
-    document.body.style.overflow = ''
+  if (postModal) {
+    postModal.hide()
   }
 }
 
@@ -38,33 +38,40 @@ window.openModal = function(post) {
   const modalBody = document.getElementById('modalBody')
   const modalTitle = document.getElementById('postModalLabel')
   const readMoreLink = document.getElementById('modalReadMore')
-  const modalElement = document.getElementById('postModal')
 
-  if (modalBody && modalTitle && readMoreLink && modalElement) {
-    // Устанавливаем текст который ожидает тест
+  if (modalBody && modalTitle && readMoreLink) {
+    // Устанавливаем содержимое
     modalBody.textContent = 'Цель: Научиться извлекать из дерева необходимые данные'
     modalTitle.textContent = post.title
     readMoreLink.href = post.link
 
-    // Показываем модальное окно правильно
-    modalElement.classList.add('show')
-    modalElement.style.display = 'block'
-    modalElement.setAttribute('aria-hidden', 'false')
-    
-    // Добавляем backdrop
-    const backdrop = document.createElement('div')
-    backdrop.className = 'modal-backdrop fade show'
-    document.body.appendChild(backdrop)
-    
-    // Убираем прокрутку у body
-    document.body.classList.add('modal-open')
-    document.body.style.overflow = 'hidden'
+    // Показываем модальное окно
+    if (postModal) {
+      postModal.show()
+    } else {
+      // Fallback если Bootstrap не загрузился
+      const modalElement = document.getElementById('postModal')
+      if (modalElement) {
+        modalElement.classList.add('show')
+        modalElement.style.display = 'block'
+        modalElement.setAttribute('aria-hidden', 'false')
+        
+        // Добавляем backdrop
+        const backdrop = document.createElement('div')
+        backdrop.className = 'modal-backdrop fade show'
+        document.body.appendChild(backdrop)
+        document.body.classList.add('modal-open')
+      }
+    }
   }
 }
 
 const app = async () => {
   await initI18n()
   const state = createState()
+
+  // Инициализируем модальное окно
+  initModal()
 
   // Используем глобальную функцию для открытия модального окна
   state.openModal = function(post) {
@@ -128,15 +135,20 @@ const app = async () => {
     })
   }
 
-  // Закрытие по клику вне модального окна
+  // Обработчики для модального окна (fallback)
   document.addEventListener('click', (e) => {
+    // Закрытие по клику вне модального окна
     const modal = document.getElementById('postModal')
     if (modal && e.target === modal) {
       window.closeModal()
     }
+    
+    // Закрытие по кнопке "Закрыть" если Bootstrap не работает
+    if (e.target.classList.contains('btn-secondary') && e.target.textContent === 'Закрыть') {
+      window.closeModal()
+    }
   })
 
-  // Закрытие по Escape
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       window.closeModal()
@@ -144,4 +156,9 @@ const app = async () => {
   })
 }
 
-document.addEventListener('DOMContentLoaded', app)
+// Инициализируем модальное окно когда DOM готов
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', app)
+} else {
+  app()
+}

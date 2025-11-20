@@ -227,3 +227,10 @@ body {
   padding: 0;
   box-sizing: border-box;
 }
+.modal.show {
+  display: block !important;
+}
+
+.modal-backdrop.show {
+  opacity: 0.5;
+}
