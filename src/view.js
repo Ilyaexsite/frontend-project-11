@@ -127,7 +127,7 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
   const postsHtml = posts.map(post => {
     const isRead = readPosts.has(post.id)
     const titleClass = isRead ? '' : 'fw-bold'
-
+    
     return `
       <div class="list-group-item d-flex justify-content-between align-items-start border-0">
         <a href="${post.link}" class="${titleClass}" target="_blank" rel="noopener noreferrer">${post.title}</a>
@@ -147,16 +147,9 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
     </div>
   `
 
-  // Добавляем обработчики для кнопок просмотра
   container.querySelectorAll('button[data-post-id]').forEach(button => {
-    // Удаляем старые обработчики
-    const newButton = button.cloneNode(true)
-    button.parentNode.replaceChild(newButton, button)
-
-    // Добавляем новый обработчик
-    newButton.addEventListener('click', (e) => {
-      e.preventDefault()
-      const postId = newButton.getAttribute('data-post-id')
+    button.addEventListener('click', () => {
+      const postId = button.getAttribute('data-post-id')
       const post = posts.find(p => p.id === postId)
       if (post && onPreviewClick) {
         onPreviewClick(post)
@@ -165,21 +158,20 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
   })
 }
 
-// Делаем функцию глобальной
 window.updatePostsList = updatePostsList
 
 const handleStateChange = () => {
   if (!currentWatchedState) return
-
+  
   const state = currentWatchedState.form.state
-
+  
   switch (state) {
     case 'validating':
       setFormSubmitting(false)
       clearValidationError(elements.rssUrlInput())
       clearFeedback()
       break
-
+      
     case 'invalid':
       setFormSubmitting(false)
       const errors = currentWatchedState.form.errors?.url || []
@@ -187,26 +179,27 @@ const handleStateChange = () => {
         showValidationError(elements.rssUrlInput(), errors[0])
       }
       break
-
+      
     case 'submitting':
       setFormSubmitting(true)
       clearValidationError(elements.rssUrlInput())
       clearFeedback()
       break
+      
     case 'success':
       setFormSubmitting(false)
       clearForm()
       updateFeedsList(currentWatchedState.feeds)
       updatePostsList(currentWatchedState.posts, currentWatchedState.readPosts, currentWatchedState.openModal)
       showFeedback('RSS успешно загружен', 'success')
-
+      
       setTimeout(() => {
         if (currentWatchedState.form.state === 'success') {
           currentWatchedState.form.state = 'filling'
         }
       }, 5000)
       break
-
+      
     case 'error':
       setFormSubmitting(false)
       const error = currentWatchedState.ui.error
@@ -219,14 +212,14 @@ const handleStateChange = () => {
         errorMessage = error
       }
       showFeedback(errorMessage, 'error')
-
+      
       setTimeout(() => {
         if (currentWatchedState.form.state === 'error') {
           currentWatchedState.form.state = 'filling'
         }
       }, 5000)
       break
-
+      
     default:
       break
   }
@@ -247,6 +240,7 @@ const initView = (state, watchedState) => {
       }
     }
   })
+  
   handleStateChange()
 }
 
