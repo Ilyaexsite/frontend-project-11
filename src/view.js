@@ -159,6 +159,7 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
       const postId = newButton.getAttribute('data-post-id')
       const post = posts.find(p => p.id === postId)
       if (post && onPreviewClick) {
+        console.log('Opening modal for post:', post.title)
         onPreviewClick(post)
       }
     })
