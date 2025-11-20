@@ -18,7 +18,7 @@ const initialState = {
 }
 
 const createState = (initial = initialState) => {
-  return onChange(initial, (path) => {
+  return onChange(initial, () => {
   })
 }
 

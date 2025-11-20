@@ -50,8 +50,10 @@ class FeedUpdater {
 
       results.forEach((result) => {
         if (result.status === 'fulfilled' && result.value) {
+          console.log('Success:', result.value)
         } 
         else if (result.status === 'rejected') {
+          console.error('Error:', result.reason)
         }
       })
     }
