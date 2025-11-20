@@ -20,14 +20,17 @@ import { elements, initView } from './view.js'
 window.closeModal = function() {
   const modal = document.getElementById('postModal')
   if (modal) {
-    // Используем Bootstrap метод для скрытия модального окна
-    const bootstrapModal = bootstrap.Modal.getInstance(modal)
-    if (bootstrapModal) {
-      bootstrapModal.hide()
-    } else {
-      modal.style.display = 'none'
-      modal.classList.remove('show')
+    modal.classList.remove('show')
+    modal.style.display = 'none'
+    modal.setAttribute('aria-hidden', 'true')
+    
+    // Убираем backdrop
+    const backdrop = document.querySelector('.modal-backdrop')
+    if (backdrop) {
+      backdrop.remove()
     }
+    document.body.classList.remove('modal-open')
+    document.body.style.overflow = ''
   }
 }
 
@@ -43,9 +46,19 @@ window.openModal = function(post) {
     modalTitle.textContent = post.title
     readMoreLink.href = post.link
 
-    // Показываем модальное окно через Bootstrap
-    const modal = new bootstrap.Modal(modalElement)
-    modal.show()
+    // Показываем модальное окно правильно
+    modalElement.classList.add('show')
+    modalElement.style.display = 'block'
+    modalElement.setAttribute('aria-hidden', 'false')
+    
+    // Добавляем backdrop
+    const backdrop = document.createElement('div')
+    backdrop.className = 'modal-backdrop fade show'
+    document.body.appendChild(backdrop)
+    
+    // Убираем прокрутку у body
+    document.body.classList.add('modal-open')
+    document.body.style.overflow = 'hidden'
   }
 }
 
@@ -115,7 +128,7 @@ const app = async () => {
     })
   }
 
-  // Закрытие модального окна по клику вне его области
+  // Закрытие по клику вне модального окна
   document.addEventListener('click', (e) => {
     const modal = document.getElementById('postModal')
     if (modal && e.target === modal) {
