@@ -45,26 +45,25 @@
       </div>
     </div>
 
-    <!-- Упрощенное модальное окно -->
-    <div id="postModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1050;">
-      <div style="position: relative; width: 500px; margin: 100px auto; background: white; padding: 20px; border-radius: 5px;">
-        <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 15px;">
-          <h5 id="postModalLabel" style="margin: 0;">Просмотр поста</h5>
-          <button type="button" onclick="closeModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">×</button>
-        </div>
-        <div id="modalBody" style="margin-bottom: 15px;">
-          <!-- Текст будет здесь -->
-        </div>
-        <div style="display: flex; justify-content: flex-end; gap: 10px;">
-          <a href="#" id="modalReadMore" target="_blank" style="padding: 8px 16px; background: #007bff; color: white; text-decoration: none; border-radius: 4px;">Читать полностью</a>
-          <button type="button" onclick="closeModal()" style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">Закрыть</button>
+    <!-- Модальное окно Bootstrap -->
+    <div class="modal fade" id="postModal" tabindex="-1" aria-labelledby="postModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="postModalLabel">Просмотр поста</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+          </div>
+          <div class="modal-body" id="modalBody">
+          </div>
+          <div class="modal-footer">
+            <a href="#" class="btn btn-primary" id="modalReadMore" target="_blank">Читать полностью</a>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Сначала подключаем Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Затем наш код -->
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

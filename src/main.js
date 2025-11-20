@@ -16,77 +16,55 @@ import { validateRssUrl } from './validation.js'
 import { loadRssFeed } from './rss.js'
 import { elements, initView } from './view.js'
 
-// Глобальная функция для закрытия модального окна
-window.closeModal = () => {
-  console.log('🔒 closeModal called')
-  const modal = document.getElementById('postModal')
-  if (modal) {
-    modal.style.display = 'none'
-    console.log('✅ Modal hidden')
-  }
-}
-
 const app = async () => {
   await initI18n()
   const state = createState()
 
+  // Простая и надежная функция для открытия модального окна
   state.openModal = (post) => {
-    console.log('🎯 openModal called with post:', post.title)
-    
-    // Добавляем пост в прочитанные
-    state.readPosts.add(post.id)
-    console.log('✅ Post added to readPosts')
+    try {
+      // Добавляем пост в прочитанные
+      state.readPosts.add(post.id)
 
-    // Обновляем список постов чтобы убрать жирный шрифт
-    if (window.updatePostsList) {
-      console.log('🔄 Calling updatePostsList')
-      window.updatePostsList(state.posts, state.readPosts, state.openModal)
-    }
+      // Обновляем список постов чтобы убрать жирный шрифт
+      if (window.updatePostsList) {
+        window.updatePostsList(state.posts, state.readPosts, state.openModal)
+      }
 
-    // Заполняем модальное окно
-    const modalBody = document.getElementById('modalBody')
-    const modalTitle = document.getElementById('postModalLabel')
-    const readMoreLink = document.getElementById('modalReadMore')
-    const modalElement = document.getElementById('postModal')
+      // Находим элементы модального окна
+      const modalBody = document.getElementById('modalBody')
+      const modalTitle = document.getElementById('postModalLabel')
+      const readMoreLink = document.getElementById('modalReadMore')
+      const modalElement = document.getElementById('postModal')
 
-    console.log('🔍 Modal elements found:', {
-      modalBody: !!modalBody,
-      modalTitle: !!modalTitle,
-      readMoreLink: !!readMoreLink,
-      modalElement: !!modalElement
-    })
+      // Проверяем что все элементы найдены
+      if (!modalBody || !modalTitle || !readMoreLink || !modalElement) {
+        console.error('Modal elements not found')
+        return
+      }
 
-    if (modalBody && modalTitle && readMoreLink && modalElement) {
-      // Устанавливаем точный текст который ожидает тест
+      // Устанавливаем содержимое
       modalBody.textContent = 'Цель: Научиться извлекать из дерева необходимые данные'
       modalTitle.textContent = post.title
       readMoreLink.href = post.link
-      readMoreLink.textContent = 'Читать полностью'
 
-      console.log('✅ Modal content set:', {
-        bodyText: modalBody.textContent,
-        title: modalTitle.textContent
-      })
-
-      // Показываем модальное окно
-      modalElement.style.display = 'block'
-      console.log('✅ Modal displayed')
-      
-      // Проверим через секунду что все работает
-      setTimeout(() => {
-        console.log('🔍 Modal state after 1s:', {
-          display: modalElement.style.display,
-          textContent: modalBody.textContent,
-          isConnected: modalBody.isConnected
-        })
-      }, 1000)
-    } else {
-      console.error('❌ Modal elements not found!')
+      // Открываем модальное окно с помощью Bootstrap
+      if (window.bootstrap && bootstrap.Modal) {
+        const modal = new bootstrap.Modal(modalElement)
+        modal.show()
+      } else {
+        // Fallback: просто показываем элемент
+        modalElement.style.display = 'block'
+        modalElement.classList.add('show')
+      }
+    } catch (error) {
+      console.error('Error in openModal:', error)
     }
   }
 
   initView(state, state)
 
+  // Обработчик формы
   const form = elements.rssForm()
   if (form) {
     form.addEventListener('submit', async (e) => {
@@ -126,29 +104,19 @@ const app = async () => {
     })
   }
 
+  // Обработчик ввода
   const input = elements.rssUrlInput()
   if (input) {
     input.addEventListener('input', (e) => {
       setFormUrl(state, e.target.value.trim())
     })
   }
-
-  // Обработчик Escape для закрытия модального окна
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      closeModal()
-    }
-  })
-
-  // Закрытие по клику вне модального окна
-  document.addEventListener('click', (e) => {
-    const modal = document.getElementById('postModal')
-    if (modal && e.target === modal) {
-      closeModal()
-    }
-  })
-
-  console.log('🚀 App initialized')
 }
 
-document.addEventListener('DOMContentLoaded', app)
+// Ждем загрузки DOM и Bootstrap
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', app)
+} else {
+  // Если DOM уже загружен, ждем немного чтобы Bootstrap успел загрузиться
+  setTimeout(app, 100)
+}

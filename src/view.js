@@ -127,7 +127,7 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
   const postsHtml = posts.map(post => {
     const isRead = readPosts.has(post.id)
     const titleClass = isRead ? '' : 'fw-bold'
-    
+
     return `
       <div class="list-group-item d-flex justify-content-between align-items-start border-0">
         <a href="${post.link}" class="${titleClass}" target="_blank" rel="noopener noreferrer">${post.title}</a>
@@ -148,50 +148,38 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
   `
 
   // Добавляем обработчики для кнопок просмотра
-  const buttons = container.querySelectorAll('button[data-post-id]')
-  console.log('🔍 Found buttons:', buttons.length)
-  
-  buttons.forEach(button => {
-    // Удаляем существующие обработчики
+  container.querySelectorAll('button[data-post-id]').forEach(button => {
+    // Удаляем старые обработчики
     const newButton = button.cloneNode(true)
     button.parentNode.replaceChild(newButton, button)
-    
+
     // Добавляем новый обработчик
     newButton.addEventListener('click', (e) => {
       e.preventDefault()
-      e.stopPropagation()
-      
       const postId = newButton.getAttribute('data-post-id')
-      console.log('🎯 Button clicked, postId:', postId)
-      
       const post = posts.find(p => p.id === postId)
       if (post && onPreviewClick) {
-        console.log('✅ Calling onPreviewClick with post:', post.title)
         onPreviewClick(post)
-      } else {
-        console.error('❌ Post not found or onPreviewClick not provided')
       }
     })
-    
-    console.log('✅ Button handler added for postId:', newButton.getAttribute('data-post-id'))
   })
 }
 
-// Делаем функцию глобальной для вызова из main.js
+// Делаем функцию глобальной
 window.updatePostsList = updatePostsList
 
 const handleStateChange = () => {
   if (!currentWatchedState) return
-  
+
   const state = currentWatchedState.form.state
-  
+
   switch (state) {
     case 'validating':
       setFormSubmitting(false)
       clearValidationError(elements.rssUrlInput())
       clearFeedback()
       break
-      
+
     case 'invalid':
       setFormSubmitting(false)
       const errors = currentWatchedState.form.errors?.url || []
@@ -199,27 +187,26 @@ const handleStateChange = () => {
         showValidationError(elements.rssUrlInput(), errors[0])
       }
       break
-      
+
     case 'submitting':
       setFormSubmitting(true)
       clearValidationError(elements.rssUrlInput())
       clearFeedback()
       break
-      
     case 'success':
       setFormSubmitting(false)
       clearForm()
       updateFeedsList(currentWatchedState.feeds)
       updatePostsList(currentWatchedState.posts, currentWatchedState.readPosts, currentWatchedState.openModal)
       showFeedback('RSS успешно загружен', 'success')
-      
+
       setTimeout(() => {
         if (currentWatchedState.form.state === 'success') {
           currentWatchedState.form.state = 'filling'
         }
       }, 5000)
       break
-      
+
     case 'error':
       setFormSubmitting(false)
       const error = currentWatchedState.ui.error
@@ -232,14 +219,14 @@ const handleStateChange = () => {
         errorMessage = error
       }
       showFeedback(errorMessage, 'error')
-      
+
       setTimeout(() => {
         if (currentWatchedState.form.state === 'error') {
           currentWatchedState.form.state = 'filling'
         }
       }, 5000)
       break
-      
+
     default:
       break
   }
@@ -260,7 +247,6 @@ const initView = (state, watchedState) => {
       }
     }
   })
-  
   handleStateChange()
 }
 
