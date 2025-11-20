@@ -123,6 +123,24 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
     `
     return
   }
+  button.addEventListener('click', (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const postId = button.getAttribute('data-post-id')
+    const post = posts.find(p => p.id === postId)
+    console.log('Preview button clicked for post:', post?.title)
+    console.log('onPreviewClick function:', typeof onPreviewClick)
+    if (post && onPreviewClick) {
+      console.log('Calling onPreviewClick with post:', post.title)
+      onPreviewClick(post)
+    } else {
+      console.error('Post not found or onPreviewClick not defined', { 
+        postId, 
+        post, 
+        onPreviewClick: typeof onPreviewClick 
+      })
+    }
+  })
 
   const postsHtml = posts.map(post => {
     const isRead = readPosts.has(post.id)

@@ -21,14 +21,24 @@ window.closeModal = function() {
   const modal = document.getElementById('postModal')
   if (modal) {
     modal.style.display = 'none'
+    console.log('Modal closed')
   }
 }
 
 window.openModal = function(post) {
+  console.log('openModal called with post:', post?.title)
+  
   const modalBody = document.getElementById('modalBody')
   const modalTitle = document.getElementById('postModalLabel')
   const readMoreLink = document.getElementById('modalReadMore')
   const modalElement = document.getElementById('postModal')
+
+  console.log('Modal elements:', { 
+    modalBody: !!modalBody, 
+    modalTitle: !!modalTitle, 
+    readMoreLink: !!readMoreLink, 
+    modalElement: !!modalElement 
+  })
 
   if (modalBody && modalTitle && readMoreLink && modalElement) {
     // Устанавливаем содержимое
@@ -36,17 +46,12 @@ window.openModal = function(post) {
     modalTitle.textContent = post.title
     readMoreLink.href = post.link
 
-    // ПРОСТО И ЯСНО: показываем модальное окно
+    // Показываем модальное окно
     modalElement.style.display = 'block'
     
-    // Дебаг
-    setTimeout(() => {
-      window.debugModal()
-    }, 100)
-    // Принудительно обновляем DOM
-    modalElement.offsetHeight
-    
-    console.log('Modal opened with display:', modalElement.style.display)
+    console.log('Modal opened successfully - display:', modalElement.style.display)
+  } else {
+    console.error('Missing modal elements')
   }
 }
 
@@ -54,19 +59,25 @@ const app = async () => {
   await initI18n()
   const state = createState()
 
-  // Используем глобальную функцию для открытия модального окна
-  state.openModal = function(post) {
+  // Создаем функцию openModal и делаем ее доступной ДО initView
+  const openModalFunction = function(post) {
+    console.log('state.openModal called for post:', post.title)
+    
     // Добавляем пост в прочитанные
     state.readPosts.add(post.id)
 
     // Обновляем список постов чтобы убрать жирный шрифт
     if (window.updatePostsList) {
-      window.updatePostsList(state.posts, state.readPosts, state.openModal)
+      window.updatePostsList(state.posts, state.readPosts, openModalFunction)
     }
 
     // Открываем модальное окно
+    console.log('Calling window.openModal')
     window.openModal(post)
   }
+
+  // Присваиваем функцию state ДО initView
+  state.openModal = openModalFunction
 
   initView(state, state)
 
@@ -130,31 +141,9 @@ const app = async () => {
       window.closeModal()
     }
   })
+
+  // Дебаг: проверим что state.openModal доступен
+  console.log('App initialized, state.openModal:', typeof state.openModal)
 }
 
 document.addEventListener('DOMContentLoaded', app)
-// Дебаг функция для проверки видимости
-window.debugModal = function() {
-  const modal = document.getElementById('postModal')
-  const modalBody = document.getElementById('modalBody')
-  
-  if (modal && modalBody) {
-    console.log('DEBUG Modal:', {
-      display: modal.style.display,
-      computedDisplay: window.getComputedStyle(modal).display,
-      visibility: window.getComputedStyle(modal).visibility,
-      opacity: window.getComputedStyle(modal).opacity,
-      text: modalBody.textContent
-    })
-    
-    // Принудительно показываем
-    modal.style.display = 'block'
-    modal.style.visibility = 'visible'
-    modal.style.opacity = '1'
-    
-    console.log('DEBUG After force show:', {
-      display: modal.style.display,
-      computedDisplay: window.getComputedStyle(modal).display
-    })
-  }
-}
