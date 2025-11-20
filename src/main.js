@@ -18,28 +18,17 @@ import { elements, initView } from './view.js'
 
 // Глобальные функции для работы с модальным окном
 window.closeModal = function() {
-  console.log('🔒 closeModal called')
   const modal = document.getElementById('postModal')
   if (modal) {
     modal.style.display = 'none'
-    console.log('✅ Modal hidden')
   }
 }
 
 window.openModal = function(post) {
-  console.log('🎯 openModal called with post:', post.title)
-  
   const modalBody = document.getElementById('modalBody')
   const modalTitle = document.getElementById('postModalLabel')
   const readMoreLink = document.getElementById('modalReadMore')
   const modalElement = document.getElementById('postModal')
-
-  console.log('🔍 Modal elements:', {
-    modalBody: !!modalBody,
-    modalTitle: !!modalTitle,
-    readMoreLink: !!readMoreLink,
-    modalElement: !!modalElement
-  })
 
   if (modalBody && modalTitle && readMoreLink && modalElement) {
     // Устанавливаем точный текст который ожидает тест
@@ -47,25 +36,8 @@ window.openModal = function(post) {
     modalTitle.textContent = post.title
     readMoreLink.href = post.link
 
-    console.log('✅ Modal content set:', {
-      bodyText: modalBody.textContent,
-      title: modalTitle.textContent
-    })
-
     // Показываем модальное окно
     modalElement.style.display = 'block'
-    console.log('✅ Modal displayed')
-
-    // Проверим через секунду что текст установился
-    setTimeout(() => {
-      console.log('🔍 Modal state after 1s:', {
-        display: modalElement.style.display,
-        textContent: modalBody.textContent,
-        isConnected: modalBody.isConnected
-      })
-    }, 1000)
-  } else {
-    console.error('❌ Modal elements not found!')
   }
 }
 
@@ -75,20 +47,15 @@ const app = async () => {
 
   // Используем глобальную функцию для открытия модального окна
   state.openModal = function(post) {
-    console.log('🎯 state.openModal called with post:', post.title)
-    
     // Добавляем пост в прочитанные
     state.readPosts.add(post.id)
-    console.log('✅ Post added to readPosts')
 
     // Обновляем список постов чтобы убрать жирный шрифт
     if (window.updatePostsList) {
-      console.log('🔄 Calling updatePostsList')
       window.updatePostsList(state.posts, state.readPosts, state.openModal)
     }
 
     // Открываем модальное окно
-    console.log('🔄 Calling window.openModal')
     window.openModal(post)
   }
 
@@ -154,8 +121,6 @@ const app = async () => {
       window.closeModal()
     }
   })
-
-  console.log('🚀 App initialized')
 }
 
 document.addEventListener('DOMContentLoaded', app)

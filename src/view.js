@@ -148,35 +148,6 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
   `
 
   // Добавляем обработчики для кнопок просмотра
-  const buttons = container.querySelectorAll('button[data-post-id]')
-  console.log('🔍 Found buttons:', buttons.length)
-  
-  buttons.forEach(button => {
-    // Удаляем старые обработчики
-    const newButton = button.cloneNode(true)
-    button.parentNode.replaceChild(newButton, button)
-    
-    // Добавляем новый обработчик
-    newButton.addEventListener('click', (e) => {
-      e.preventDefault()
-      e.stopPropagation()
-      
-      const postId = newButton.getAttribute('data-post-id')
-      console.log('🎯 Button clicked, postId:', postId)
-      
-      const post = posts.find(p => p.id === postId)
-      if (post && onPreviewClick) {
-        console.log('✅ Calling onPreviewClick with post:', post.title)
-        onPreviewClick(post)
-      } else {
-        console.error('❌ Post not found or onPreviewClick not provided')
-      }
-    })
-
-    console.log('✅ Button handler added for postId:', newButton.getAttribute('data-post-id'))
-  })
-}
-  // Добавляем обработчики для кнопок просмотра
   container.querySelectorAll('button[data-post-id]').forEach(button => {
     // Удаляем старые обработчики
     const newButton = button.cloneNode(true)
@@ -192,6 +163,7 @@ const updatePostsList = (posts, readPosts, onPreviewClick) => {
       }
     })
   })
+}
 
 // Делаем функцию глобальной
 window.updatePostsList = updatePostsList
