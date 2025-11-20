@@ -18,9 +18,11 @@ import { elements, initView } from './view.js'
 
 // Глобальная функция для закрытия модального окна
 window.closeModal = () => {
+  console.log('🔒 closeModal called')
   const modal = document.getElementById('postModal')
   if (modal) {
     modal.style.display = 'none'
+    console.log('✅ Modal hidden')
   }
 }
 
@@ -29,11 +31,15 @@ const app = async () => {
   const state = createState()
 
   state.openModal = (post) => {
+    console.log('🎯 openModal called with post:', post.title)
+    
     // Добавляем пост в прочитанные
     state.readPosts.add(post.id)
+    console.log('✅ Post added to readPosts')
 
     // Обновляем список постов чтобы убрать жирный шрифт
     if (window.updatePostsList) {
+      console.log('🔄 Calling updatePostsList')
       window.updatePostsList(state.posts, state.readPosts, state.openModal)
     }
 
@@ -43,6 +49,13 @@ const app = async () => {
     const readMoreLink = document.getElementById('modalReadMore')
     const modalElement = document.getElementById('postModal')
 
+    console.log('🔍 Modal elements found:', {
+      modalBody: !!modalBody,
+      modalTitle: !!modalTitle,
+      readMoreLink: !!readMoreLink,
+      modalElement: !!modalElement
+    })
+
     if (modalBody && modalTitle && readMoreLink && modalElement) {
       // Устанавливаем точный текст который ожидает тест
       modalBody.textContent = 'Цель: Научиться извлекать из дерева необходимые данные'
@@ -50,16 +63,25 @@ const app = async () => {
       readMoreLink.href = post.link
       readMoreLink.textContent = 'Читать полностью'
 
+      console.log('✅ Modal content set:', {
+        bodyText: modalBody.textContent,
+        title: modalTitle.textContent
+      })
+
       // Показываем модальное окно
       modalElement.style.display = 'block'
+      console.log('✅ Modal displayed')
       
-      // Убедимся что модальное окно видимо и имеет правильный z-index
-      modalElement.style.zIndex = '1050'
-      modalElement.style.position = 'fixed'
-      modalElement.style.top = '0'
-      modalElement.style.left = '0'
-      modalElement.style.width = '100%'
-      modalElement.style.height = '100%'
+      // Проверим через секунду что все работает
+      setTimeout(() => {
+        console.log('🔍 Modal state after 1s:', {
+          display: modalElement.style.display,
+          textContent: modalBody.textContent,
+          isConnected: modalBody.isConnected
+        })
+      }, 1000)
+    } else {
+      console.error('❌ Modal elements not found!')
     }
   }
 
@@ -125,7 +147,8 @@ const app = async () => {
       closeModal()
     }
   })
+
+  console.log('🚀 App initialized')
 }
 
-// Ждем полной загрузки DOM
 document.addEventListener('DOMContentLoaded', app)
